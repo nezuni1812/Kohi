@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Kohi (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Kohi (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
