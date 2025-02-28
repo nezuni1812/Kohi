@@ -48,8 +48,20 @@ namespace Kohi
 
         public string GetAppTitleFromSystem()
         {
-            return Windows.ApplicationModel.Package.Current.DisplayName;
+            try
+            {
+                if (Windows.ApplicationModel.Package.Current != null)
+                {
+                    return Windows.ApplicationModel.Package.Current.DisplayName;
+                }
+            }
+            catch
+            {
+
+            }
+            return "Kohi";
         }
+
 
         private void NavigationViewControl_ItemInvoked(NavigationView sender,
                       NavigationViewItemInvokedEventArgs args)

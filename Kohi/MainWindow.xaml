@@ -14,15 +14,25 @@
     </Window.SystemBackdrop>
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- AppTitleBar -->
+            <RowDefinition Height="Auto"/>
+            <!-- Thanh thông tin -->
+            <RowDefinition Height="*"/>
+            <!-- NavigationView -->
+        </Grid.RowDefinitions>
+
+        <!-- Thanh tiêu đề ứng dụng -->
         <Grid
         x:Name="AppTitleBar"
         Height="48"
-        Margin="48,0,0,0"
         VerticalAlignment="Top"
-        Padding="0">
+        Padding="10,0,0,0"
+        Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Image
             x:Name="AppFontIcon"
@@ -30,24 +40,36 @@
             Height="16"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
-            Source="/Assets/Square44x44Logo.png" />
+            Source="/Assets/Square44x44Logo.png"/>
             <TextBlock
-            Margin="12,0,0,0"
+            Margin="5,0,0,0"
             Grid.Column="1"
             VerticalAlignment="Center"
             Style="{StaticResource CaptionTextBlockStyle}"
             Text="{x:Bind GetAppTitleFromSystem()}"/>
         </Grid>
 
+        <!-- Thanh thông tin -->
+        <Grid Height="40" Background="LightGray" Grid.Row="1">
+            <TextBlock
+            Text="Thông tin hệ thống: Hoạt động bình thường"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Left"
+            Margin="12,0,0,0"
+            FontSize="14"/>
+        </Grid>
 
+        <!-- Navigation View -->
         <NavigationView
-            x:Name="NavigationViewControl"
-            IsTitleBarAutoPaddingEnabled="False"
-            AlwaysShowHeader="True"
-            Header="Default Header"
-            IsTabStop="False" 
-            BackRequested="NavigationViewControl_BackRequested" 
-            ItemInvoked="NavigationViewControl_ItemInvoked">
+        x:Name="NavigationViewControl"
+        IsTitleBarAutoPaddingEnabled="False"
+        AlwaysShowHeader="True"
+        Header="Default Header"
+        IsTabStop="False"
+        BackRequested="NavigationViewControl_BackRequested"
+        ItemInvoked="NavigationViewControl_ItemInvoked"
+        IsSettingsVisible="False"
+        Grid.Row="2">
             <NavigationView.HeaderTemplate>
                 <DataTemplate>
                     <Grid Margin="0,-10,0,0">
@@ -56,10 +78,10 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Grid x:Name="pageTitle"
-                            Background="Transparent"
-                            Height="44"
-                            VerticalAlignment="Top">
-                            <TextBlock x:Name="title" 
+                        Background="Transparent"
+                        Height="44"
+                        VerticalAlignment="Top">
+                            <TextBlock x:Name="title"
                             Style="{StaticResource TitleTextBlockStyle}"
                             FontSize="24"
                             VerticalAlignment="Center"
@@ -69,17 +91,16 @@
                 </DataTemplate>
             </NavigationView.HeaderTemplate>
             <NavigationView.MenuItems>
-                <NavigationViewItem Icon="Home" Content="Home" Tag="Kohi.Views.HomePage" />
-                <NavigationViewItem Icon="Page" Content="Blank" Tag="Kohi.Views.BlankPage1" />
-                <!--" NavigationViewItem Icon="Home" Content="Config" SelectsOnInvoked="False">
-                <NavigationViewItem.MenuItems>
-                    <NavigationViewItem Icon="Save" Content="Menu Item2" Tag="SamplePage2" />
-                    <NavigationViewItem Icon="Refresh" Content="Menu Item3" Tag="SamplePage3" />
-                    <NavigationViewItem Icon="Download" Content="Menu Item4" Tag="SamplePage4" />
-                </NavigationViewItem.MenuItems>
-            </NavigationViewItem-->
+                <NavigationViewItem Icon="Home" Content="Tổng quan" Tag="Kohi.Views.HomePage"/>
+                <NavigationViewItem Icon="Page" Content="Thực đơn" Tag="Kohi.Views.BlankPage1"/>
+                <NavigationViewItem Icon="People" Content="Khách hàng" Tag="Kohi.Views.BlankPage1"/>
+                <NavigationViewItem Icon="Page" Content="Kho hàng" Tag="Kohi.Views.BlankPage1"/>
+                <NavigationViewItem Icon="Page" Content="Báo cáo" Tag="Kohi.Views.BlankPage1"/>
+                <NavigationViewItem Icon="Page" Content="Thiết lập" Tag="Kohi.Views.BlankPage1"/>
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="55,10,0,0"/>
         </NavigationView>
     </Grid>
+
+
 </Window>
