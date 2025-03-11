@@ -8,6 +8,26 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TextBlock Text="Home"/>
+        <StackPanel DataContext="{x:Bind ViewModel}">
+            <TextBlock Text="Home"/>
+            <TextBlock Text="New Product Name:" />
+            <TextBox Text="{Binding NewProductName, Mode=TwoWay}" PlaceholderText="Enter product name"/>
+
+            <TextBlock Text="Category ID (Optional):" />
+            <TextBox Text="{Binding NewCategoryId, Mode=TwoWay}" PlaceholderText="Enter category ID"/>
+
+            <Button Content="Add Product" Click="Button_Click" />
+
+            <TextBlock Text="Products List:" FontWeight="Bold" Margin="10,10,0,0"/>
+
+            <ListView ItemsSource="{Binding Products}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+        </StackPanel>
     </Grid>
 </Page>
