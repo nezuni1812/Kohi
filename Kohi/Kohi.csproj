@@ -17,6 +17,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Views\BlankPage1.xaml" />
+    <None Remove="Views\BlankPage2.xaml" />
     <None Remove="Views\HomePage.xaml" />
     <None Remove="Views\SettingsPage.xaml" />
   </ItemGroup>
@@ -59,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\BlankPage1.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\BlankPage2.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <None Update="Views\HomePage.xaml">

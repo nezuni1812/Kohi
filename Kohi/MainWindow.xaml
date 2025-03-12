@@ -16,20 +16,16 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- AppTitleBar -->
             <RowDefinition Height="Auto"/>
-            <!-- Thanh thông tin -->
             <RowDefinition Height="*"/>
-            <!-- NavigationView -->
         </Grid.RowDefinitions>
 
-        <!-- Thanh tiêu đề ứng dụng -->
         <Grid
-        x:Name="AppTitleBar"
-        Height="48"
-        VerticalAlignment="Top"
-        Padding="10,0,0,0"
-        Grid.Row="0">
+            x:Name="AppTitleBar"
+            Height="32"
+            VerticalAlignment="Top"
+            Padding="10,0,0,0"
+            Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -40,7 +36,7 @@
             Height="16"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
-            Source="/Assets/Square44x44Logo.png"/>
+            Source="/Assets/kohi_logo.png"/>
             <TextBlock
             Margin="5,0,0,0"
             Grid.Column="1"
@@ -49,17 +45,16 @@
             Text="{x:Bind GetAppTitleFromSystem()}"/>
         </Grid>
 
-        <!-- Thanh thông tin -->
-        <Grid Height="40" Background="LightGray" Grid.Row="1">
+        <Grid Height="40" Background="#6C4A30" Grid.Row="1">
             <TextBlock
             Text="Thông tin hệ thống: Hoạt động bình thường"
             VerticalAlignment="Center"
             HorizontalAlignment="Left"
             Margin="12,0,0,0"
-            FontSize="14"/>
+            FontSize="14"
+            Foreground="White"/>
         </Grid>
 
-        <!-- Navigation View -->
         <NavigationView
         x:Name="NavigationViewControl"
         IsTitleBarAutoPaddingEnabled="False"
@@ -93,7 +88,7 @@
             <NavigationView.MenuItems>
                 <NavigationViewItem Icon="Home" Content="Tổng quan" Tag="Kohi.Views.HomePage"/>
                 <NavigationViewItem Icon="Page" Content="Thực đơn" Tag="Kohi.Views.BlankPage1"/>
-                <NavigationViewItem Icon="People" Content="Khách hàng" Tag="Kohi.Views.BlankPage1"/>
+                <NavigationViewItem Icon="People" Content="Khách hàng" Tag="Kohi.Views.BlankPage2"/>
                 <NavigationViewItem Icon="Page" Content="Kho hàng" Tag="Kohi.Views.BlankPage1"/>
                 <NavigationViewItem Icon="Page" Content="Báo cáo" Tag="Kohi.Views.BlankPage1"/>
                 <NavigationViewItem Icon="Page" Content="Thiết lập" Tag="Kohi.Views.BlankPage1"/>
