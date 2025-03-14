@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,7 +17,7 @@ using Windows.Foundation.Collections;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace Kohi 
+namespace Kohi
 {
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
@@ -33,9 +33,6 @@ namespace Kohi
                        null,
                        new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo()
                        );
-
-            SystemBackdrop = new MicaBackdrop()
-            { Kind = MicaKind.Base };
 
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(AppTitleBar);
@@ -93,12 +90,21 @@ namespace Kohi
             }
             else if (ContentFrame.SourcePageType != null)
             {
-                NavigationViewControl.SelectedItem = NavigationViewControl.MenuItems
+                var matchingItem = NavigationViewControl.MenuItems
                     .OfType<NavigationViewItem>()
-                    .First(n => n.Tag.Equals(ContentFrame.SourcePageType.FullName.ToString()));
+                    .FirstOrDefault(n => n.Tag?.ToString() == ContentFrame.SourcePageType.FullName);
+
+                if (matchingItem != null)
+                {
+                    NavigationViewControl.SelectedItem = matchingItem;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"No match found for {ContentFrame.SourcePageType.FullName}");
+                }
             }
 
-            NavigationViewControl.Header = ((NavigationViewItem)NavigationViewControl.SelectedItem)?.Content?.ToString();
+            //NavigationViewControl.Header = ((NavigationViewItem)NavigationViewControl.SelectedItem)?.Content?.ToString();
         }
     }
 }

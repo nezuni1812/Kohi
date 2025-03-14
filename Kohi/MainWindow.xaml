@@ -9,10 +9,6 @@
     mc:Ignorable="d"
     Title="Kohi">
 
-    <Window.SystemBackdrop>
-        <MicaBackdrop Kind="Base"/>
-    </Window.SystemBackdrop>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -56,44 +52,58 @@
         </Grid>
 
         <NavigationView
-        x:Name="NavigationViewControl"
-        IsTitleBarAutoPaddingEnabled="False"
-        AlwaysShowHeader="True"
-        Header="Default Header"
-        IsTabStop="False"
-        BackRequested="NavigationViewControl_BackRequested"
-        ItemInvoked="NavigationViewControl_ItemInvoked"
-        IsSettingsVisible="False"
-        Grid.Row="2">
-            <NavigationView.HeaderTemplate>
-                <DataTemplate>
-                    <Grid Margin="0,-10,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Grid x:Name="pageTitle"
-                        Background="Transparent"
-                        Height="44"
-                        VerticalAlignment="Top">
-                            <TextBlock x:Name="title"
-                            Style="{StaticResource TitleTextBlockStyle}"
-                            FontSize="24"
-                            VerticalAlignment="Center"
-                            Text="{Binding}"/>
-                        </Grid>
-                    </Grid>
-                </DataTemplate>
-            </NavigationView.HeaderTemplate>
+            x:Name="NavigationViewControl"
+            IsTitleBarAutoPaddingEnabled="False"
+            IsTabStop="False"
+            BackRequested="NavigationViewControl_BackRequested"
+            ItemInvoked="NavigationViewControl_ItemInvoked"
+            IsSettingsVisible="False"
+            Grid.Row="2" 
+            OpenPaneLength="250"
+            IsBackButtonVisible="Collapsed"
+            IsPaneToggleButtonVisible="True"
+                >
+
             <NavigationView.MenuItems>
-                <NavigationViewItem Icon="Home" Content="Tổng quan" Tag="Kohi.Views.HomePage"/>
-                <NavigationViewItem Icon="Page" Content="Thực đơn" Tag="Kohi.Views.BlankPage1"/>
-                <NavigationViewItem Icon="People" Content="Khách hàng" Tag="Kohi.Views.BlankPage2"/>
-                <NavigationViewItem Icon="Page" Content="Kho hàng" Tag="Kohi.Views.BlankPage1"/>
-                <NavigationViewItem Icon="Page" Content="Báo cáo" Tag="Kohi.Views.BlankPage1"/>
-                <NavigationViewItem Icon="Page" Content="Thiết lập" Tag="Kohi.Views.BlankPage1"/>
+                <NavigationViewItem Icon="Home" Content="Trang chủ" Tag="Kohi.Views.HomePage"/>
+                <NavigationViewItem Icon="Shop" Content="Mặt hàng" IsExpanded="True">
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Icon="Shop" Content="Danh sách mặt hàng" Tag="Kohi.Views.ProductsPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Danh mục mặt hàng" Tag="Kohi.Views.CategoriesPage"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Icon="People" Content="Khách hàng" Tag="Kohi.Views.CustomersPage"/>
+                <NavigationViewItem Content="Kho hàng" IsExpanded="True">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7B8;" />
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Icon="Shop" Content="Tồn kho" Tag="Kohi.Views.InventoriesPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Nhập kho" Tag="Kohi.Views.InventoryReceivingPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Xuất kho" Tag="Kohi.Views.InventoryDispatchPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Kiểm kê kho" Tag="Kohi.Views.InventoryCheckPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Lịch sử kho" Tag="Kohi.Views.InventoryHistoryPage"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Thu chi" Tag="Kohi.Views.IncomeExpensePage">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xEC59;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Icon="Page" Content="Báo cáo" IsExpanded="True" >
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Icon="Shop" Content="Báo cáo tổng quan" Tag="Kohi.Views.OverviewReportPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Báo cáo hàng hóa" Tag="Kohi.Views.ProductReportPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Báo cáo hóa đơn" Tag="Kohi.Views.InvoiceReportPage"/>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
-            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="55,10,0,0"/>
+
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem Icon="Setting" Content="Thiết lập" Tag="Kohi.Views.SettingsPage"  />
+            </NavigationView.FooterMenuItems>
+            <!--Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="55,0,0,0"/-->
+            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="30,20,0,0"/>
         </NavigationView>
     </Grid>
 
