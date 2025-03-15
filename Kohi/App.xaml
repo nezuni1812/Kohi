@@ -14,6 +14,18 @@
             <!-- Other app resources here -->
             <converter:AbsolutePathConverter x:Key="AbsolutePathConverter" />
             
+            <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+                <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}"/>
+            </Style>
+
+            <Style x:Key="NormalButtonStyle" TargetType="Button">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}"/>
+            </Style>
+
             <SolidColorBrush x:Key="WindowCaptionBackground">Transparent</SolidColorBrush>
             <SolidColorBrush x:Key="WindowCaptionBackgroundDisabled">Transparent</SolidColorBrush>
             <Thickness x:Key="NavigationViewContentMargin">0,0,0,0</Thickness>
