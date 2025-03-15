@@ -17,13 +17,13 @@ namespace Kohi.BusinessLogic
             _context = new AppDbContext();
         }
 
-        public async Task<List<Product>> GetProductAsync()
+        public async Task<List<ProductModel>> GetProductAsync()
         {
             return await _context.products.Include(e => e.Category).ToListAsync();
         }
 
         //This function could change to take in a name and id instead of a Product object to naming and stuff
-        public async Task AddProductAsync(Product product)
+        public async Task AddProductAsync(ProductModel product)
         {
             _context.products.Add(product);
             await _context.SaveChangesAsync();

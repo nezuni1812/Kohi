@@ -10,9 +10,9 @@ namespace Kohi.ViewModels
 {
     internal class AccountCreation
     {
-        public Account newAccount { get; set; }
+        public CustomerModel newAccount { get; set; }
         public AccountCreation() {
-            newAccount = new Account();
+            newAccount = new CustomerModel();
         }
     }
 }

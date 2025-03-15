@@ -12,14 +12,14 @@ namespace Kohi.ViewModels
     class ProductViewModel
     {
         private ProductService _service;
-        public ObservableCollection<Product> Products { get; set; }
+        public ObservableCollection<ProductModel> Products { get; set; }
         public string NewProductName { get; set; } = "";
         public string NewCategoryId { get; set; } = "";
 
         public ProductViewModel()
         {
             _service = new ProductService();
-            Products = new ObservableCollection<Product>();
+            Products = new ObservableCollection<ProductModel>();
 
             LoadProducts();
         }
@@ -37,7 +37,7 @@ namespace Kohi.ViewModels
 
         public async void AddProduct()
         {
-            await _service.AddProductAsync(new Product { Name = NewProductName });
+            await _service.AddProductAsync(new ProductModel { Name = NewProductName });
             LoadProducts();
             NewProductName = "";
             NewCategoryId = null;
