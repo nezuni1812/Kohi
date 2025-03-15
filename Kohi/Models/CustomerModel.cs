@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    internal class CustomerModel
+    public class CustomerModel
     {
         public int Id { get; set; }
         [Required]

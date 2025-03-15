@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    internal class OutboundModel
+    public class OutboundModel
     {
         public int Id { get; set; }              // Mã phiếu xuất
         public int InventoryId { get; set; }     // Mã lô hàng (liên kết với InventoryModel)

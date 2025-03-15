@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    internal class InboundModel
+    public class InboundModel
     {
         public int Id { get; set; }              // Mã phiếu nhập
         public int IngredientId { get; set; }    // Mã nguyên liệu (liên kết với InventoryModel)

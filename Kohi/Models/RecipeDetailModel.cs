@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    internal class RecipeDetailModel
+    public class RecipeDetailModel
     {
         public int RecipeId { get; set; }
         public int IngredientId { get; set; }

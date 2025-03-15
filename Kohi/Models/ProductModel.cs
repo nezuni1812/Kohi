@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    internal class ProductModel
+    public class ProductModel
     {
         [Key]
         public int Id { get; set; }  // Primary Key

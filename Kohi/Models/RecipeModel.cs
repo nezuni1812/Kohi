@@ -7,7 +7,7 @@ using Windows.Services.Maps;
 
 namespace Kohi.Models
 {
-    internal class RecipeModel
+    public class RecipeModel
     {
         public int Id { get; set; }
         public int ProductId { get; set; }

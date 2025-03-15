@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    internal class ExpenseTypeModel
+    public class ExpenseTypeModel
     {
         public int Id { get; set; }
         [Required]
