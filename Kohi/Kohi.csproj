@@ -18,14 +18,12 @@
   <ItemGroup>
     <None Remove="Views\CustomersPage.xaml" />
     <None Remove="Views\HomePage.xaml" />
-    <None Remove="Views\IncomeExpensePage .xaml" />
     <None Remove="Views\InventoriesPage.xaml" />
     <None Remove="Views\InventoryCheckPage.xaml" />
     <None Remove="Views\InventoryDispatchPage.xaml" />
     <None Remove="Views\InventoryHistoryPage.xaml" />
     <None Remove="Views\InventoryReceivingPage.xaml" />
     <None Remove="Views\InvoiceReportPage.xaml" />
-    <None Remove="Views\OverviewReportPage .xaml" />
     <None Remove="Views\ProductReportPage.xaml" />
     <None Remove="Views\Products\CategoriesPage.xaml" />
     <None Remove="Views\Products\ProductsPage.xaml" />
@@ -82,10 +80,10 @@
     <Page Update="Views\ProductReportPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Views\OverviewReportPage .xaml">
+    <Page Update="Views\OverviewReportPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Views\IncomeExpensePage .xaml">
+    <Page Update="Views\IncomeExpensePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Views\InventoryHistoryPage.xaml">

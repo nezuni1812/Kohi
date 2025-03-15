@@ -9,6 +9,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TextBlock Text="Products"></TextBlock>
+        <TextBlock Text="Danh sách sản phẩm" Style="{StaticResource TitleTextBlockStyle}"></TextBlock>
+        <Image Source="{Binding ImageFileName, Converter={StaticResource AbsolutePathConverter}}" Width="100" Height="100"/>
     </Grid>
 </Page>
