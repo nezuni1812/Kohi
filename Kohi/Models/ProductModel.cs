@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    internal class Product
+    public class ProductModel
     {
         [Key]
         public int Id { get; set; }  // Primary Key
@@ -20,6 +20,20 @@ namespace Kohi.Models
         [ForeignKey("Category")]
         public int? CategoryId { get; set; }  // Foreign Key to Category
 
-        public Category? Category { get; set; }  // Navigation Property
+        [Required]
+        public decimal Price { get; set; }
+
+        [Required]
+        public bool IsActive { get; set; } = true;
+
+        public string? Description { get; set; }
+
+        public string? ImageUrl { get; set; }
+
+        [Required]
+        public decimal Cost { get; set; }
+
+        public CategoryModel Category { get; set; }
+        public List<InvoiceDetailModel> InvoiceDetails { get; set; } = new List<InvoiceDetailModel>();
     }
 }

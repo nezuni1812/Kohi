@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    internal class Category
+    public class CategoryModel
     {
         [Key]
         public int Id { get; set; }  // Primary Key
 
         [Required]
         public string Name { get; set; }
+
+        public List<ProductModel> Products { get; set; } = new List<ProductModel>();
     }
 }

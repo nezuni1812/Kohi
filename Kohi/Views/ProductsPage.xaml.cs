@@ -23,9 +23,14 @@ namespace Kohi.Views
     /// </summary>
     public sealed partial class ProductsPage : Page
     {
+        public string ImageFileName { get; set; } = "";
         public ProductsPage()
         {
             this.InitializeComponent();
+
+            ImageFileName = "kohi_logo.png";
+
+            this.DataContext = this;
         }
     }
 }
