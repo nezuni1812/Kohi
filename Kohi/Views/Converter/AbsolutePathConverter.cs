@@ -17,7 +17,8 @@ namespace Kohi.View.Converter
             string filename = (string)value;
             string folder = AppDomain.CurrentDomain.BaseDirectory;
             string path = $"{folder}Assets/{filename}";
-            return path;
+            Uri uri = new Uri(path);
+            return new BitmapImage(uri);
         }
 
         public object ConvertBack(object value, Type type, object parameter, string language)

@@ -45,17 +45,17 @@ namespace Kohi
 
         public string GetAppTitleFromSystem()
         {
-            try
-            {
-                if (Windows.ApplicationModel.Package.Current != null)
-                {
-                    return Windows.ApplicationModel.Package.Current.DisplayName;
-                }
-            }
-            catch
-            {
+            //try
+            //{
+            //    if (Windows.ApplicationModel.Package.Current != null)
+            //    {
+            //        return Windows.ApplicationModel.Package.Current.DisplayName;
+            //    }
+            //}
+            //catch
+            //{
 
-            }
+            //}
             return "Kohi";
         }
 

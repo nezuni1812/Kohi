@@ -107,7 +107,7 @@
                 <NavigationViewItem Icon="Setting" Content="Thiết lập" Tag="Kohi.Views.SettingsPage"  />
             </NavigationView.FooterMenuItems>
             <!--Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="55,0,0,0"/-->
-            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="30,15,30,0"/>
+            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="20,15,20,15"/>
         </NavigationView>
     </Grid>
 

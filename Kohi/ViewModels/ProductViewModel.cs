@@ -57,7 +57,7 @@ using Kohi.Services;
 
 namespace Kohi.ViewModels
 {
-    class ProductViewModel
+    public class ProductViewModel
     {
         private IDao _dao;
         public ObservableCollection<ProductModel> Products { get; set; }

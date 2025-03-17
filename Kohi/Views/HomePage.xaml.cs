@@ -8,6 +8,8 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+
 //using Kohi.ViewModels;
 using System.IO;
 using System.Linq;
@@ -26,15 +28,78 @@ namespace Kohi.Views
 
     public sealed partial class HomePage : Page
     {
-        private ProductViewModel ViewModel { get; set; }
+        public OrderPageViewModel ViewModel { get; set; } = new OrderPageViewModel();
         public HomePage()
         {
             this.InitializeComponent();
-            ViewModel = new ProductViewModel();
         }
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.DataContext = ViewModel;
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
            // ViewModel.AddProduct();
+        }
+
+        private void onCategorySelectionChanged(object sender, ItemsViewSelectionChangedEventArgs e)
+        {
+            var selectedItem = categoriesList.SelectedItem;
+
+            if (selectedItem != null)
+            {
+                var id = selectedItem.GetType().GetProperty("Id")?.GetValue(selectedItem, null)?.ToString();
+                if (id != null)
+                {
+                    Debug.WriteLine(id);
+                }
+            }
+        }
+        private async void showProductDialog_Click(object sender, ItemClickEventArgs e)
+        {
+            Debug.WriteLine("showProductDialog_Click triggered"); 
+            var clickedItem = e.ClickedItem;
+
+            if (clickedItem != null)
+            {
+                var itemName = clickedItem.GetType().GetProperty("Id")?.GetValue(clickedItem, null)?.ToString();
+                if (itemName != null)
+                {
+                    var result = await ProductDialog.ShowAsync();
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        string quantity = QuantityTextBox.Text;
+                        string note = NoteTextBox.Text;
+                    }
+                    else
+                    {
+                        // Người dùng nhấn Hủy hoặc Đóng
+                        // Xử lý tùy chọn
+                    }
+                }
+            }
+        }
+
+        private void ProductDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            // Xử lý khi người dùng nhấn Xác nhận
+            // Ví dụ: Kiểm tra dữ liệu nhập vào
+            if (string.IsNullOrEmpty(QuantityTextBox.Text))
+            {
+                args.Cancel = true; // Ngăn không cho đóng dialog nếu dữ liệu không hợp lệ
+            }
+        }
+
+        private void ProductDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            // Xử lý khi người dùng nhấn Hủy
+        }
+
+        private void ProductDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            // Xử lý khi người dùng nhấn Hủy
         }
     }
 }

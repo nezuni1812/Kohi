@@ -3,12 +3,93 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Kohi.Views"
+    xmlns:model="using:Kohi.Models"
+    xmlns:converter="using:Kohi.View.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    Loaded="Page_Loaded">
 
-    <Grid>
-        <StackPanel DataContext="{x:Bind ViewModel}">
+    <Page.Resources>
+        <converter:AbsolutePathConverter x:Key="absolute"/>
+        <DataTemplate x:Key="ItemsViewTemplate" x:DataType="model:CategoryModel">
+            <ItemContainer 
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <StackPanel Orientation="Horizontal" Spacing="5" Padding="10,0,12,0" VerticalAlignment="Center">
+                    <Image Source="{x:Bind ImagePath, Converter={StaticResource absolute}}" Width="20" Height="20"/>
+                    <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyTextBlockStyle}"></TextBlock>
+                </StackPanel>
+            </ItemContainer>
+        </DataTemplate>
+
+        <DataTemplate x:Key="GridViewTemplate" x:DataType="model:ProductModel">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Width="200" Height="100" Margin="0,0,0,0" 
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="10">
+                <Grid VerticalAlignment="Center" Width="100" Height="100" Margin="0,0,0,0">
+                    <Image Source="{x:Bind ImagePath, Converter={StaticResource absolute}}"/>
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid ColumnSpacing="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.7*"></ColumnDefinition>
+            <ColumnDefinition Width="0.3*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <ContentDialog x:Name="ProductDialog"
+               Title="Nhập thông tin sản phẩm"
+               PrimaryButtonText="Xác nhận"
+               SecondaryButtonText="Hủy"
+               CloseButtonText="Đóng"
+               PrimaryButtonClick="ProductDialog_PrimaryButtonClick"
+               SecondaryButtonClick="ProductDialog_SecondaryButtonClick"
+               CloseButtonClick="ProductDialog_CloseButtonClick"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+
+            <StackPanel>
+                <TextBox x:Name="QuantityTextBox" Header="Số lượng:" PlaceholderText="Nhập số lượng"/>
+                <TextBox x:Name="NoteTextBox" Header="Ghi chú:" PlaceholderText="Nhập ghi chú"/>
+            </StackPanel>
+        </ContentDialog>
+
+        <Grid Grid.Column="0" CornerRadius="10" RowSpacing="10" Padding="0,10,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <ItemsView Grid.Row="0" Width="1000" HorizontalAlignment="Left" x:Name="categoriesList"
+                ItemsSource="{x:Bind ViewModel.CategoryViewModel.Categories}" 
+                ItemTemplate="{StaticResource ItemsViewTemplate}"
+                SelectionMode="Single"
+                SelectionChanged="onCategorySelectionChanged">
+                <ItemsView.Layout >
+                    <LinedFlowLayout ItemsStretch="None" LineSpacing="5" LineHeight="38" MinItemSpacing="10" />
+                </ItemsView.Layout>
+            </ItemsView>
+
+            <GridView Grid.Row="1" x:Name="productsList"
+                ItemsSource="{x:Bind ViewModel.ProductViewModel.Products}" 
+                ItemTemplate="{StaticResource GridViewTemplate}"
+                SelectionMode="Single"
+                IsItemClickEnabled="True"
+                ItemClick="showProductDialog_Click">
+                <GridView.ItemContainerStyle>
+                    <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                        <Setter Property="Margin" Value="0, 0, 10, 10"/>
+                    </Style>
+                </GridView.ItemContainerStyle>
+
+            </GridView>
+        </Grid>
+        
+        <Grid Grid.Column="1" Background="Red" CornerRadius="10">
+        </Grid>
+        <!--StackPanel DataContext="{x:Bind ViewModel}">
             <TextBlock Text="Home"/>
             <TextBlock Text="New Product Name:" />
             <TextBox Text="{Binding NewProductName, Mode=TwoWay}" PlaceholderText="Enter product name"/>
@@ -28,6 +109,6 @@
                 </ListView.ItemTemplate>
             </ListView>
 
-        </StackPanel>
+        </StackPanel-->
     </Grid>
 </Page>

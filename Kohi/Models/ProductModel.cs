@@ -28,7 +28,7 @@ namespace Kohi.Models
 
         public string? Description { get; set; }
 
-        public string? ImageUrl { get; set; }
+        public string? ImagePath { get; set; }
 
         [Required]
         public decimal Cost { get; set; }
