@@ -65,7 +65,6 @@
   <ItemGroup>
 	<Folder Include="Assets\icon\" />
 	<Folder Include="String\" />
-	<Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\CustomersPage.xaml">
