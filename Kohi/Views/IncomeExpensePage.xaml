@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:tableView="using:WinUI.TableView"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -66,8 +67,41 @@
         <Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
 
         <!--AutoSuggestBox Grid.Row="2" PlaceholderText="Tìm kiếm" QueryIcon="Find" Margin="0,10,0,10"/-->
+        <Grid Grid.Row="2" Margin="0,10,0,10">
+            <tableView:TableView x:Name="MyTableView"
+                 ItemsSource="{x:Bind ExpenseViewModel.ExpenseReceipts}"
+                 AutoGenerateColumns="True"           
+                 SelectionMode="Single"
+                 CanFilterColumns="True"
+                 CanSortColumns="True"
+                 CornerButtonMode="Options"
+                 ShowExportOptions="True"
+                 HeaderGridLinesVisibility="All"
+                 GridLinesVisibility="All"
+                 SelectionChanged="OnSelectionChanged">
+                <tableView:TableView.Columns>
+                    <!--tableView:TableViewTextColumn Header="Id" Binding="{Binding Id}" /-->
+                    <tableView:TableViewNumberColumn Header="Id" Binding="{Binding ExpenseCategoryId}" />
+                    <tableView:TableViewTemplateColumn Header="Tiền">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Amount}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                        
+                        <tableView:TableViewTemplateColumn.EditingTemplate>
+                            <DataTemplate>
+                                <NumberBox Value="{Binding Amount, Mode=TwoWay}" />
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.EditingTemplate>
+                    </tableView:TableViewTemplateColumn>
 
-        <Grid x:Name="GridContent" Grid.Row="3" Grid.Column="0" Margin="0,0,0,20">
+                    <tableView:TableViewDateColumn Header="Thời gian" Binding="{Binding ExpenseDate}" />
+                </tableView:TableView.Columns>
+            </tableView:TableView>
+        </Grid>
+        
+        <!--Grid x:Name="GridContent" Grid.Row="3" Grid.Column="0" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
@@ -86,7 +120,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!--Rectangle Grid.Row="1" Grid.ColumnSpan="8" Fill="{ThemeResource AccentFillColorDefaultBrush}" /-->
+            <Rectangle Grid.Row="1" Grid.ColumnSpan="8" Fill="{ThemeResource AccentFillColorDefaultBrush}" />
 
             <TextBlock Text="Ngày tạo" Grid.Row="1" Grid.Column="0" Style="{StaticResource HeaderStyle}"/>
             <TextBlock Text="Mã phiếu" Grid.Row="1" Grid.Column="1" Style="{StaticResource HeaderStyle}"/>
@@ -97,8 +131,9 @@
             <TextBlock Text="Tên người nộp" Grid.Row="1" Grid.Column="6" Style="{StaticResource HeaderStyle}"/>
             <TextBlock Text="Trạng thái" Grid.Row="1" Grid.Column="7" Style="{StaticResource HeaderStyle}"/>
             <TextBlock Text="Thao tác" Grid.Row="1" Grid.Column="8" Style="{StaticResource HeaderStyle}"/>
+            
+        </Grid-->
 
-        </Grid>
         
         <!--Nhớ thêm pagination, số trang, hiển thị từ ... tới ... trong tổng số ...-->
         
