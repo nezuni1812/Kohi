@@ -12,6 +12,10 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Kohi.Models;
+using Kohi.ViewModels;
+using System.Diagnostics;
+using WinUI.TableView;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -23,14 +27,22 @@ namespace Kohi.Views
     /// </summary>
     public sealed partial class ProductsPage : Page
     {
-        public string ImageFileName { get; set; } = "";
+        public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
         public ProductsPage()
         {
             this.InitializeComponent();
-
-            ImageFileName = "kohi_logo.png";
-
-            this.DataContext = this;
+            //GridContent.DataContext = IncomeViewModel;
+        }
+        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is TableView tableView && tableView.SelectedItem is ProductModel selectedProduct)
+            {
+                int id = selectedProduct.CategoryId ?? 0; //Category nha 
+                Debug.WriteLine($"Selected Expense ID: {id}");
+            }
+        }
+        private void addButton_click(object sender, RoutedEventArgs e)
+        {
         }
     }
 }

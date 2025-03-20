@@ -21,7 +21,7 @@ namespace Kohi.Models
         public int? CategoryId { get; set; }  // Foreign Key to Category
 
         [Required]
-        public decimal Price { get; set; }
+        public float Price { get; set; }
 
         [Required]
         public bool IsActive { get; set; } = true;
@@ -31,7 +31,7 @@ namespace Kohi.Models
         public string? ImageUrl { get; set; }
 
         [Required]
-        public decimal Cost { get; set; }
+        public float Cost { get; set; }
 
         public CategoryModel Category { get; set; }
         public List<InvoiceDetailModel> InvoiceDetails { get; set; } = new List<InvoiceDetailModel>();
