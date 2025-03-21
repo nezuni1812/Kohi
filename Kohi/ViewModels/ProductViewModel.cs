@@ -54,18 +54,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Kohi.Models;
 using Kohi.Services;
+using Kohi.Utils;
 
 namespace Kohi.ViewModels
 {
     public class ProductViewModel
     {
         private IDao _dao;
-        public ObservableCollection<ProductModel> Products { get; set; }
+        public FullObservableCollection<ProductModel> Products { get; set; }
 
         public ProductViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
-            Products = new ObservableCollection<ProductModel>();
+            Products = new FullObservableCollection<ProductModel>();
 
             LoadProducts();
         }
