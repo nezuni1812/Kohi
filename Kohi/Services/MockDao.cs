@@ -216,11 +216,11 @@ namespace Kohi.Services
                 if (_ingredients != null) return _ingredients;
                 return new List<IngredientModel>
                 {
-                    new IngredientModel { Id = 1, Name = "Milk", Unit = "Liter", CostPerUnit = 20000m, SupplierId = 1, Description = "Fresh milk" },
-                    new IngredientModel { Id = 2, Name = "Sugar", Unit = "Kg", CostPerUnit = 15000m, SupplierId = 2, Description = "Refined sugar" },
-                    new IngredientModel { Id = 3, Name = "Tea Leaves", Unit = "Kg", CostPerUnit = 30000m, SupplierId = 3, Description = "Green tea leaves" },
-                    new IngredientModel { Id = 4, Name = "Coffee Beans", Unit = "Kg", CostPerUnit = 40000m, SupplierId = 4, Description = "Arabica beans" },
-                    new IngredientModel { Id = 5, Name = "Fruit Puree", Unit = "Liter", CostPerUnit = 25000m, SupplierId = 5, Description = "Mixed fruit puree" }
+                    new IngredientModel { Id = 1, Name = "Milk", Unit = "Liter", CostPerUnit = 20000f, SupplierId = 1, Description = "Fresh milk" },
+                    new IngredientModel { Id = 2, Name = "Sugar", Unit = "Kg", CostPerUnit = 15000f, SupplierId = 2, Description = "Refined sugar" },
+                    new IngredientModel { Id = 3, Name = "Tea Leaves", Unit = "Kg", CostPerUnit = 30000f, SupplierId = 3, Description = "Green tea leaves" },
+                    new IngredientModel { Id = 4, Name = "Coffee Beans", Unit = "Kg", CostPerUnit = 40000f, SupplierId = 4, Description = "Arabica beans" },
+                    new IngredientModel { Id = 5, Name = "Fruit Puree", Unit = "Liter", CostPerUnit = 25000f, SupplierId = 5, Description = "Mixed fruit puree" }
                 };
             }
         }
