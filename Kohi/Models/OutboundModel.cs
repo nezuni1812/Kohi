@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    public class OutboundModel
+    public class OutboundModel : INotifyPropertyChanged
     {
         public int Id { get; set; }              // Mã phiếu xuất
         public int InventoryId { get; set; }     // Mã lô hàng (liên kết với InventoryModel)
@@ -16,6 +17,7 @@ namespace Kohi.Models
         public string Notes { get; set; }        // Ghi chú (tùy chọn)
 
         public InventoryModel Inventory { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
 
     }
 }

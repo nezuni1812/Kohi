@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    public class PaymentModel
+    public class PaymentModel : INotifyPropertyChanged
     {
         public int Id { get; set; }
         public int InvoiceId { get; set; }
@@ -19,5 +20,7 @@ namespace Kohi.Models
 
         // Navigation Property: Liên kết tới Invoice
         public InvoiceModel Invoice { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
+
     }
 }
