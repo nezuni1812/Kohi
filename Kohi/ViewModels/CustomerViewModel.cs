@@ -1,5 +1,6 @@
 ﻿using Kohi.Models;
 using Kohi.Services;
+using Kohi.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,12 +13,12 @@ namespace Kohi.ViewModels
     public class CustomerViewModel
     {
         private IDao _dao;
-        public ObservableCollection<CustomerModel> Customers { get; set; }
+        public FullObservableCollection<CustomerModel> Customers { get; set; }
 
         public CustomerViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
-            Customers = new ObservableCollection<CustomerModel>();
+            Customers = new FullObservableCollection<CustomerModel>();
 
             LoadData();
         }

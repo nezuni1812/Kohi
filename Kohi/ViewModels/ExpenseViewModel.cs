@@ -1,5 +1,6 @@
 ﻿using Kohi.Models;
 using Kohi.Services;
+using Kohi.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,12 +13,12 @@ namespace Kohi.ViewModels
     public class ExpenseViewModel
     {
         private IDao _dao;
-        public ObservableCollection<ExpenseModel> ExpenseReceipts { get; set; }
+        public FullObservableCollection<ExpenseModel> ExpenseReceipts { get; set; }
 
         public ExpenseViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
-            ExpenseReceipts = new ObservableCollection<ExpenseModel>();
+            ExpenseReceipts = new FullObservableCollection<ExpenseModel>();
 
             LoadReceipts();
         }

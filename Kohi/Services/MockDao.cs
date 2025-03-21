@@ -192,11 +192,11 @@ namespace Kohi.Services
                 if (_inventories != null) return _inventories;
                 return new List<InventoryModel>
                 {
-                    new InventoryModel { Id = 1, InboundId = 1, IngredientId = 1, Quantity = 90, InitialQuantity = 100, InboundDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddMonths(6), SupplierId = 1 },
-                    new InventoryModel { Id = 2, InboundId = 2, IngredientId = 2, Quantity = 45, InitialQuantity = 50, InboundDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddMonths(5), SupplierId = 2 },
-                    new InventoryModel { Id = 3, InboundId = 3, IngredientId = 3, Quantity = 75, InitialQuantity = 80, InboundDate = DateTime.Now.AddDays(-7), ExpiryDate = DateTime.Now.AddMonths(4), SupplierId = 3 },
-                    new InventoryModel { Id = 4, InboundId = 4, IngredientId = 4, Quantity = 55, InitialQuantity = 60, InboundDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddMonths(3), SupplierId = 4 },
-                    new InventoryModel { Id = 5, InboundId = 5, IngredientId = 5, Quantity = 65, InitialQuantity = 70, InboundDate = DateTime.Now.AddDays(-3), ExpiryDate = DateTime.Now.AddMonths(2), SupplierId = 5 }
+                    new InventoryModel { Id = 1, InboundId = 1, IngredientId = 1, Quantity = 90, InitialQuantity = 100, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddMonths(6), SupplierId = 1 },
+                    new InventoryModel { Id = 2, InboundId = 2, IngredientId = 2, Quantity = 45, InitialQuantity = 50, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddMonths(5), SupplierId = 2 },
+                    new InventoryModel { Id = 3, InboundId = 3, IngredientId = 3, Quantity = 75, InitialQuantity = 80, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-7), ExpiryDate = DateTime.Now.AddMonths(4), SupplierId = 3 },
+                    new InventoryModel { Id = 4, InboundId = 4, IngredientId = 4, Quantity = 55, InitialQuantity = 60, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddMonths(3), SupplierId = 4 },
+                    new InventoryModel { Id = 5, InboundId = 5, IngredientId = 5, Quantity = 65, InitialQuantity = 70, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-3), ExpiryDate = DateTime.Now.AddMonths(2), SupplierId = 5 }
                 };
             }
         }
@@ -216,11 +216,11 @@ namespace Kohi.Services
                 if (_ingredients != null) return _ingredients;
                 return new List<IngredientModel>
                 {
-                    new IngredientModel { Id = 1, Name = "Milk", Unit = "Liter", CostPerUnit = 20000m, SupplierId = 1, Description = "Fresh milk" },
-                    new IngredientModel { Id = 2, Name = "Sugar", Unit = "Kg", CostPerUnit = 15000m, SupplierId = 2, Description = "Refined sugar" },
-                    new IngredientModel { Id = 3, Name = "Tea Leaves", Unit = "Kg", CostPerUnit = 30000m, SupplierId = 3, Description = "Green tea leaves" },
-                    new IngredientModel { Id = 4, Name = "Coffee Beans", Unit = "Kg", CostPerUnit = 40000m, SupplierId = 4, Description = "Arabica beans" },
-                    new IngredientModel { Id = 5, Name = "Fruit Puree", Unit = "Liter", CostPerUnit = 25000m, SupplierId = 5, Description = "Mixed fruit puree" }
+                    new IngredientModel { Id = 1, Name = "Milk", Unit = "Liter", CostPerUnit = 20000f, SupplierId = 1, Description = "Fresh milk" },
+                    new IngredientModel { Id = 2, Name = "Sugar", Unit = "Kg", CostPerUnit = 15000f, SupplierId = 2, Description = "Refined sugar" },
+                    new IngredientModel { Id = 3, Name = "Tea Leaves", Unit = "Kg", CostPerUnit = 30000f, SupplierId = 3, Description = "Green tea leaves" },
+                    new IngredientModel { Id = 4, Name = "Coffee Beans", Unit = "Kg", CostPerUnit = 40000f, SupplierId = 4, Description = "Arabica beans" },
+                    new IngredientModel { Id = 5, Name = "Fruit Puree", Unit = "Liter", CostPerUnit = 25000f, SupplierId = 5, Description = "Mixed fruit puree" }
                 };
             }
         }
