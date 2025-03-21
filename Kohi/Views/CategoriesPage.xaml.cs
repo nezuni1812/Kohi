@@ -42,6 +42,10 @@ namespace Kohi.Views
         }
         private void addButton_click(object sender, RoutedEventArgs e)
         {
+            Frame rootFrame = new Frame();
+            this.Content = rootFrame;
+
+            rootFrame.Navigate(typeof(AddNewCategoryPage), null);
         }
     }
 }

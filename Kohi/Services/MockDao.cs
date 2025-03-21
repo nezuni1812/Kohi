@@ -361,9 +361,9 @@ namespace Kohi.Services
                 return new List<ProductModel>
                 {
                     new ProductModel { Id = 1, Name = "Black Coffee", Price = 35000f, Cost = 21000f, IsActive = true, CategoryId = 1, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new ProductModel { Id = 2, Name = "Milk Tea", Price = 40000f, Cost = 24000f, IsActive = true, CategoryId = 2, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
+                    new ProductModel { Id = 2, Name = "Milk Tea", Price = 40000f, Cost = 24000f, IsActive = false, CategoryId = 2, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
                     new ProductModel { Id = 3, Name = "Green Tea", Price = 30000f, Cost = 18000f, IsActive = true, CategoryId = 3, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new ProductModel { Id = 4, Name = "Mango Smoothie", Price = 45000f, Cost = 27000f, IsActive = true, CategoryId = 4, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
+                    new ProductModel { Id = 4, Name = "Mango Smoothie", Price = 45000f, Cost = 27000f, IsActive = false, CategoryId = 4, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
                     new ProductModel { Id = 5, Name = "Espresso", Price = 40000f, Cost = 24000f, IsActive = true, CategoryId = 1, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() }
                 };
             }

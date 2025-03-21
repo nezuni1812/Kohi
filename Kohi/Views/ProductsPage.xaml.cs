@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,6 +16,7 @@ using Kohi.Models;
 using Kohi.ViewModels;
 using System.Diagnostics;
 using WinUI.TableView;
+using Microsoft.UI.Xaml.Media.Animation;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -43,6 +44,10 @@ namespace Kohi.Views
         }
         private void addButton_click(object sender, RoutedEventArgs e)
         {
+            Frame rootFrame = new Frame();
+            this.Content = rootFrame;
+
+            rootFrame.Navigate(typeof(AddNewProductPage), null);
         }
     }
 }

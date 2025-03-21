@@ -19,6 +19,7 @@ namespace Kohi.Models
         // Navigation Properties
         public InvoiceDetailModel InvoiceDetail { get; set; } // Liên kết ngược lại InvoiceDetail
         public ProductModel Product { get; set; } // Liên kết tới Product (topping cũng là một Product)
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }
