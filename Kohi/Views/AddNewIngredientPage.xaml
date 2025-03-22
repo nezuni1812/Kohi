@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="Kohi.Views.AddNewProductPage"
+    x:Class="Kohi.Views.AddNewIngredientPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Kohi.Views"
@@ -14,7 +14,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Thêm mới sản phẩm" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Thêm mới nguyên vật liệu" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,10"/>
 
         <Grid Grid.Row="1" ColumnSpacing="5">
             <Grid.RowDefinitions>
@@ -22,11 +22,11 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.4*"/>
                 <ColumnDefinition Width="0.6*"/>
+                <ColumnDefinition Width="0.4*"/>
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Thông tin chung" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,0,10"/>
@@ -45,26 +45,23 @@
 
                 <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                        <Run Text="Tên sản phẩm"/>
-                        <Run Text="*" Foreground="Red"/>
+                <Run Text="Tên sản phẩm"/>
+                <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <TextBox PlaceholderText="Nhập tên hàng hóa"/>
+                    <TextBox PlaceholderText="Nhập tên nguyên vật liệu"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                        <Run Text="Nhóm sản phẩm"/>
-                        <Run Text="*" Foreground="Red"/>
+                <Run Text="Đơn vị"/>
+                <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <ComboBox ItemsSource="{Binding CategoryViewModel.Categories}"
-                              DisplayMemberPath="Name" 
-                              PlaceholderText="-- Chọn nhóm --"
-                              Width="Auto" HorizontalAlignment="Left"/>
+                    <TextBox PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                        <Run Text="Giá bán"/>
+                        <Run Text="Giá nhập trên mỗi đơn vị"/>
                         <Run Text="*" Foreground="Red"/>
                     </TextBlock>
                     <NumberBox 
@@ -72,18 +69,7 @@
                         SpinButtonPlacementMode="Inline" 
                         Width="200" HorizontalAlignment="Left"/>
                 </StackPanel>
-
-                <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,10">
-                    <TextBlock Text="Giá nhập" Margin="0,0,0,5"/>
-                    <NumberBox 
-                        Minimum="0" 
-                        SpinButtonPlacementMode="Inline" 
-                        Width="200" HorizontalAlignment="Left"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
-                    <CheckBox Content="Cho phép bán" />
-                </StackPanel>
+                
             </Grid>
 
             <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
@@ -92,31 +78,16 @@
                      AcceptsReturn="True" 
                      Height="50" 
                      TextWrapping="Wrap" 
-                     PlaceholderText="Nhập mô tả sản phẩm"/>
+                     PlaceholderText="Nhập mô tả nguyên vật liệu"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
-                <!--TextBlock Text="Hình ảnh" Margin="0,0,0,5" VerticalAlignment="Center"/>
-                 <TextBox Text="{x:Bind Product.ImageUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                        PlaceholderText="URL hình ảnh" 
-                        Width="200" Margin="10,0,10,0"/-->
-                <StackPanel Orientation="Vertical">
-                    <TextBlock x:Name="outtext" HorizontalAlignment="Left" Text="Ảnh Sản phẩm" Width="Auto" Margin="0,0,0,10"/>
-                    <Image x:Name="mypic" HorizontalAlignment="Left" Width="100" Height="100" Margin="10,0,0,0" VerticalAlignment="Top" FocusVisualPrimaryBrush="Black"/>
-                </StackPanel>
-                <AppBarButton Icon="Camera" Width="100" Label="Thêm ảnh" Click="AddImageButton_Click"/>
-
-            </StackPanel>
-
-            <Button x:Name="saveButton" Grid.Row="4" Grid.Column="0" Click="saveButton_click" Style="{StaticResource PrimaryButtonStyle}">
+            <Button x:Name="saveButton" Grid.Row="4" Grid.Column="0" Click="saveButton_click" Style="{StaticResource PrimaryButtonStyle}" Margin="0,10,0,0">
                 <StackPanel Orientation="Horizontal">
                     <FontIcon Glyph="&#xE74E;" FontSize="14"/>
-                    <TextBlock x:Name="addButtonTextBlock" Text="Lưu sản phẩm" Margin="5,0,0,0"/>
+                    <TextBlock x:Name="addButtonTextBlock" Text="Lưu nguyên vật liệu" Margin="5,0,0,0"/>
                 </StackPanel>
             </Button>
-
-            <TextBlock Grid.Row="0" Grid.Column="1" Text="Nguyên vật liệu sản xuất" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,0,10"/>
+            
         </Grid>
     </Grid>
-    
 </Page>

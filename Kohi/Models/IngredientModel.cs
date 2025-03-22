@@ -15,7 +15,7 @@ namespace Kohi.Models
         public string Name { get; set; }
         public string Unit { get; set; }
         public float CostPerUnit { get; set; }
-        public int SupplierId { get; set; }
+        public int SupplierId { get; set; } //bỏ
         public string Description { get; set; }
 
         // Navigation Property

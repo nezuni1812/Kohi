@@ -34,7 +34,6 @@ namespace Kohi.Views
             this.InitializeComponent();
             //GridContent.DataContext = IncomeViewModel;
         }
-
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is TableView tableView && tableView.SelectedItem is ExpenseModel selectedExpense)
