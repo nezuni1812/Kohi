@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Kohi.Models;
 
 namespace Kohi.Services
 {
-    internal class MockDao : IDao
+    public class MockDao : IDao
     {
         // Mock Repositories
         public class MockCategoryRepository : IRepository<CategoryModel>
@@ -20,16 +18,71 @@ namespace Kohi.Services
                 _categories = categories;
             }
 
-            public List<CategoryModel> GetAll()
+            public List<CategoryModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_categories != null) return _categories;
-                return new List<CategoryModel>
+                var data = _categories ?? new List<CategoryModel>
                 {
                     new CategoryModel { Id = 1, Name = "Cà phê", ImageUrl = "kohi_logo.png", Products = new List<ProductModel>() },
                     new CategoryModel { Id = 2, Name = "Trà sữa", ImageUrl = "kohi_logo.png", Products = new List<ProductModel>() },
                     new CategoryModel { Id = 3, Name = "Trà", ImageUrl = "kohi_logo.png", Products = new List<ProductModel>() },
                     new CategoryModel { Id = 4, Name = "Đá xay", ImageUrl = "kohi_logo.png", Products = new List<ProductModel>() }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public CategoryModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _categories ?? GetAll(); // Nếu chưa có dữ liệu, lấy mặc định
+                return data.FirstOrDefault(c => c.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _categories ?? GetAll();
+                var item = data.FirstOrDefault(c => c.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _categories = data; // Cập nhật lại danh sách
+                return 1;
+            }
+
+            public int UpdateById(string id, CategoryModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _categories ?? GetAll();
+                var item = data.FirstOrDefault(c => c.Id == intId);
+                if (item == null) return 0;
+                item.Name = info.Name;
+                item.ImageUrl = info.ImageUrl;
+                item.Products = info.Products; // Cập nhật navigation property nếu cần
+                _categories = data;
+                return 1;
+            }
+
+            public int Insert(string id, CategoryModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _categories ?? GetAll();
+                if (data.Any(c => c.Id == intId)) return 0; // Không cho phép trùng Id
+                info.Id = intId;
+                data.Add(info);
+                _categories = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _categories ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -43,10 +96,16 @@ namespace Kohi.Services
                 _customers = customers;
             }
 
-            public List<CustomerModel> GetAll()
+            public List<CustomerModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_customers != null) return _customers;
-                return new List<CustomerModel>
+                var data = _customers ?? new List<CustomerModel>
                 {
                     new CustomerModel { Id = 1, Name = "Nguyen Van A", Email = "a@example.com", Phone = "0901234567", Address = "Hanoi", Invoices = new List<InvoiceModel>() },
                     new CustomerModel { Id = 2, Name = "Tran Thi B", Email = "b@example.com", Phone = "0912345678", Address = "Ho Chi Minh", Invoices = new List<InvoiceModel>() },
@@ -54,6 +113,57 @@ namespace Kohi.Services
                     new CustomerModel { Id = 4, Name = "Pham Thi D", Email = "d@example.com", Phone = "0934567890", Address = "Can Tho", Invoices = new List<InvoiceModel>() },
                     new CustomerModel { Id = 5, Name = "Hoang Van E", Email = "e@example.com", Phone = "0945678901", Address = "Hai Phong", Invoices = new List<InvoiceModel>() }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public CustomerModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _customers ?? GetAll();
+                return data.FirstOrDefault(c => c.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _customers ?? GetAll();
+                var item = data.FirstOrDefault(c => c.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _customers = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, CustomerModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _customers ?? GetAll();
+                var item = data.FirstOrDefault(c => c.Id == intId);
+                if (item == null) return 0;
+                item.Name = info.Name;
+                item.Email = info.Email;
+                item.Phone = info.Phone;
+                item.Address = info.Address;
+                item.Invoices = info.Invoices;
+                _customers = data;
+                return 1;
+            }
+
+            public int Insert(string id, CustomerModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _customers ?? GetAll();
+                if (data.Any(c => c.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _customers = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _customers ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -67,10 +177,16 @@ namespace Kohi.Services
                 _expenseCategories = expenseCategories;
             }
 
-            public List<ExpenseCategoryModel> GetAll()
+            public List<ExpenseCategoryModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_expenseCategories != null) return _expenseCategories;
-                return new List<ExpenseCategoryModel>
+                var data = _expenseCategories ?? new List<ExpenseCategoryModel>
                 {
                     new ExpenseCategoryModel { Id = 1, CategoryName = "Raw Materials", ExpenseTypeId = 1, Description = "Cost of ingredients", Expenses = new List<ExpenseModel>() },
                     new ExpenseCategoryModel { Id = 2, CategoryName = "Utilities", ExpenseTypeId = 2, Description = "Electricity and water", Expenses = new List<ExpenseModel>() },
@@ -78,6 +194,56 @@ namespace Kohi.Services
                     new ExpenseCategoryModel { Id = 4, CategoryName = "Marketing", ExpenseTypeId = 3, Description = "Advertising costs", Expenses = new List<ExpenseModel>() },
                     new ExpenseCategoryModel { Id = 5, CategoryName = "Equipment", ExpenseTypeId = 2, Description = "Machine maintenance", Expenses = new List<ExpenseModel>() }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public ExpenseCategoryModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _expenseCategories ?? GetAll();
+                return data.FirstOrDefault(c => c.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _expenseCategories ?? GetAll();
+                var item = data.FirstOrDefault(c => c.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _expenseCategories = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, ExpenseCategoryModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _expenseCategories ?? GetAll();
+                var item = data.FirstOrDefault(c => c.Id == intId);
+                if (item == null) return 0;
+                item.CategoryName = info.CategoryName;
+                item.ExpenseTypeId = info.ExpenseTypeId;
+                item.Description = info.Description;
+                item.Expenses = info.Expenses;
+                _expenseCategories = data;
+                return 1;
+            }
+
+            public int Insert(string id, ExpenseCategoryModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _expenseCategories ?? GetAll();
+                if (data.Any(c => c.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _expenseCategories = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _expenseCategories ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -91,10 +257,16 @@ namespace Kohi.Services
                 _expenses = expenses;
             }
 
-            public List<ExpenseModel> GetAll()
+            public List<ExpenseModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_expenses != null) return _expenses;
-                return new List<ExpenseModel>
+                var data = _expenses ?? new List<ExpenseModel>
                 {
                     new ExpenseModel { Id = 1, ExpenseCategoryId = 1, Amount = 5000000f, ExpenseDate = DateTime.Now.AddDays(-10) },
                     new ExpenseModel { Id = 2, ExpenseCategoryId = 2, Amount = 2000000f, ExpenseDate = DateTime.Now.AddDays(-5) },
@@ -102,6 +274,55 @@ namespace Kohi.Services
                     new ExpenseModel { Id = 4, ExpenseCategoryId = 4, Amount = 3000000f, ExpenseDate = DateTime.Now.AddDays(-1) },
                     new ExpenseModel { Id = 5, ExpenseCategoryId = 5, Amount = 4000000f, ExpenseDate = DateTime.Now }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public ExpenseModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _expenses ?? GetAll();
+                return data.FirstOrDefault(e => e.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _expenses ?? GetAll();
+                var item = data.FirstOrDefault(e => e.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _expenses = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, ExpenseModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _expenses ?? GetAll();
+                var item = data.FirstOrDefault(e => e.Id == intId);
+                if (item == null) return 0;
+                item.ExpenseCategoryId = info.ExpenseCategoryId;
+                item.Amount = info.Amount;
+                item.ExpenseDate = info.ExpenseDate;
+                _expenses = data;
+                return 1;
+            }
+
+            public int Insert(string id, ExpenseModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _expenses ?? GetAll();
+                if (data.Any(e => e.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _expenses = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _expenses ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -115,10 +336,16 @@ namespace Kohi.Services
                 _inbounds = inbounds;
             }
 
-            public List<InboundModel> GetAll()
+            public List<InboundModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_inbounds != null) return _inbounds;
-                return new List<InboundModel>
+                var data = _inbounds ?? new List<InboundModel>
                 {
                     new InboundModel { Id = 1, IngredientId = 1, Quantity = 100, InboundDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddMonths(6), SupplierId = 1, Notes = "Fresh milk batch" },
                     new InboundModel { Id = 2, IngredientId = 2, Quantity = 50, InboundDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddMonths(5), SupplierId = 2, Notes = "Sugar supply" },
@@ -126,6 +353,58 @@ namespace Kohi.Services
                     new InboundModel { Id = 4, IngredientId = 4, Quantity = 60, InboundDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddMonths(3), SupplierId = 4, Notes = "Coffee beans" },
                     new InboundModel { Id = 5, IngredientId = 5, Quantity = 70, InboundDate = DateTime.Now.AddDays(-3), ExpiryDate = DateTime.Now.AddMonths(2), SupplierId = 5, Notes = "Fruit puree" }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public InboundModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _inbounds ?? GetAll();
+                return data.FirstOrDefault(i => i.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _inbounds ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _inbounds = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, InboundModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _inbounds ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                item.IngredientId = info.IngredientId;
+                item.Quantity = info.Quantity;
+                item.InboundDate = info.InboundDate;
+                item.ExpiryDate = info.ExpiryDate;
+                item.SupplierId = info.SupplierId;
+                item.Notes = info.Notes;
+                _inbounds = data;
+                return 1;
+            }
+
+            public int Insert(string id, InboundModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _inbounds ?? GetAll();
+                if (data.Any(i => i.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _inbounds = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _inbounds ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -139,10 +418,16 @@ namespace Kohi.Services
                 _expenseTypes = expenseTypes;
             }
 
-            public List<ExpenseTypeModel> GetAll()
+            public List<ExpenseTypeModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_expenseTypes != null) return _expenseTypes;
-                return new List<ExpenseTypeModel>
+                var data = _expenseTypes ?? new List<ExpenseTypeModel>
                 {
                     new ExpenseTypeModel { Id = 1, TypeName = "Operational", Description = "Daily operation costs", ExpenseCategories = new List<ExpenseCategoryModel>() },
                     new ExpenseTypeModel { Id = 2, TypeName = "Infrastructure", Description = "Facility costs", ExpenseCategories = new List<ExpenseCategoryModel>() },
@@ -150,6 +435,55 @@ namespace Kohi.Services
                     new ExpenseTypeModel { Id = 4, TypeName = "Miscellaneous", Description = "Other expenses", ExpenseCategories = new List<ExpenseCategoryModel>() },
                     new ExpenseTypeModel { Id = 5, TypeName = "Staff", Description = "Employee-related costs", ExpenseCategories = new List<ExpenseCategoryModel>() }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public ExpenseTypeModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _expenseTypes ?? GetAll();
+                return data.FirstOrDefault(e => e.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _expenseTypes ?? GetAll();
+                var item = data.FirstOrDefault(e => e.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _expenseTypes = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, ExpenseTypeModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _expenseTypes ?? GetAll();
+                var item = data.FirstOrDefault(e => e.Id == intId);
+                if (item == null) return 0;
+                item.TypeName = info.TypeName;
+                item.Description = info.Description;
+                item.ExpenseCategories = info.ExpenseCategories;
+                _expenseTypes = data;
+                return 1;
+            }
+
+            public int Insert(string id, ExpenseTypeModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _expenseTypes ?? GetAll();
+                if (data.Any(e => e.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _expenseTypes = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _expenseTypes ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -163,10 +497,16 @@ namespace Kohi.Services
                 _invoices = invoices;
             }
 
-            public List<InvoiceModel> GetAll()
+            public List<InvoiceModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_invoices != null) return _invoices;
-                return new List<InvoiceModel>
+                var data = _invoices ?? new List<InvoiceModel>
                 {
                     new InvoiceModel { Id = 1, CustomerId = 1, InvoiceDate = DateTime.Now.AddDays(-10), TotalAmount = 150000m, InvoiceDetails = new List<InvoiceDetailModel>() },
                     new InvoiceModel { Id = 2, CustomerId = 2, InvoiceDate = DateTime.Now.AddDays(-5), TotalAmount = 200000m, InvoiceDetails = new List<InvoiceDetailModel>() },
@@ -174,6 +514,56 @@ namespace Kohi.Services
                     new InvoiceModel { Id = 4, CustomerId = 4, InvoiceDate = DateTime.Now.AddDays(-1), TotalAmount = 250000m, InvoiceDetails = new List<InvoiceDetailModel>() },
                     new InvoiceModel { Id = 5, CustomerId = 5, InvoiceDate = DateTime.Now, TotalAmount = 180000m, InvoiceDetails = new List<InvoiceDetailModel>() }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public InvoiceModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _invoices ?? GetAll();
+                return data.FirstOrDefault(i => i.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _invoices ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _invoices = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, InvoiceModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _invoices ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                item.CustomerId = info.CustomerId;
+                item.InvoiceDate = info.InvoiceDate;
+                item.TotalAmount = info.TotalAmount;
+                item.InvoiceDetails = info.InvoiceDetails;
+                _invoices = data;
+                return 1;
+            }
+
+            public int Insert(string id, InvoiceModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _invoices ?? GetAll();
+                if (data.Any(i => i.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _invoices = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _invoices ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -187,17 +577,77 @@ namespace Kohi.Services
                 _inventories = inventories;
             }
 
-            public List<InventoryModel> GetAll()
+            public List<InventoryModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_inventories != null) return _inventories;
-                return new List<InventoryModel>
+                var data = _inventories ?? new List<InventoryModel>
                 {
-                    new InventoryModel { Id = 1, InboundId = 1, IngredientId = 1, Quantity = 90, InitialQuantity = 100, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddMonths(6), SupplierId = 1 },
-                    new InventoryModel { Id = 2, InboundId = 2, IngredientId = 2, Quantity = 45, InitialQuantity = 50, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddMonths(5), SupplierId = 2 },
-                    new InventoryModel { Id = 3, InboundId = 3, IngredientId = 3, Quantity = 75, InitialQuantity = 80, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-7), ExpiryDate = DateTime.Now.AddMonths(4), SupplierId = 3 },
-                    new InventoryModel { Id = 4, InboundId = 4, IngredientId = 4, Quantity = 55, InitialQuantity = 60, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddMonths(3), SupplierId = 4 },
-                    new InventoryModel { Id = 5, InboundId = 5, IngredientId = 5, Quantity = 65, InitialQuantity = 70, ActualQuantity =0, InboundDate = DateTime.Now.AddDays(-3), ExpiryDate = DateTime.Now.AddMonths(2), SupplierId = 5 }
+                    new InventoryModel { Id = 1, InboundId = 1, IngredientId = 1, Quantity = 90, InitialQuantity = 100, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddMonths(6), SupplierId = 1 },
+                    new InventoryModel { Id = 2, InboundId = 2, IngredientId = 2, Quantity = 45, InitialQuantity = 50, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddMonths(5), SupplierId = 2 },
+                    new InventoryModel { Id = 3, InboundId = 3, IngredientId = 3, Quantity = 75, InitialQuantity = 80, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-7), ExpiryDate = DateTime.Now.AddMonths(4), SupplierId = 3 },
+                    new InventoryModel { Id = 4, InboundId = 4, IngredientId = 4, Quantity = 55, InitialQuantity = 60, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddMonths(3), SupplierId = 4 },
+                    new InventoryModel { Id = 5, InboundId = 5, IngredientId = 5, Quantity = 65, InitialQuantity = 70, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-3), ExpiryDate = DateTime.Now.AddMonths(2), SupplierId = 5 }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public InventoryModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _inventories ?? GetAll();
+                return data.FirstOrDefault(i => i.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _inventories ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _inventories = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, InventoryModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _inventories ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                item.InboundId = info.InboundId;
+                item.IngredientId = info.IngredientId;
+                item.Quantity = info.Quantity;
+                item.InitialQuantity = info.InitialQuantity;
+                item.ActualQuantity = info.ActualQuantity;
+                item.InboundDate = info.InboundDate;
+                item.ExpiryDate = info.ExpiryDate;
+                item.SupplierId = info.SupplierId;
+                _inventories = data;
+                return 1;
+            }
+
+            public int Insert(string id, InventoryModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _inventories ?? GetAll();
+                if (data.Any(i => i.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _inventories = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _inventories ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -211,10 +661,16 @@ namespace Kohi.Services
                 _ingredients = ingredients;
             }
 
-            public List<IngredientModel> GetAll()
+            public List<IngredientModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_ingredients != null) return _ingredients;
-                return new List<IngredientModel>
+                var data = _ingredients ?? new List<IngredientModel>
                 {
                     new IngredientModel { Id = 1, Name = "Milk", Unit = "Liter", CostPerUnit = 20000f, SupplierId = 1, Description = "Fresh milk" },
                     new IngredientModel { Id = 2, Name = "Sugar", Unit = "Kg", CostPerUnit = 15000f, SupplierId = 2, Description = "Refined sugar" },
@@ -222,6 +678,57 @@ namespace Kohi.Services
                     new IngredientModel { Id = 4, Name = "Coffee Beans", Unit = "Kg", CostPerUnit = 40000f, SupplierId = 4, Description = "Arabica beans" },
                     new IngredientModel { Id = 5, Name = "Fruit Puree", Unit = "Liter", CostPerUnit = 25000f, SupplierId = 5, Description = "Mixed fruit puree" }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public IngredientModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _ingredients ?? GetAll();
+                return data.FirstOrDefault(i => i.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _ingredients ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _ingredients = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, IngredientModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _ingredients ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                item.Name = info.Name;
+                item.Unit = info.Unit;
+                item.CostPerUnit = info.CostPerUnit;
+                item.SupplierId = info.SupplierId;
+                item.Description = info.Description;
+                _ingredients = data;
+                return 1;
+            }
+
+            public int Insert(string id, IngredientModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _ingredients ?? GetAll();
+                if (data.Any(i => i.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _ingredients = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _ingredients ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -235,10 +742,16 @@ namespace Kohi.Services
                 _invoiceDetails = invoiceDetails;
             }
 
-            public List<InvoiceDetailModel> GetAll()
+            public List<InvoiceDetailModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_invoiceDetails != null) return _invoiceDetails;
-                return new List<InvoiceDetailModel>
+                var data = _invoiceDetails ?? new List<InvoiceDetailModel>
                 {
                     new InvoiceDetailModel { Id = 1, InvoiceId = 1, ProductId = 1, Quantity = 2, UnitPrice = 35000m, SugarLevel = 50, IceLevel = 70, Toppings = new List<OrderToppingModel>() },
                     new InvoiceDetailModel { Id = 2, InvoiceId = 2, ProductId = 2, Quantity = 1, UnitPrice = 40000m, SugarLevel = 30, IceLevel = 50, Toppings = new List<OrderToppingModel>() },
@@ -246,6 +759,59 @@ namespace Kohi.Services
                     new InvoiceDetailModel { Id = 4, InvoiceId = 4, ProductId = 1, Quantity = 1, UnitPrice = 35000m, SugarLevel = 60, IceLevel = 80, Toppings = new List<OrderToppingModel>() },
                     new InvoiceDetailModel { Id = 5, InvoiceId = 5, ProductId = 2, Quantity = 2, UnitPrice = 40000m, SugarLevel = 20, IceLevel = 40, Toppings = new List<OrderToppingModel>() }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public InvoiceDetailModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _invoiceDetails ?? GetAll();
+                return data.FirstOrDefault(i => i.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _invoiceDetails ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _invoiceDetails = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, InvoiceDetailModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _invoiceDetails ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                item.InvoiceId = info.InvoiceId;
+                item.ProductId = info.ProductId;
+                item.Quantity = info.Quantity;
+                item.UnitPrice = info.UnitPrice;
+                item.SugarLevel = info.SugarLevel;
+                item.IceLevel = info.IceLevel;
+                item.Toppings = info.Toppings;
+                _invoiceDetails = data;
+                return 1;
+            }
+
+            public int Insert(string id, InvoiceDetailModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _invoiceDetails ?? GetAll();
+                if (data.Any(i => i.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _invoiceDetails = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _invoiceDetails ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -259,10 +825,16 @@ namespace Kohi.Services
                 _recipeDetails = recipeDetails;
             }
 
-            public List<RecipeDetailModel> GetAll()
+            public List<RecipeDetailModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_recipeDetails != null) return _recipeDetails;
-                return new List<RecipeDetailModel>
+                var data = _recipeDetails ?? new List<RecipeDetailModel>
                 {
                     new RecipeDetailModel { RecipeId = 1, IngredientId = 1, Quantity = 200, Unit = "ml" },
                     new RecipeDetailModel { RecipeId = 2, IngredientId = 2, Quantity = 50, Unit = "g" },
@@ -270,6 +842,55 @@ namespace Kohi.Services
                     new RecipeDetailModel { RecipeId = 4, IngredientId = 4, Quantity = 150, Unit = "g" },
                     new RecipeDetailModel { RecipeId = 1, IngredientId = 5, Quantity = 100, Unit = "ml" }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public RecipeDetailModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _recipeDetails ?? GetAll();
+                return data.FirstOrDefault(r => r.RecipeId == intId || r.IngredientId == intId); // Giả định RecipeId là khóa chính
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _recipeDetails ?? GetAll();
+                var item = data.FirstOrDefault(r => r.RecipeId == intId || r.IngredientId == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _recipeDetails = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, RecipeDetailModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _recipeDetails ?? GetAll();
+                var item = data.FirstOrDefault(r => r.RecipeId == intId || r.IngredientId == intId);
+                if (item == null) return 0;
+                item.RecipeId = info.RecipeId;
+                item.IngredientId = info.IngredientId;
+                item.Quantity = info.Quantity;
+                item.Unit = info.Unit;
+                _recipeDetails = data;
+                return 1;
+            }
+
+            public int Insert(string id, RecipeDetailModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _recipeDetails ?? GetAll();
+                if (data.Any(r => r.RecipeId == info.RecipeId && r.IngredientId == info.IngredientId)) return 0; // Không trùng RecipeId và IngredientId
+                data.Add(info);
+                _recipeDetails = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _recipeDetails ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -283,10 +904,16 @@ namespace Kohi.Services
                 _payments = payments;
             }
 
-            public List<PaymentModel> GetAll()
+            public List<PaymentModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_payments != null) return _payments;
-                return new List<PaymentModel>
+                var data = _payments ?? new List<PaymentModel>
                 {
                     new PaymentModel { Id = 1, InvoiceId = 1, PaymentDate = DateTime.Now.AddDays(-9), Amount = 150000m, PaymentMethod = "Cash" },
                     new PaymentModel { Id = 2, InvoiceId = 2, PaymentDate = DateTime.Now.AddDays(-4), Amount = 200000m, PaymentMethod = "Credit Card" },
@@ -294,6 +921,56 @@ namespace Kohi.Services
                     new PaymentModel { Id = 4, InvoiceId = 4, PaymentDate = DateTime.Now, Amount = 250000m, PaymentMethod = "Cash" },
                     new PaymentModel { Id = 5, InvoiceId = 5, PaymentDate = DateTime.Now, Amount = 180000m, PaymentMethod = "Bank Transfer" }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public PaymentModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _payments ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _payments ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _payments = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, PaymentModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _payments ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
+                if (item == null) return 0;
+                item.InvoiceId = info.InvoiceId;
+                item.PaymentDate = info.PaymentDate;
+                item.Amount = info.Amount;
+                item.PaymentMethod = info.PaymentMethod;
+                _payments = data;
+                return 1;
+            }
+
+            public int Insert(string id, PaymentModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _payments ?? GetAll();
+                if (data.Any(p => p.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _payments = data;
+                return 1;
+            }
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _payments ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -307,10 +984,16 @@ namespace Kohi.Services
                 _orderToppings = orderToppings;
             }
 
-            public List<OrderToppingModel> GetAll()
+            public List<OrderToppingModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_orderToppings != null) return _orderToppings;
-                return new List<OrderToppingModel>
+                var data = _orderToppings ?? new List<OrderToppingModel>
                 {
                     new OrderToppingModel { Id = 1, InvoiceDetailId = 1, ProductId = 2, Quantity = 1, UnitPrice = 5000m, IsFree = false },
                     new OrderToppingModel { Id = 2, InvoiceDetailId = 2, ProductId = 2, Quantity = 2, UnitPrice = 5000m, IsFree = true },
@@ -318,6 +1001,58 @@ namespace Kohi.Services
                     new OrderToppingModel { Id = 4, InvoiceDetailId = 4, ProductId = 2, Quantity = 1, UnitPrice = 5000m, IsFree = true },
                     new OrderToppingModel { Id = 5, InvoiceDetailId = 5, ProductId = 2, Quantity = 2, UnitPrice = 5000m, IsFree = false }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public OrderToppingModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _orderToppings ?? GetAll();
+                return data.FirstOrDefault(o => o.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _orderToppings ?? GetAll();
+                var item = data.FirstOrDefault(o => o.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _orderToppings = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, OrderToppingModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _orderToppings ?? GetAll();
+                var item = data.FirstOrDefault(o => o.Id == intId);
+                if (item == null) return 0;
+                item.InvoiceDetailId = info.InvoiceDetailId;
+                item.ProductId = info.ProductId;
+                item.Quantity = info.Quantity;
+                item.UnitPrice = info.UnitPrice;
+                item.IsFree = info.IsFree;
+                _orderToppings = data;
+                return 1;
+            }
+
+            public int Insert(string id, OrderToppingModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _orderToppings ?? GetAll();
+                if (data.Any(o => o.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _orderToppings = data;
+                return 1;
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _orderToppings ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -331,10 +1066,16 @@ namespace Kohi.Services
                 _suppliers = suppliers;
             }
 
-            public List<SupplierModel> GetAll()
+            public List<SupplierModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_suppliers != null) return _suppliers;
-                return new List<SupplierModel>
+                var data = _suppliers ?? new List<SupplierModel>
                 {
                     new SupplierModel { Id = 1, Name = "Vinamilk", Email = "contact@vinamilk.com", Phone = "02412345678", Address = "Hanoi" },
                     new SupplierModel { Id = 2, Name = "SugarCo", Email = "info@sugarco.com", Phone = "02823456789", Address = "Ho Chi Minh" },
@@ -342,6 +1083,57 @@ namespace Kohi.Services
                     new SupplierModel { Id = 4, Name = "CoffeeBean", Email = "support@coffeebean.com", Phone = "02545678901", Address = "Can Tho" },
                     new SupplierModel { Id = 5, Name = "FruitPuree", Email = "order@fruitpuree.com", Phone = "02756789012", Address = "Hai Phong" }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public SupplierModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _suppliers ?? GetAll();
+                return data.FirstOrDefault(s => s.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _suppliers ?? GetAll();
+                var item = data.FirstOrDefault(s => s.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _suppliers = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, SupplierModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _suppliers ?? GetAll();
+                var item = data.FirstOrDefault(s => s.Id == intId);
+                if (item == null) return 0;
+                item.Name = info.Name;
+                item.Email = info.Email;
+                item.Phone = info.Phone;
+                item.Address = info.Address;
+                _suppliers = data;
+                return 1;
+            }
+
+            public int Insert(string id, SupplierModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _suppliers ?? GetAll();
+                if (data.Any(s => s.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _suppliers = data;
+                return 1;
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _suppliers ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -355,10 +1147,16 @@ namespace Kohi.Services
                 _products = products;
             }
 
-            public List<ProductModel> GetAll()
+            public List<ProductModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_products != null) return _products;
-                return new List<ProductModel>
+                var data = _products ?? new List<ProductModel>
                 {
                     new ProductModel { Id = 1, Name = "Black Coffee", Price = 35000f, Cost = 21000f, IsActive = true, CategoryId = 1, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
                     new ProductModel { Id = 2, Name = "Milk Tea", Price = 40000f, Cost = 24000f, IsActive = true, CategoryId = 2, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
@@ -366,6 +1164,60 @@ namespace Kohi.Services
                     new ProductModel { Id = 4, Name = "Mango Smoothie", Price = 45000f, Cost = 27000f, IsActive = true, CategoryId = 4, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
                     new ProductModel { Id = 5, Name = "Espresso", Price = 40000f, Cost = 24000f, IsActive = true, CategoryId = 1, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public ProductModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _products ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _products ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _products = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, ProductModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _products ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
+                if (item == null) return 0;
+                item.Name = info.Name;
+                item.Price = info.Price;
+                item.Cost = info.Cost;
+                item.IsActive = info.IsActive;
+                item.CategoryId = info.CategoryId;
+                item.ImageUrl = info.ImageUrl;
+                item.InvoiceDetails = info.InvoiceDetails;
+                _products = data;
+                return 1;
+            }
+
+            public int Insert(string id, ProductModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _products ?? GetAll();
+                if (data.Any(p => p.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _products = data;
+                return 1;
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _products ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -379,10 +1231,16 @@ namespace Kohi.Services
                 _outbounds = outbounds;
             }
 
-            public List<OutboundModel> GetAll()
+            public List<OutboundModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_outbounds != null) return _outbounds;
-                return new List<OutboundModel>
+                var data = _outbounds ?? new List<OutboundModel>
                 {
                     new OutboundModel { Id = 1, InventoryId = 1, Quantity = 10, OutboundDate = DateTime.Now.AddDays(-14), Purpose = "Production", Notes = "For black coffee" },
                     new OutboundModel { Id = 2, InventoryId = 2, Quantity = 5, OutboundDate = DateTime.Now.AddDays(-9), Purpose = "Production", Notes = "For milk tea" },
@@ -390,6 +1248,58 @@ namespace Kohi.Services
                     new OutboundModel { Id = 4, InventoryId = 4, Quantity = 6, OutboundDate = DateTime.Now.AddDays(-4), Purpose = "Production", Notes = "For mango smoothie" },
                     new OutboundModel { Id = 5, InventoryId = 5, Quantity = 7, OutboundDate = DateTime.Now.AddDays(-2), Purpose = "Production", Notes = "For espresso" }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public OutboundModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _outbounds ?? GetAll();
+                return data.FirstOrDefault(o => o.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _outbounds ?? GetAll();
+                var item = data.FirstOrDefault(o => o.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _outbounds = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, OutboundModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _outbounds ?? GetAll();
+                var item = data.FirstOrDefault(o => o.Id == intId);
+                if (item == null) return 0;
+                item.InventoryId = info.InventoryId;
+                item.Quantity = info.Quantity;
+                item.OutboundDate = info.OutboundDate;
+                item.Purpose = info.Purpose;
+                item.Notes = info.Notes;
+                _outbounds = data;
+                return 1;
+            }
+
+            public int Insert(string id, OutboundModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _outbounds ?? GetAll();
+                if (data.Any(o => o.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _outbounds = data;
+                return 1;
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _outbounds ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -403,10 +1313,16 @@ namespace Kohi.Services
                 _recipes = recipes;
             }
 
-            public List<RecipeModel> GetAll()
+            public List<RecipeModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_recipes != null) return _recipes;
-                return new List<RecipeModel>
+                var data = _recipes ?? new List<RecipeModel>
                 {
                     new RecipeModel { Id = 1, ProductId = 1, Ingredients = new List<RecipeDetailModel>() },
                     new RecipeModel { Id = 2, ProductId = 2, Ingredients = new List<RecipeDetailModel>() },
@@ -414,6 +1330,55 @@ namespace Kohi.Services
                     new RecipeModel { Id = 4, ProductId = 4, Ingredients = new List<RecipeDetailModel>() },
                     new RecipeModel { Id = 5, ProductId = 5, Ingredients = new List<RecipeDetailModel>() }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public RecipeModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _recipes ?? GetAll();
+                return data.FirstOrDefault(r => r.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _recipes ?? GetAll();
+                var item = data.FirstOrDefault(r => r.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _recipes = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, RecipeModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _recipes ?? GetAll();
+                var item = data.FirstOrDefault(r => r.Id == intId);
+                if (item == null) return 0;
+                item.ProductId = info.ProductId;
+                item.Ingredients = info.Ingredients;
+                _recipes = data;
+                return 1;
+            }
+
+            public int Insert(string id, RecipeModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _recipes ?? GetAll();
+                if (data.Any(r => r.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _recipes = data;
+                return 1;
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _recipes ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -427,10 +1392,16 @@ namespace Kohi.Services
                 _taxes = taxes;
             }
 
-            public List<TaxModel> GetAll()
+            public List<TaxModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_taxes != null) return _taxes;
-                return new List<TaxModel>
+                var data = _taxes ?? new List<TaxModel>
                 {
                     new TaxModel { Id = 1, TaxName = "VAT 10%", TaxRate = 0.10m, InvoiceTaxes = new List<InvoiceTaxModel>() },
                     new TaxModel { Id = 2, TaxName = "Service Tax 5%", TaxRate = 0.05m, InvoiceTaxes = new List<InvoiceTaxModel>() },
@@ -438,6 +1409,56 @@ namespace Kohi.Services
                     new TaxModel { Id = 4, TaxName = "No Tax", TaxRate = 0.00m, InvoiceTaxes = new List<InvoiceTaxModel>() },
                     new TaxModel { Id = 5, TaxName = "VAT 8%", TaxRate = 0.08m, InvoiceTaxes = new List<InvoiceTaxModel>() }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public TaxModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _taxes ?? GetAll();
+                return data.FirstOrDefault(t => t.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _taxes ?? GetAll();
+                var item = data.FirstOrDefault(t => t.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _taxes = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, TaxModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _taxes ?? GetAll();
+                var item = data.FirstOrDefault(t => t.Id == intId);
+                if (item == null) return 0;
+                item.TaxName = info.TaxName;
+                item.TaxRate = info.TaxRate;
+                item.InvoiceTaxes = info.InvoiceTaxes;
+                _taxes = data;
+                return 1;
+            }
+
+            public int Insert(string id, TaxModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _taxes ?? GetAll();
+                if (data.Any(t => t.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _taxes = data;
+                return 1;
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _taxes ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
@@ -451,10 +1472,16 @@ namespace Kohi.Services
                 _invoiceTaxes = invoiceTaxes;
             }
 
-            public List<InvoiceTaxModel> GetAll()
+            public List<InvoiceTaxModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
             {
-                if (_invoiceTaxes != null) return _invoiceTaxes;
-                return new List<InvoiceTaxModel>
+                var data = _invoiceTaxes ?? new List<InvoiceTaxModel>
                 {
                     new InvoiceTaxModel { Id = 1, InvoiceId = 1, TaxId = 1 },
                     new InvoiceTaxModel { Id = 2, InvoiceId = 2, TaxId = 2 },
@@ -462,13 +1489,132 @@ namespace Kohi.Services
                     new InvoiceTaxModel { Id = 4, InvoiceId = 4, TaxId = 4 },
                     new InvoiceTaxModel { Id = 5, InvoiceId = 5, TaxId = 5 }
                 };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public InvoiceTaxModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _invoiceTaxes ?? GetAll();
+                return data.FirstOrDefault(i => i.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _invoiceTaxes ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _invoiceTaxes = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, InvoiceTaxModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _invoiceTaxes ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                item.InvoiceId = info.InvoiceId;
+                item.TaxId = info.TaxId;
+                _invoiceTaxes = data;
+                return 1;
+            }
+
+            public int Insert(string id, InvoiceTaxModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _invoiceTaxes ?? GetAll();
+                if (data.Any(i => i.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _invoiceTaxes = data;
+                return 1;
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _invoiceTaxes ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
 
-        // Constructor để nối Navigation Properties
+        // Helper method to apply pagination, sorting, filtering, and searching
+        private static List<T> ApplyQuery<T>(
+            List<T> data,
+            int pageNumber,
+            int pageSize,
+            string sortBy,
+            bool sortDescending,
+            string filterField,
+            string filterValue,
+            string searchKeyword)
+        {
+            IEnumerable<T> query = data; // Thay IQueryable<T> bằng IEnumerable<T>
+
+            // Filtering
+            if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+            {
+                query = query.Where(item => item.GetType()
+                    .GetProperty(filterField)?.GetValue(item)?.ToString() == filterValue);
+            }
+
+            // Searching
+            if (!string.IsNullOrEmpty(searchKeyword))
+            {
+                query = query.Where(item => item.GetType()
+                    .GetProperties()
+                    .Any(prop => prop.GetValue(item)?.ToString()
+                    .Contains(searchKeyword, StringComparison.OrdinalIgnoreCase) == true));
+            }
+
+            // Sorting
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                query = sortDescending
+                    ? query.OrderByDescending(item => item.GetType().GetProperty(sortBy)?.GetValue(item))
+                    : query.OrderBy(item => item.GetType().GetProperty(sortBy)?.GetValue(item));
+            }
+
+            // Pagination
+            query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+            return query.ToList();
+        }
+
+        private static int ApplyCountQuery<T>(
+            List<T> data,
+            string filterField = null,
+            string filterValue = null,
+            string searchKeyword = null)
+        {
+            IEnumerable<T> query = data;
+
+            // Filtering
+            if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+            {
+                query = query.Where(item => item.GetType()
+                    .GetProperty(filterField)?.GetValue(item)?.ToString() == filterValue);
+            }
+
+            // Searching
+            if (!string.IsNullOrEmpty(searchKeyword))
+            {
+                query = query.Where(item => item.GetType()
+                    .GetProperties()
+                    .Any(prop => prop.GetValue(item)?.ToString()
+                    .Contains(searchKeyword, StringComparison.OrdinalIgnoreCase) == true));
+            }
+
+            return query.Count();
+        }
+
+        // Constructor to link Navigation Properties
         public MockDao()
         {
-            // Khởi tạo dữ liệu độc lập
+            // Initialize independent data
             var categories = new MockCategoryRepository().GetAll();
             var customers = new MockCustomerRepository().GetAll();
             var expenseCategories = new MockExpenseCategoryRepository().GetAll();
@@ -488,8 +1634,6 @@ namespace Kohi.Services
             var recipes = new MockRecipeRepository().GetAll();
             var taxes = new MockTaxRepository().GetAll();
             var invoiceTaxes = new MockInvoiceTaxRepository().GetAll();
-
-            // Nối Navigation Properties
 
             // CategoryModel - ProductModel (1-n)
             foreach (var category in categories)
@@ -631,7 +1775,7 @@ namespace Kohi.Services
                 invoiceTax.Invoice = invoices.FirstOrDefault(i => i.Id == invoiceTax.InvoiceId);
             }
 
-            // Gán lại các repository với dữ liệu đã nối
+            // Assign repositories with linked data
             Categories = new MockCategoryRepository(categories);
             Customers = new MockCustomerRepository(customers);
             ExpenseCategories = new MockExpenseCategoryRepository(expenseCategories);
@@ -653,6 +1797,7 @@ namespace Kohi.Services
             InvoiceTaxes = new MockInvoiceTaxRepository(invoiceTaxes);
         }
 
+        // Properties
         public IRepository<ProductModel> Products { get; set; }
         public IRepository<CategoryModel> Categories { get; set; }
         public IRepository<CustomerModel> Customers { get; set; }
@@ -672,5 +1817,6 @@ namespace Kohi.Services
         public IRepository<RecipeModel> Recipes { get; set; }
         public IRepository<TaxModel> Taxes { get; set; }
         public IRepository<InvoiceTaxModel> InvoiceTaxes { get; set; }
+
     }
 }
