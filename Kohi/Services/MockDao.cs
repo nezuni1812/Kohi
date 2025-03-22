@@ -408,84 +408,7 @@ namespace Kohi.Services
             }
         }
 
-        public class MockExpenseTypeRepository : IRepository<ExpenseTypeModel>
-        {
-            private List<ExpenseTypeModel> _expenseTypes;
-
-            public MockExpenseTypeRepository() { }
-            public MockExpenseTypeRepository(List<ExpenseTypeModel> expenseTypes)
-            {
-                _expenseTypes = expenseTypes;
-            }
-
-            public List<ExpenseTypeModel> GetAll(
-                int pageNumber = 1,
-                int pageSize = 10,
-                string sortBy = null,
-                bool sortDescending = false,
-                string filterField = null,
-                string filterValue = null,
-                string searchKeyword = null)
-            {
-                var data = _expenseTypes ?? new List<ExpenseTypeModel>
-                {
-                    new ExpenseTypeModel { Id = 1, TypeName = "Operational", Description = "Daily operation costs", ExpenseCategories = new List<ExpenseCategoryModel>() },
-                    new ExpenseTypeModel { Id = 2, TypeName = "Infrastructure", Description = "Facility costs", ExpenseCategories = new List<ExpenseCategoryModel>() },
-                    new ExpenseTypeModel { Id = 3, TypeName = "Marketing", Description = "Promotion costs", ExpenseCategories = new List<ExpenseCategoryModel>() },
-                    new ExpenseTypeModel { Id = 4, TypeName = "Miscellaneous", Description = "Other expenses", ExpenseCategories = new List<ExpenseCategoryModel>() },
-                    new ExpenseTypeModel { Id = 5, TypeName = "Staff", Description = "Employee-related costs", ExpenseCategories = new List<ExpenseCategoryModel>() }
-                };
-
-                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
-            }
-
-            public ExpenseTypeModel GetById(string id)
-            {
-                if (!int.TryParse(id, out int intId)) return null;
-                var data = _expenseTypes ?? GetAll();
-                return data.FirstOrDefault(e => e.Id == intId);
-            }
-
-            public int DeleteById(string id)
-            {
-                if (!int.TryParse(id, out int intId)) return 0;
-                var data = _expenseTypes ?? GetAll();
-                var item = data.FirstOrDefault(e => e.Id == intId);
-                if (item == null) return 0;
-                data.Remove(item);
-                _expenseTypes = data;
-                return 1;
-            }
-
-            public int UpdateById(string id, ExpenseTypeModel info)
-            {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _expenseTypes ?? GetAll();
-                var item = data.FirstOrDefault(e => e.Id == intId);
-                if (item == null) return 0;
-                item.TypeName = info.TypeName;
-                item.Description = info.Description;
-                item.ExpenseCategories = info.ExpenseCategories;
-                _expenseTypes = data;
-                return 1;
-            }
-
-            public int Insert(string id, ExpenseTypeModel info)
-            {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _expenseTypes ?? GetAll();
-                if (data.Any(e => e.Id == intId)) return 0;
-                info.Id = intId;
-                data.Add(info);
-                _expenseTypes = data;
-                return 1;
-            }
-            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
-            {
-                var data = _expenseTypes ?? GetAll();
-                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
-            }
-        }
+       
 
         public class MockInvoiceRepository : IRepository<InvoiceModel>
         {
@@ -1620,7 +1543,6 @@ namespace Kohi.Services
             var expenseCategories = new MockExpenseCategoryRepository().GetAll();
             var expenses = new MockExpenseRepository().GetAll();
             var inbounds = new MockInboundRepository().GetAll();
-            var expenseTypes = new MockExpenseTypeRepository().GetAll();
             var invoices = new MockInvoiceRepository().GetAll();
             var inventories = new MockInventoryRepository().GetAll();
             var ingredients = new MockIngredientRepository().GetAll();
@@ -1665,15 +1587,6 @@ namespace Kohi.Services
                 }
             }
 
-            // ExpenseTypeModel - ExpenseCategoryModel (1-n)
-            foreach (var expenseType in expenseTypes)
-            {
-                expenseType.ExpenseCategories = expenseCategories.Where(ec => ec.ExpenseTypeId == expenseType.Id).ToList();
-                foreach (var expenseCategory in expenseType.ExpenseCategories)
-                {
-                    expenseCategory.ExpenseType = expenseType;
-                }
-            }
 
             // InboundModel - IngredientModel, SupplierModel (1-1)
             foreach (var inbound in inbounds)
@@ -1781,7 +1694,6 @@ namespace Kohi.Services
             ExpenseCategories = new MockExpenseCategoryRepository(expenseCategories);
             Expenses = new MockExpenseRepository(expenses);
             Inbounds = new MockInboundRepository(inbounds);
-            ExpenseTypes = new MockExpenseTypeRepository(expenseTypes);
             Invoices = new MockInvoiceRepository(invoices);
             Inventories = new MockInventoryRepository(inventories);
             Ingredients = new MockIngredientRepository(ingredients);
@@ -1804,7 +1716,6 @@ namespace Kohi.Services
         public IRepository<ExpenseCategoryModel> ExpenseCategories { get; set; }
         public IRepository<ExpenseModel> Expenses { get; set; }
         public IRepository<InboundModel> Inbounds { get; set; }
-        public IRepository<ExpenseTypeModel> ExpenseTypes { get; set; }
         public IRepository<InvoiceModel> Invoices { get; set; }
         public IRepository<InventoryModel> Inventories { get; set; }
         public IRepository<IngredientModel> Ingredients { get; set; }

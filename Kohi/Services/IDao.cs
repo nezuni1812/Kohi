@@ -13,7 +13,6 @@ namespace Kohi.Services
         IRepository<ProductModel> Products { get; set; }
         IRepository<CustomerModel> Customers { get; set; }
         IRepository<InvoiceModel> Invoices { get; set; }
-        IRepository<ExpenseTypeModel> ExpenseTypes { get; set; }
         IRepository<ExpenseCategoryModel> ExpenseCategories { get; set; }
         IRepository<ExpenseModel> Expenses { get; set; }
         IRepository<PaymentModel> Payments { get; set; }

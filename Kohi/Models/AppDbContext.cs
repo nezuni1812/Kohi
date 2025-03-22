@@ -57,7 +57,6 @@ namespace Kohi.Models
         public DbSet<ExpenseCategoryModel> ExpenseCategories { get; set; }
         public DbSet<ExpenseModel> Expenses { get; set; }
         public DbSet<InboundModel> Inbounds { get; set; }
-        public DbSet<ExpenseTypeModel> ExpenseTypes { get; set; }
         public DbSet<InvoiceModel> Invoices { get; set; }
         public DbSet<InventoryModel> Inventories { get; set; }
         public DbSet<IngredientModel> Ingredients { get; set; }
@@ -116,11 +115,6 @@ namespace Kohi.Models
                 .WithOne(i => i.Customer)
                 .HasForeignKey(i => i.CustomerId);
 
-            // ExpenseCategoryModel
-            modelBuilder.Entity<ExpenseCategoryModel>()
-                .HasOne(ec => ec.ExpenseType)
-                .WithMany(et => et.ExpenseCategories)
-                .HasForeignKey(ec => ec.ExpenseTypeId);
 
             modelBuilder.Entity<ExpenseCategoryModel>()
                 .HasMany(ec => ec.Expenses)
@@ -144,11 +138,6 @@ namespace Kohi.Models
                 .WithMany()
                 .HasForeignKey(ib => ib.SupplierId);
 
-            // ExpenseTypeModel
-            modelBuilder.Entity<ExpenseTypeModel>()
-                .HasMany(et => et.ExpenseCategories)
-                .WithOne(ec => ec.ExpenseType)
-                .HasForeignKey(ec => ec.ExpenseTypeId);
 
             // InvoiceModel
             modelBuilder.Entity<InvoiceModel>()

@@ -84,7 +84,6 @@
                 <tableView:TableView.Columns>
                     <!--tableView:TableViewTextColumn Header="Id" Binding="{Binding Id}" /-->
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding ExpenseCategoryId}" />
-                    <tableView:TableViewTextColumn Header="Phân loại" Binding="{Binding ExpenseCategory.ExpenseType.TypeName}" />
                     <tableView:TableViewTextColumn Header="Loại phiếu chi" Binding="{Binding ExpenseCategory.CategoryName}" />
                     <tableView:TableViewTemplateColumn Header="Tiền">
                         <tableView:TableViewTemplateColumn.CellTemplate>
@@ -101,6 +100,8 @@
                     </tableView:TableViewTemplateColumn>
 
                     <tableView:TableViewDateColumn Header="Thời gian" Binding="{Binding ExpenseDate}" />
+                    <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Note}" />
+
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
