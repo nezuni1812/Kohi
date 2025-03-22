@@ -16,6 +16,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Views\AddNewCustomerPage.xaml" />
     <None Remove="Views\CustomersPage.xaml" />
     <None Remove="Views\HomePage.xaml" />
     <None Remove="Views\InventoriesPage.xaml" />
@@ -78,6 +79,9 @@
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\CustomersPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AddNewCustomerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <None Update="Views\HomePage.xaml">
