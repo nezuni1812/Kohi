@@ -18,6 +18,7 @@
   <ItemGroup>
     <None Remove="Views\CustomersPage.xaml" />
     <None Remove="Views\HomePage.xaml" />
+    <None Remove="Views\IncomeExpenseCategoriesPage.xaml" />
     <None Remove="Views\InventoriesPage.xaml" />
     <None Remove="Views\InventoryCheckPage.xaml" />
     <None Remove="Views\InventoryDispatchPage.xaml" />
@@ -83,6 +84,9 @@
     <None Update="Views\HomePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Views\IncomeExpenseCategoriesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\InvoiceReportPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

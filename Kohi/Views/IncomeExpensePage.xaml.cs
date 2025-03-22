@@ -67,6 +67,7 @@ namespace Kohi.Views
 
         private void addButton_click(object sender, RoutedEventArgs e)
         {
+
         }
     }
 
