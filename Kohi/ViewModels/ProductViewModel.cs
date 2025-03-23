@@ -1,15 +1,17 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Collections.ObjectModel;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using Kohi.BusinessLogic;
-//using Kohi.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Kohi.BusinessLogic;
+using Kohi.Models;
+using Kohi.Services;
+using Kohi.Utils;
 
 //namespace Kohi.ViewModels
 //{
-//    class ProductViewModel
+//    public class ProductViewModel
 //    {
 //        private ProductService _service;
 //        public ObservableCollection<ProductModel> Products { get; set; }
@@ -46,29 +48,35 @@
 //}
 
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Kohi.Models;
-using Kohi.Services;
-using Kohi.Utils;
+//using System;
+//using System.Collections.Generic;
+//using System.Collections.ObjectModel;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+//using Kohi.Models;
+//using Kohi.Services;
+//using Kohi.Utils;
 
 namespace Kohi.ViewModels
 {
     public class ProductViewModel
     {
         private IDao _dao;
+
+        private ProductService _service;
+        public string NewProductName { get; set; } = "";
+        public string NewCategoryId { get; set; } = "";
         public FullObservableCollection<ProductModel> Products { get; set; }
         public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10; 
-        public int TotalItems { get; set; } 
+        public int PageSize { get; set; } = 10;
+        public int TotalItems { get; set; }
         public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public ProductViewModel()
         {
-            _dao = Service.GetKeyedSingleton<IDao>();
+            //_dao = Service.GetKeyedSingleton<IDao>();
+            //Products = new FullObservableCollection<ProductModel>();
+            _service = new ProductService();
             Products = new FullObservableCollection<ProductModel>();
 
             LoadData();
@@ -76,17 +84,31 @@ namespace Kohi.ViewModels
 
         public async Task LoadData(int page = 1)
         {
-            CurrentPage = page;
-            TotalItems = _dao.Products.GetCount(); // Lấy tổng số khách hàng từ DAO
-            var result = await Task.Run(() => _dao.Products.GetAll(
-                pageNumber: CurrentPage,
-                pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            //CurrentPage = page;
+            //TotalItems = _dao.Products.GetCount(); // Lấy tổng số khách hàng từ DAO
+            //var result = await Task.Run(() => _dao.Products.GetAll(
+            //    pageNumber: CurrentPage,
+            //    pageSize: PageSize
+            //)); // Lấy danh sách khách hàng phân trang
+            //Products.Clear();
+            //foreach (var item in result)
+            //{
+            //    Products.Add(item);
+            //}
+            var products = await _service.GetProductAsync();
             Products.Clear();
-            foreach (var item in result)
+
+            foreach (var product in products)
             {
-                Products.Add(item);
+                Products.Add(product);
             }
+        }
+        public async void AddProduct()
+        {
+            await _service.AddProductAsync(new ProductModel { Name = NewProductName });
+            LoadData();
+            NewProductName = "";
+            NewCategoryId = null;
         }
 
         // Phương thức để chuyển đến trang tiếp theo

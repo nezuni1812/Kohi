@@ -85,21 +85,25 @@ namespace Kohi.Models
             Database.EnsureCreated();
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            if (!options.IsConfigured) // Chỉ cấu hình nếu chưa được cấu hình qua DI
-            {
-                string SQLiteFileName = "data.db";
-                string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), SQLiteFileName);
-                if (!File.Exists(dbPath))
-                {
-                    File.Create(dbPath).Dispose();
-                    Debug.WriteLine($"Created new database file at: {dbPath}");
-                }
-                options.UseSqlite($"Data Source={dbPath}");
-                Debug.WriteLine($"Database path: {dbPath}");
-            }
-        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseNpgsql("Host=localhost;Username=kohi;Password=1234;Database=kohi");
+
+
+        //protected override void OnConfiguring(DbContextOptionsBuilder options)
+        //{
+        //    if (!options.IsConfigured) // Chỉ cấu hình nếu chưa được cấu hình qua DI
+        //    {
+        //        string SQLiteFileName = "data.db";
+        //        string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), SQLiteFileName);
+        //        if (!File.Exists(dbPath))
+        //        {
+        //            File.Create(dbPath).Dispose();
+        //            Debug.WriteLine($"Created new database file at: {dbPath}");
+        //        }
+        //        options.UseSqlite($"Data Source={dbPath}");
+        //        Debug.WriteLine($"Database path: {dbPath}");
+        //    }
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
