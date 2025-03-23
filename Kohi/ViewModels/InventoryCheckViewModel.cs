@@ -13,12 +13,12 @@ namespace Kohi.ViewModels
     public class InventoryCheckViewModel
     {
         private IDao _dao;
-        public FullObservableCollection<InventoryModel> Inventories { get; set; }
+        public FullObservableCollection<CheckInventoryModel> CheckInventories { get; set; }
 
         public InventoryCheckViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
-            Inventories = new FullObservableCollection<InventoryModel>();
+            CheckInventories = new FullObservableCollection<CheckInventoryModel>();
 
             LoadData();
         }
@@ -27,12 +27,12 @@ namespace Kohi.ViewModels
         {
             // Giả lập tải dữ liệu không đồng bộ từ MockDao
             await Task.Delay(1); // Giả lập delay để giữ async
-            var inventories = _dao.Inventories.GetAll();
-            Inventories.Clear();
+            var inventories = _dao.CheckInventories.GetAll();
+            CheckInventories.Clear();
 
             foreach (var inventory in inventories)
             {
-                Inventories.Add(inventory);
+                CheckInventories.Add(inventory);
             }
         }
     }

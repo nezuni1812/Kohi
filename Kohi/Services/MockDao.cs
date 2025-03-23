@@ -511,11 +511,11 @@ namespace Kohi.Services
             {
                 var data = _inventories ?? new List<InventoryModel>
                 {
-                    new InventoryModel { Id = 1, InboundId = 1, IngredientId = 1, Quantity = 90, InitialQuantity = 100, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddMonths(6), SupplierId = 1 },
-                    new InventoryModel { Id = 2, InboundId = 2, IngredientId = 2, Quantity = 45, InitialQuantity = 50, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddMonths(5), SupplierId = 2 },
-                    new InventoryModel { Id = 3, InboundId = 3, IngredientId = 3, Quantity = 75, InitialQuantity = 80, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-7), ExpiryDate = DateTime.Now.AddMonths(4), SupplierId = 3 },
-                    new InventoryModel { Id = 4, InboundId = 4, IngredientId = 4, Quantity = 55, InitialQuantity = 60, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddMonths(3), SupplierId = 4 },
-                    new InventoryModel { Id = 5, InboundId = 5, IngredientId = 5, Quantity = 65, InitialQuantity = 70, ActualQuantity = 0, InboundDate = DateTime.Now.AddDays(-3), ExpiryDate = DateTime.Now.AddMonths(2), SupplierId = 5 }
+                    new InventoryModel { Id = 1, InboundId = 1, Quantity = 90,  InboundDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddMonths(6)},
+                    new InventoryModel { Id = 2, InboundId = 2, Quantity = 45,  InboundDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddMonths(5)},
+                    new InventoryModel { Id = 3, InboundId = 3, Quantity = 75,  InboundDate = DateTime.Now.AddDays(-7), ExpiryDate = DateTime.Now.AddMonths(4)},
+                    new InventoryModel { Id = 4, InboundId = 4, Quantity = 55,  InboundDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddMonths(3)},
+                    new InventoryModel { Id = 5, InboundId = 5, Quantity = 65,  InboundDate = DateTime.Now.AddDays(-3), ExpiryDate = DateTime.Now.AddMonths(2)}
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -546,13 +546,9 @@ namespace Kohi.Services
                 var item = data.FirstOrDefault(i => i.Id == intId);
                 if (item == null) return 0;
                 item.InboundId = info.InboundId;
-                item.IngredientId = info.IngredientId;
                 item.Quantity = info.Quantity;
-                item.InitialQuantity = info.InitialQuantity;
-                item.ActualQuantity = info.ActualQuantity;
                 item.InboundDate = info.InboundDate;
                 item.ExpiryDate = info.ExpiryDate;
-                item.SupplierId = info.SupplierId;
                 _inventories = data;
                 return 1;
             }
@@ -595,11 +591,11 @@ namespace Kohi.Services
             {
                 var data = _ingredients ?? new List<IngredientModel>
                 {
-                    new IngredientModel { Id = 1, Name = "Milk", Unit = "Liter", CostPerUnit = 20000f, SupplierId = 1, Description = "Fresh milk" },
-                    new IngredientModel { Id = 2, Name = "Sugar", Unit = "Kg", CostPerUnit = 15000f, SupplierId = 2, Description = "Refined sugar" },
-                    new IngredientModel { Id = 3, Name = "Tea Leaves", Unit = "Kg", CostPerUnit = 30000f, SupplierId = 3, Description = "Green tea leaves" },
-                    new IngredientModel { Id = 4, Name = "Coffee Beans", Unit = "Kg", CostPerUnit = 40000f, SupplierId = 4, Description = "Arabica beans" },
-                    new IngredientModel { Id = 5, Name = "Fruit Puree", Unit = "Liter", CostPerUnit = 25000f, SupplierId = 5, Description = "Mixed fruit puree" }
+                    new IngredientModel { Id = 1, Name = "Milk", Unit = "Liter", CostPerUnit = 20000f, Description = "Fresh milk" },
+                    new IngredientModel { Id = 2, Name = "Sugar", Unit = "Kg", CostPerUnit = 15000f, Description = "Refined sugar" },
+                    new IngredientModel { Id = 3, Name = "Tea Leaves", Unit = "Kg", CostPerUnit = 30000f, Description = "Green tea leaves" },
+                    new IngredientModel { Id = 4, Name = "Coffee Beans", Unit = "Kg", CostPerUnit = 40000f, Description = "Arabica beans" },
+                    new IngredientModel { Id = 5, Name = "Fruit Puree", Unit = "Liter", CostPerUnit = 25000f, Description = "Mixed fruit puree" }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -632,7 +628,6 @@ namespace Kohi.Services
                 item.Name = info.Name;
                 item.Unit = info.Unit;
                 item.CostPerUnit = info.CostPerUnit;
-                item.SupplierId = info.SupplierId;
                 item.Description = info.Description;
                 _ingredients = data;
                 return 1;
@@ -1464,6 +1459,85 @@ namespace Kohi.Services
             }
         }
 
+        public class MockCheckInventoryRepository : IRepository<CheckInventoryModel>
+        {
+            private List<CheckInventoryModel> _checkInventories;
+
+            public MockCheckInventoryRepository() { }
+            public MockCheckInventoryRepository(List<CheckInventoryModel> checkInventories)
+            {
+                _checkInventories = checkInventories;
+            }
+
+            public List<CheckInventoryModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
+            {
+                var data = _checkInventories ?? new List<CheckInventoryModel>
+                {
+                    new CheckInventoryModel { Id = 1, InventoryId = 2, ActualQuantity = 43, CheckDate = DateTime.Now.AddDays(-2), Notes = "Thiếu do hao hụt"},
+                    new CheckInventoryModel { Id = 2, InventoryId = 4, ActualQuantity = 55, CheckDate = DateTime.Now.AddDays(-1), Notes = "Đủ"},
+                    new CheckInventoryModel { Id = 3, InventoryId = 3, ActualQuantity = 76, CheckDate = DateTime.Now, Notes = "Dư có thể hoàn kho"},
+                };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public CheckInventoryModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _checkInventories ?? GetAll();
+                return data.FirstOrDefault(i => i.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _checkInventories ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _checkInventories = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, CheckInventoryModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _checkInventories ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                item.InventoryId = info.InventoryId;
+                item.ActualQuantity = info.ActualQuantity;
+                item.CheckDate = info.CheckDate;
+                item.Notes = info.Notes;
+                item.Inventory = info.Inventory; // Update navigation property if needed
+                _checkInventories = data;
+                return 1;
+            }
+
+            public int Insert(string id, CheckInventoryModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _checkInventories ?? GetAll();
+                if (data.Any(i => i.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _checkInventories = data;
+                return 1;
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _checkInventories ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
+            }
+        }
         // Helper method to apply pagination, sorting, filtering, and searching
         private static List<T> ApplyQuery<T>(
             List<T> data,
@@ -1556,6 +1630,7 @@ namespace Kohi.Services
             var recipes = new MockRecipeRepository().GetAll();
             var taxes = new MockTaxRepository().GetAll();
             var invoiceTaxes = new MockInvoiceTaxRepository().GetAll();
+            var checkInventories = new MockCheckInventoryRepository().GetAll();
 
             // CategoryModel - ProductModel (1-n)
             foreach (var category in categories)
@@ -1609,15 +1684,8 @@ namespace Kohi.Services
             foreach (var inventory in inventories)
             {
                 inventory.Inbound = inbounds.FirstOrDefault(ib => ib.Id == inventory.InboundId);
-                inventory.Ingredient = ingredients.FirstOrDefault(i => i.Id == inventory.IngredientId);
-                inventory.Supplier = suppliers.FirstOrDefault(s => s.Id == inventory.SupplierId);
             }
 
-            // IngredientModel - SupplierModel (1-1)
-            foreach (var ingredient in ingredients)
-            {
-                ingredient.Supplier = suppliers.FirstOrDefault(s => s.Id == ingredient.SupplierId);
-            }
 
             // InvoiceDetailModel - ProductModel (1-1), OrderToppingModel (1-n)
             foreach (var invoiceDetail in invoiceDetails)
@@ -1688,6 +1756,12 @@ namespace Kohi.Services
                 invoiceTax.Invoice = invoices.FirstOrDefault(i => i.Id == invoiceTax.InvoiceId);
             }
 
+            // CheckInventoryModel - InventoryModel (1-1)
+            foreach (var checkInventory in checkInventories)
+            {
+                checkInventory.Inventory = inventories.FirstOrDefault(i => i.Id == checkInventory.InventoryId);
+            }
+
             // Assign repositories with linked data
             Categories = new MockCategoryRepository(categories);
             Customers = new MockCustomerRepository(customers);
@@ -1707,6 +1781,7 @@ namespace Kohi.Services
             Recipes = new MockRecipeRepository(recipes);
             Taxes = new MockTaxRepository(taxes);
             InvoiceTaxes = new MockInvoiceTaxRepository(invoiceTaxes);
+            CheckInventories = new MockCheckInventoryRepository(checkInventories);
         }
 
         // Properties
@@ -1728,6 +1803,7 @@ namespace Kohi.Services
         public IRepository<RecipeModel> Recipes { get; set; }
         public IRepository<TaxModel> Taxes { get; set; }
         public IRepository<InvoiceTaxModel> InvoiceTaxes { get; set; }
+        public IRepository<CheckInventoryModel> CheckInventories { get; set; }
 
     }
 }

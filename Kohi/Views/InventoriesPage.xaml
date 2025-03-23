@@ -52,20 +52,20 @@
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
 
-                    <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Ingredient.Name }" />
-                    <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Ingredient.Unit}" />
+                    <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Inbound.Ingredient.Name }" />
+                    <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Inbound.Ingredient.Unit}" />
 
                     <tableView:TableViewNumberColumn Header="Số lượng hiện tại" Binding="{Binding Quantity }" />
-                    <tableView:TableViewNumberColumn Header="Số lượng lúc nhập" Binding="{Binding InitialQuantity }" />
+                    <tableView:TableViewNumberColumn Header="Số lượng lúc nhập" Binding="{Binding Inbound.Quantity }" />
 
                     <tableView:TableViewTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate  }" />
 
-                    <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Supplier.Name   }" />
+                    <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Inbound.Supplier.Name   }" />
 
                     <tableView:TableViewTemplateColumn Header="Giá nhập mỗi đơn vị">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Ingredient.CostPerUnit , Converter={StaticResource vnmoney}}" />
+                                <TextBlock Text="{Binding Inbound.Ingredient.CostPerUnit , Converter={StaticResource vnmoney}}" />
                             </DataTemplate>
                         </tableView:TableViewTemplateColumn.CellTemplate>
 

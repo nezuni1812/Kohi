@@ -60,7 +60,7 @@
                     <tableView:TableViewTextColumn Header="Ngày nhập" Binding="{Binding InboundDate   }" />
                     <tableView:TableViewTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate    }" />
 
-                    <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Ingredient.Supplier.Name   }" />
+                    <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Supplier.Name   }" />
 
                     <tableView:TableViewTemplateColumn Header="Tổng giá nhập">
                         <tableView:TableViewTemplateColumn.CellTemplate>

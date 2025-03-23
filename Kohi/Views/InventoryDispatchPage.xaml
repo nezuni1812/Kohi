@@ -54,8 +54,8 @@
                     <tableView:TableViewNumberColumn Header="Mã lô hàng" Binding="{Binding InventoryId }" />
 
 
-                    <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Inventory.Ingredient.Name }" />
-                    <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Inventory.Ingredient.Unit}" />
+                    <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Inventory.Inbound.Ingredient.Name }" />
+                    <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Inventory.Inbound.Ingredient.Unit}" />
 
                     <tableView:TableViewNumberColumn Header="Số lượng xuất" Binding="{Binding Quantity }" />
                     <tableView:TableViewNumberColumn Header="Số lượng còn lại" Binding="{Binding Inventory.Quantity }" />
@@ -63,7 +63,7 @@
                     <tableView:TableViewTextColumn Header="Ngày xuất kho " Binding="{Binding OutboundDate   }" />
                     <tableView:TableViewTextColumn Header="Lí do xuất kho" Binding="{Binding Purpose    }" />
 
-                    <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Inventory.Ingredient.Supplier.Name   }" />
+                    <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Inventory.Inbound.Supplier.Name   }" />
 
 
                     <tableView:TableViewTextColumn Header="Ghi chú" Binding="{Binding Notes }" />

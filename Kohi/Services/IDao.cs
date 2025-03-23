@@ -27,5 +27,7 @@ namespace Kohi.Services
         IRepository<RecipeModel> Recipes { get; set; }
         IRepository<TaxModel> Taxes { get; set; }
         IRepository<InvoiceTaxModel> InvoiceTaxes { get; set; }
+        IRepository<CheckInventoryModel> CheckInventories { get; set; }
+
     }
 }

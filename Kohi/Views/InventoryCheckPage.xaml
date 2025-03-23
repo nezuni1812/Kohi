@@ -39,7 +39,7 @@
 
         <Grid Grid.Row="2" Margin="0,10,0,10">
             <tableView:TableView x:Name="MyTableView"
-         ItemsSource="{x:Bind InventoryCheckViewModel.Inventories}"
+         ItemsSource="{x:Bind InventoryCheckViewModel.CheckInventories}"
          AutoGenerateColumns="False"           
          SelectionMode="Single"
          SelectionUnit="CellOrRow"
@@ -53,10 +53,10 @@
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
 
-                    <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Ingredient.Name }" />
-                    <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Ingredient.Unit}" />
+                    <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Inventory.Inbound.Ingredient.Name }" />
+                    <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding  Inventory.Inbound.Ingredient.Unit}" />
 
-                    <tableView:TableViewNumberColumn Header="Số lượng lí thuyết" Binding="{Binding Quantity }" />
+                    <tableView:TableViewNumberColumn Header="Số lượng lí thuyết" Binding="{Binding Inventory.Quantity }" />
                     
 
                     <tableView:TableViewNumberColumn Header="Số lượng thực tế" Binding="{Binding ActualQuantity }"/>
@@ -64,10 +64,10 @@
                     <tableView:TableViewNumberColumn Header="Số lượng chênh lệch" Binding="{Binding Discrepancy }" />
 
 
-                    
-                    <tableView:TableViewTextColumn Header="Ngày nhập hàng" Binding="{Binding InboundDate  }" />
 
-                    <tableView:TableViewTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate    }" />
+                    <tableView:TableViewTextColumn Header="Ngày kiểm kê" Binding="{Binding CheckDate  }" />
+
+                    <tableView:TableViewTextColumn Header="Lí do" Binding="{Binding Notes    }" />
 
 
 

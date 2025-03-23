@@ -156,21 +156,6 @@ namespace Kohi.Models
                 .WithMany()
                 .HasForeignKey(iv => iv.InboundId);
 
-            modelBuilder.Entity<InventoryModel>()
-                .HasOne(iv => iv.Ingredient)
-                .WithMany()
-                .HasForeignKey(iv => iv.IngredientId);
-
-            modelBuilder.Entity<InventoryModel>()
-                .HasOne(iv => iv.Supplier)
-                .WithMany()
-                .HasForeignKey(iv => iv.SupplierId);
-
-            // IngredientModel
-            modelBuilder.Entity<IngredientModel>()
-                .HasOne(i => i.Supplier)
-                .WithMany()
-                .HasForeignKey(i => i.SupplierId);
 
             // InvoiceDetailModel
             modelBuilder.Entity<InvoiceDetailModel>()
