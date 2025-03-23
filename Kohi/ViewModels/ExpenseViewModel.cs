@@ -14,24 +14,57 @@ namespace Kohi.ViewModels
     {
         private IDao _dao;
         public FullObservableCollection<ExpenseModel> ExpenseReceipts { get; set; }
-
+        public int CurrentPage { get; set; } = 1;
+        public int PageSize { get; set; } = 10; 
+        public int TotalItems { get; set; } 
+        public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public ExpenseViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
             ExpenseReceipts = new FullObservableCollection<ExpenseModel>();
 
-            LoadReceipts();
+            LoadData();
         }
 
-        private async void LoadReceipts()
+        public async Task LoadData(int page = 1)
         {
-            await Task.Delay(0);
-            var receipts = _dao.Expenses.GetAll();
+            CurrentPage = page;
+            TotalItems = _dao.Expenses.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.Expenses.GetAll(
+                pageNumber: CurrentPage,
+                pageSize: PageSize
+            )); // Lấy danh sách khách hàng phân trang
             ExpenseReceipts.Clear();
-
-            foreach (var receipt in receipts)
+            foreach (var item in result)
             {
-                ExpenseReceipts.Add(receipt);
+                ExpenseReceipts.Add(item);
+            }
+        }
+
+        // Phương thức để chuyển đến trang tiếp theo
+        public async Task NextPage()
+        {
+            if (CurrentPage < TotalPages)
+            {
+                await LoadData(CurrentPage + 1);
+            }
+        }
+
+        // Phương thức để quay lại trang trước
+        public async Task PreviousPage()
+        {
+            if (CurrentPage > 1)
+            {
+                await LoadData(CurrentPage - 1);
+            }
+        }
+
+        // Phương thức để chuyển đến trang cụ thể
+        public async Task GoToPage(int page)
+        {
+            if (page >= 1 && page <= TotalPages)
+            {
+                await LoadData(page);
             }
         }
     }

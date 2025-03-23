@@ -17,8 +17,8 @@ namespace Kohi.ViewModels
         private IDao _dao;
         public FullObservableCollection<CustomerModel> Customers { get; set; }
         public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 3; // Mặc định 3 khách hàng mỗi trang
-        public int TotalItems { get; set; } // Tổng số khách hàng
+        public int PageSize { get; set; } = 10; 
+        public int TotalItems { get; set; } 
         public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public CustomerViewModel()
         {

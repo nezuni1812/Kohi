@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,17 +31,45 @@ namespace Kohi.Views
         public CategoriesPage()
         {
             this.InitializeComponent();
+            Loaded += CategoriesPage_Loaded;
         }
-        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        public async void CategoriesPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is CategoryModel selectedCategory)
+            await CategoryViewModel.LoadData(); // Tải trang đầu tiên
+            UpdatePageList();
+        }
+
+        public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is TableView tableView && tableView.SelectedItem is CustomerModel selectedCustomer)
             {
-                int id = selectedCategory.Id ; //Category nha 
-                Debug.WriteLine($"Selected Category ID: {id}");
+                int id = selectedCustomer.Id;
+                Debug.WriteLine($"Selected Customer ID: {id}");
             }
         }
-        private void addButton_click(object sender, RoutedEventArgs e)
+
+        public void addButton_click(object sender, RoutedEventArgs e)
         {
+            // Logic thêm khách hàng
+        }
+
+        public void UpdatePageList()
+        {
+            if (CategoryViewModel == null) return;
+            pageList.ItemsSource = Enumerable.Range(1, CategoryViewModel.TotalPages);
+            pageList.SelectedItem = CategoryViewModel.CurrentPage;
+        }
+
+        public async void OnPageSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CategoryViewModel == null || pageList.SelectedItem == null) return;
+
+            var selectedPage = (int)pageList.SelectedItem;
+            if (selectedPage != CategoryViewModel.CurrentPage)
+            {
+                await CategoryViewModel.LoadData(selectedPage);
+                UpdatePageList();
+            }
         }
     }
 }
