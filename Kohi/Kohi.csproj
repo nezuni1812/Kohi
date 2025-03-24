@@ -17,7 +17,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Views\AddNewCustomerPage.xaml" />
-    <None Remove="Views\CustomersPage.xaml" />
+    <None Remove="Views\AddNewSupplierPage.xaml" />
     <None Remove="Views\HomePage.xaml" />
     <None Remove="Views\InventoriesPage.xaml" />
     <None Remove="Views\InventoryCheckPage.xaml" />
@@ -25,6 +25,7 @@
     <None Remove="Views\InventoryHistoryPage.xaml" />
     <None Remove="Views\InventoryReceivingPage.xaml" />
     <None Remove="Views\InvoiceReportPage.xaml" />
+    <None Remove="Views\PartnersPage.xaml" />
     <None Remove="Views\ProductReportPage.xaml" />
     <None Remove="Views\Products\CategoriesPage.xaml" />
     <None Remove="Views\Products\ProductsPage.xaml" />
@@ -78,15 +79,18 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\CustomersPage.xaml">
+    <Page Update="Views\AddNewCustomerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Views\AddNewCustomerPage.xaml">
+    <Page Update="Views\AddNewSupplierPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <None Update="Views\HomePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Views\PartnersPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\InvoiceReportPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
