@@ -84,7 +84,6 @@
                 <tableView:TableView.Columns>
                     <!--tableView:TableViewTextColumn Header="Id" Binding="{Binding Id}" /-->
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding ExpenseCategoryId}" />
-                    <tableView:TableViewTextColumn Header="Phân loại" Binding="{Binding ExpenseCategory.ExpenseType.TypeName}" />
                     <tableView:TableViewTextColumn Header="Loại phiếu chi" Binding="{Binding ExpenseCategory.CategoryName}" />
                     <tableView:TableViewTemplateColumn Header="Tiền">
                         <tableView:TableViewTemplateColumn.CellTemplate>
@@ -101,10 +100,21 @@
                     </tableView:TableViewTemplateColumn>
 
                     <tableView:TableViewDateColumn Header="Thời gian" Binding="{Binding ExpenseDate}" />
+                    <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Note}" />
+
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
-        
+        <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
+        CornerRadius="{ThemeResource ControlCornerRadius}">
+            <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+        </Border>
         <!--Grid x:Name="GridContent" Grid.Row="3" Grid.Column="0" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

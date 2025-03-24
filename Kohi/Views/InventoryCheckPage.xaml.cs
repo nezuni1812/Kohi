@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,22 +31,47 @@ namespace Kohi.Views
         public InventoryCheckPage()
         {
             this.InitializeComponent();
+            Loaded += InventoryChecksPage_Loaded;
+
             //GridContent.DataContext = IncomeViewModel;
         }
-        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        public async void InventoryChecksPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is InventoryModel selectedInventory)
-            {
-                int id = selectedInventory.Id; //Category nha 
-                Debug.WriteLine($"Selected Expense ID: {id}");
-            }
-
-
+            await InventoryCheckViewModel.LoadData(); // Tải trang đầu tiên
+            UpdatePageList();
         }
 
-
-        private void addButton_click(object sender, RoutedEventArgs e)
+        public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (sender is TableView tableView && tableView.SelectedItem is CustomerModel selectedCustomer)
+            {
+                int id = selectedCustomer.Id;
+                Debug.WriteLine($"Selected Customer ID: {id}");
+            }
+        }
+
+        public void addButton_click(object sender, RoutedEventArgs e)
+        {
+            // Logic thêm khách hàng
+        }
+
+        public void UpdatePageList()
+        {
+            if (InventoryCheckViewModel == null) return;
+            pageList.ItemsSource = Enumerable.Range(1, InventoryCheckViewModel.TotalPages);
+            pageList.SelectedItem = InventoryCheckViewModel.CurrentPage;
+        }
+
+        public async void OnPageSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (InventoryCheckViewModel == null || pageList.SelectedItem == null) return;
+
+            var selectedPage = (int)pageList.SelectedItem;
+            if (selectedPage != InventoryCheckViewModel.CurrentPage)
+            {
+                await InventoryCheckViewModel.LoadData(selectedPage);
+                UpdatePageList();
+            }
         }
     }
 }

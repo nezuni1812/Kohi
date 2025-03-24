@@ -17,7 +17,6 @@ namespace Kohi.Models
         public string? Description { get; set; }
 
         // Navigation Properties
-        public ExpenseTypeModel ExpenseType { get; set; }
         public List<ExpenseModel> Expenses { get; set; } = new List<ExpenseModel>();
         public event PropertyChangedEventHandler? PropertyChanged;
 

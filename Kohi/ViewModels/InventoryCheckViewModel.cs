@@ -13,26 +13,58 @@ namespace Kohi.ViewModels
     public class InventoryCheckViewModel
     {
         private IDao _dao;
-        public FullObservableCollection<InventoryModel> Inventories { get; set; }
-
+        public FullObservableCollection<CheckInventoryModel> CheckInventories { get; set; }
+        public int CurrentPage { get; set; } = 1;
+        public int PageSize { get; set; } = 10; 
+        public int TotalItems { get; set; } 
+        public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public InventoryCheckViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
-            Inventories = new FullObservableCollection<InventoryModel>();
+            CheckInventories = new FullObservableCollection<CheckInventoryModel>();
 
             LoadData();
         }
 
-        private async void LoadData()
+        public async Task LoadData(int page = 1)
         {
-            // Giả lập tải dữ liệu không đồng bộ từ MockDao
-            await Task.Delay(1); // Giả lập delay để giữ async
-            var inventories = _dao.Inventories.GetAll();
-            Inventories.Clear();
-
-            foreach (var inventory in inventories)
+            CurrentPage = page;
+            TotalItems = _dao.CheckInventories.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.CheckInventories.GetAll(
+                pageNumber: CurrentPage,
+                pageSize: PageSize
+            )); // Lấy danh sách khách hàng phân trang
+            CheckInventories.Clear();
+            foreach (var item in result)
             {
-                Inventories.Add(inventory);
+                CheckInventories.Add(item);
+            }
+        }
+
+        // Phương thức để chuyển đến trang tiếp theo
+        public async Task NextPage()
+        {
+            if (CurrentPage < TotalPages)
+            {
+                await LoadData(CurrentPage + 1);
+            }
+        }
+
+        // Phương thức để quay lại trang trước
+        public async Task PreviousPage()
+        {
+            if (CurrentPage > 1)
+            {
+                await LoadData(CurrentPage - 1);
+            }
+        }
+
+        // Phương thức để chuyển đến trang cụ thể
+        public async Task GoToPage(int page)
+        {
+            if (page >= 1 && page <= TotalPages)
+            {
+                await LoadData(page);
             }
         }
     }

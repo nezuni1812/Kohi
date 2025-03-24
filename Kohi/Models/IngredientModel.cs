@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -15,13 +15,8 @@ namespace Kohi.Models
         public string Name { get; set; }
         public string Unit { get; set; }
         public float CostPerUnit { get; set; }
-        public int SupplierId { get; set; } //bỏ
         public string Description { get; set; }
 
-        // Navigation Property
-        public SupplierModel Supplier { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
-
-
     }
 }

@@ -52,20 +52,20 @@
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
 
-                    <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Ingredient.Name }" />
-                    <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Ingredient.Unit}" />
+                    <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Inbound.Ingredient.Name }" />
+                    <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Inbound.Ingredient.Unit}" />
 
                     <tableView:TableViewNumberColumn Header="Số lượng hiện tại" Binding="{Binding Quantity }" />
-                    <tableView:TableViewNumberColumn Header="Số lượng lúc nhập" Binding="{Binding InitialQuantity }" />
+                    <tableView:TableViewNumberColumn Header="Số lượng lúc nhập" Binding="{Binding Inbound.Quantity }" />
 
                     <tableView:TableViewTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate  }" />
 
-                    <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Supplier.Name   }" />
+                    <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Inbound.Supplier.Name   }" />
 
                     <tableView:TableViewTemplateColumn Header="Giá nhập mỗi đơn vị">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Ingredient.CostPerUnit , Converter={StaticResource vnmoney}}" />
+                                <TextBlock Text="{Binding Inbound.Ingredient.CostPerUnit , Converter={StaticResource vnmoney}}" />
                             </DataTemplate>
                         </tableView:TableViewTemplateColumn.CellTemplate>
 
@@ -80,7 +80,16 @@
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
-
+        <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
+        CornerRadius="{ThemeResource ControlCornerRadius}">
+            <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+        </Border>
 
         <!--Button x:Name="addButton" Grid.Row="4" Click="addButton_click" Style="{StaticResource PrimaryButtonStyle}">
             <StackPanel Orientation="Horizontal">

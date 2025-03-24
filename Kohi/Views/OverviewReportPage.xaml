@@ -6,10 +6,45 @@
     xmlns:local="using:Kohi.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    xmlns:chart="using:Syncfusion.UI.Xaml.Charts"
+    xmlns:viewModel="using:Kohi.ViewModels"
+    mc:Ignorable="d">
 
     <Grid>
         <TextBlock Text="Tổng quan"></TextBlock>
+
+        <chart:SfCircularChart x:Name="Chart" Header="Sales by a Salesperson">
+            <chart:SfCircularChart.Legend>
+                <chart:ChartLegend IconWidth="15" IconHeight="15"/>
+            </chart:SfCircularChart.Legend>
+
+            <chart:SfCircularChart.Resources>
+                <BrushCollection x:Key="ChartPalette">
+                    <SolidColorBrush Color="#4dd0e1"/>
+                    <SolidColorBrush Color="#26c6da"/>
+                    <SolidColorBrush Color="#00bcd4"/>
+                    <SolidColorBrush Color="#00acc1"/>
+                    <SolidColorBrush Color="#0097a7"/>
+                    <SolidColorBrush Color="#00838f"/>
+                </BrushCollection>
+            </chart:SfCircularChart.Resources>
+
+            <chart:PieSeries ItemsSource="{Binding Data}" 
+                          XBindingPath="Product" 
+                          YBindingPath="SalesRate" 
+                          PaletteBrushes="{ThemeResource ChartPalette}"
+                          EnableAnimation="True" 
+                          ShowDataLabels="True"
+                          Stroke="White"
+                          StrokeWidth="2"
+                          LegendIcon="Circle">
+
+                <chart:PieSeries.DataLabelSettings>
+                    <chart:CircularDataLabelSettings ShowConnectorLine="True" Format="0.0'%" 
+                                       Position="OutsideExtended" Background="Transparent" 
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                </chart:PieSeries.DataLabelSettings>
+            </chart:PieSeries>
+        </chart:SfCircularChart>
     </Grid>
 </Page>
