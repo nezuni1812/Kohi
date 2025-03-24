@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    public class InvoiceModel
+    public class InvoiceModel : INotifyPropertyChanged
     {
         public int Id { get; set; }
         public int CustomerId { get; set; }
@@ -18,5 +19,7 @@ namespace Kohi.Models
         // Navigation Property: Một Invoice có nhiều InvoiceDetails
         public CustomerModel Customer { get; set; }
         public List<InvoiceDetailModel> InvoiceDetails { get; set; } = new List<InvoiceDetailModel>();
+        public event PropertyChangedEventHandler? PropertyChanged;
+
     }
 }

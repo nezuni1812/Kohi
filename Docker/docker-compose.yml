@@ -1,0 +1,30 @@
+name: kohi-psql
+
+services:
+  db:
+    # psql --pset=pager=off -d kohi -U kohi -W
+    image: postgres
+    container_name: postgres
+    hostname: postgres
+    environment:
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_USER: kohi
+    ports:
+      - 5432:5432
+    volumes:
+      - type: bind 
+        source: ./db
+        target: /docker-entrypoint-initdb.d  
+        
+  adminer:
+    # Dang nhap tren web: localhost:8080
+    # System: PostgreSQL
+    # Server: postgres
+    # Username: kohi
+    # Database: kohi
+    image: adminer
+    container_name: adminer
+    hostname: adminer
+    ports:
+      - 8080:8080
+    

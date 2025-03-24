@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    public class TaxModel
+    public class TaxModel : INotifyPropertyChanged
     {
         public int Id { get; set; }
         [Required]
@@ -17,5 +18,7 @@ namespace Kohi.Models
 
         // Navigation Property: Một Tax liên kết với nhiều InvoiceTax
         public List<InvoiceTaxModel> InvoiceTaxes { get; set; } = new List<InvoiceTaxModel>();
+        public event PropertyChangedEventHandler? PropertyChanged;
+
     }
 }

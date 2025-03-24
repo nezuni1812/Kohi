@@ -57,7 +57,6 @@ namespace Kohi.Models
         public DbSet<ExpenseCategoryModel> ExpenseCategories { get; set; }
         public DbSet<ExpenseModel> Expenses { get; set; }
         public DbSet<InboundModel> Inbounds { get; set; }
-        public DbSet<ExpenseTypeModel> ExpenseTypes { get; set; }
         public DbSet<InvoiceModel> Invoices { get; set; }
         public DbSet<InventoryModel> Inventories { get; set; }
         public DbSet<IngredientModel> Ingredients { get; set; }
@@ -86,21 +85,25 @@ namespace Kohi.Models
             Database.EnsureCreated();
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            if (!options.IsConfigured) // Chỉ cấu hình nếu chưa được cấu hình qua DI
-            {
-                string SQLiteFileName = "data.db";
-                string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), SQLiteFileName);
-                if (!File.Exists(dbPath))
-                {
-                    File.Create(dbPath).Dispose();
-                    Debug.WriteLine($"Created new database file at: {dbPath}");
-                }
-                options.UseSqlite($"Data Source={dbPath}");
-                Debug.WriteLine($"Database path: {dbPath}");
-            }
-        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseNpgsql("Host=localhost;Username=kohi;Password=1234;Database=kohi");
+
+
+        //protected override void OnConfiguring(DbContextOptionsBuilder options)
+        //{
+        //    if (!options.IsConfigured) // Chỉ cấu hình nếu chưa được cấu hình qua DI
+        //    {
+        //        string SQLiteFileName = "data.db";
+        //        string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), SQLiteFileName);
+        //        if (!File.Exists(dbPath))
+        //        {
+        //            File.Create(dbPath).Dispose();
+        //            Debug.WriteLine($"Created new database file at: {dbPath}");
+        //        }
+        //        options.UseSqlite($"Data Source={dbPath}");
+        //        Debug.WriteLine($"Database path: {dbPath}");
+        //    }
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -116,11 +119,6 @@ namespace Kohi.Models
                 .WithOne(i => i.Customer)
                 .HasForeignKey(i => i.CustomerId);
 
-            // ExpenseCategoryModel
-            modelBuilder.Entity<ExpenseCategoryModel>()
-                .HasOne(ec => ec.ExpenseType)
-                .WithMany(et => et.ExpenseCategories)
-                .HasForeignKey(ec => ec.ExpenseTypeId);
 
             modelBuilder.Entity<ExpenseCategoryModel>()
                 .HasMany(ec => ec.Expenses)
@@ -144,11 +142,6 @@ namespace Kohi.Models
                 .WithMany()
                 .HasForeignKey(ib => ib.SupplierId);
 
-            // ExpenseTypeModel
-            modelBuilder.Entity<ExpenseTypeModel>()
-                .HasMany(et => et.ExpenseCategories)
-                .WithOne(ec => ec.ExpenseType)
-                .HasForeignKey(ec => ec.ExpenseTypeId);
 
             // InvoiceModel
             modelBuilder.Entity<InvoiceModel>()
@@ -167,21 +160,6 @@ namespace Kohi.Models
                 .WithMany()
                 .HasForeignKey(iv => iv.InboundId);
 
-            modelBuilder.Entity<InventoryModel>()
-                .HasOne(iv => iv.Ingredient)
-                .WithMany()
-                .HasForeignKey(iv => iv.IngredientId);
-
-            modelBuilder.Entity<InventoryModel>()
-                .HasOne(iv => iv.Supplier)
-                .WithMany()
-                .HasForeignKey(iv => iv.SupplierId);
-
-            // IngredientModel
-            modelBuilder.Entity<IngredientModel>()
-                .HasOne(i => i.Supplier)
-                .WithMany()
-                .HasForeignKey(i => i.SupplierId);
 
             // InvoiceDetailModel
             modelBuilder.Entity<InvoiceDetailModel>()

@@ -10,18 +10,18 @@ using System.Threading.Tasks;
 
 namespace Kohi.ViewModels
 {
-    public class ExpenseViewModel
+    public class InventoryCheckViewModel
     {
         private IDao _dao;
-        public FullObservableCollection<ExpenseModel> ExpenseReceipts { get; set; }
+        public FullObservableCollection<CheckInventoryModel> CheckInventories { get; set; }
         public int CurrentPage { get; set; } = 1;
         public int PageSize { get; set; } = 10; 
         public int TotalItems { get; set; } 
         public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
-        public ExpenseViewModel()
+        public InventoryCheckViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
-            ExpenseReceipts = new FullObservableCollection<ExpenseModel>();
+            CheckInventories = new FullObservableCollection<CheckInventoryModel>();
 
             LoadData();
         }
@@ -29,15 +29,15 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Expenses.GetCount(); // Lấy tổng số khách hàng từ DAO
-            var result = await Task.Run(() => _dao.Expenses.GetAll(
+            TotalItems = _dao.CheckInventories.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.CheckInventories.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
             )); // Lấy danh sách khách hàng phân trang
-            ExpenseReceipts.Clear();
+            CheckInventories.Clear();
             foreach (var item in result)
             {
-                ExpenseReceipts.Add(item);
+                CheckInventories.Add(item);
             }
         }
 

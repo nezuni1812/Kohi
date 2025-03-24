@@ -6,9 +6,85 @@
     xmlns:local="using:Kohi.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:tableView="using:WinUI.TableView"
+    xmlns:converter="using:Kohi.Views.Converter"
     mc:Ignorable="d">
 
+
+    <Page.Resources>
+        <converter:MoneyFormatConverter x:Key="vnmoney"/>
+        <converter:BooleanToYesNoConverter x:Key="toYesNo"/>
+        <Style x:Key="HeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Margin" Value="10,0,0,0" />
+        </Style>
+    </Page.Resources>
+
     <Grid>
-        <TextBlock Text="Cate"></TextBlock>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Danh sách danh mục" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
+
+        <Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
+
+        <Grid Grid.Row="2" Margin="0,10,0,10">
+            <tableView:TableView x:Name="MyTableView"
+             ItemsSource="{x:Bind CategoryViewModel.Categories}"
+             AutoGenerateColumns="False"           
+             SelectionMode="Single"
+             CanFilterColumns="True"
+             CanSortColumns="True"
+             CornerButtonMode="Options"
+             ShowExportOptions="True"
+             HeaderGridLinesVisibility="All"
+             GridLinesVisibility="All"
+             SelectionChanged="OnSelectionChanged">
+                <tableView:TableView.Columns>
+                    <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
+
+                    <tableView:TableViewTextColumn Header="Tên danh mục" Binding="{Binding Name}" />
+
+                    <tableView:TableViewTemplateColumn Header="Hình ảnh">
+                        <tableView:TableViewTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding ImageUrl, Converter={StaticResource AbsolutePathConverter}}" Width="30" Height="30"/>
+                            </DataTemplate>
+                        </tableView:TableViewTemplateColumn.CellTemplate>
+                    </tableView:TableViewTemplateColumn>
+
+                    <tableView:TableViewNumberColumn Header="Số lượng sản phẩm" Binding="{Binding Products.Count}" />
+
+                </tableView:TableView.Columns>
+            </tableView:TableView>
+        </Grid>
+        <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
+        CornerRadius="{ThemeResource ControlCornerRadius}">
+            <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+        </Border>
+
+        <Button x:Name="addButton" Grid.Row="4" Click="addButton_click" Style="{StaticResource PrimaryButtonStyle}">
+            <StackPanel Orientation="Horizontal">
+                <FontIcon Glyph="&#xE710;" FontSize="14"/>
+                <TextBlock x:Name="addButtonTextBlock" Text="Thêm danh mục" Margin="5,0,0,0"/>
+            </StackPanel>
+        </Button>
     </Grid>
 </Page>
