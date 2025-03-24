@@ -74,33 +74,23 @@ namespace Kohi.ViewModels
         public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public ProductViewModel()
         {
-            //_dao = Service.GetKeyedSingleton<IDao>();
-            //Products = new FullObservableCollection<ProductModel>();
-            _service = new ProductService();
+            _dao = Service.GetKeyedSingleton<IDao>();
             Products = new FullObservableCollection<ProductModel>();
-
             LoadData();
         }
 
         public async Task LoadData(int page = 1)
         {
-            //CurrentPage = page;
-            //TotalItems = _dao.Products.GetCount(); // Lấy tổng số khách hàng từ DAO
-            //var result = await Task.Run(() => _dao.Products.GetAll(
-            //    pageNumber: CurrentPage,
-            //    pageSize: PageSize
-            //)); // Lấy danh sách khách hàng phân trang
-            //Products.Clear();
-            //foreach (var item in result)
-            //{
-            //    Products.Add(item);
-            //}
-            var products = await _service.GetProductAsync();
+            CurrentPage = page;
+            TotalItems = _dao.Products.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.Products.GetAll(
+                pageNumber: CurrentPage,
+                pageSize: PageSize
+            )); // Lấy danh sách khách hàng phân trang
             Products.Clear();
-
-            foreach (var product in products)
+            foreach (var item in result)
             {
-                Products.Add(product);
+                Products.Add(item);
             }
         }
         public async void AddProduct()
