@@ -8,6 +8,88 @@ namespace Kohi.Services
     public class MockDao : IDao
     {
         // Mock Repositories
+
+        public class MockRecipeDetailRepository : IRepository<RecipeDetailModel>
+        {
+            private List<RecipeDetailModel> _recipeDetails;
+
+            public MockRecipeDetailRepository() { }
+            public MockRecipeDetailRepository(List<RecipeDetailModel> recipeDetails)
+            {
+                _recipeDetails = recipeDetails;
+            }
+
+            public List<RecipeDetailModel> GetAll(
+                int pageNumber = 1,
+                int pageSize = 10,
+                string sortBy = null,
+                bool sortDescending = false,
+                string filterField = null,
+                string filterValue = null,
+                string searchKeyword = null)
+            {
+                var data = _recipeDetails ?? new List<RecipeDetailModel>
+        {
+            new RecipeDetailModel { Id = 1, ProductVariantId = 1, IngredientId = 1, Quantity = 0.2f, Unit = "Liter" },
+            new RecipeDetailModel { Id = 2, ProductVariantId = 2, IngredientId = 2, Quantity = 0.1f, Unit = "Kg" },
+            new RecipeDetailModel { Id = 3, ProductVariantId = 3, IngredientId = 3, Quantity = 0.15f, Unit = "Kg" },
+            new RecipeDetailModel { Id = 4, ProductVariantId = 4, IngredientId = 4, Quantity = 0.25f, Unit = "Kg" },
+            new RecipeDetailModel { Id = 5, ProductVariantId = 5, IngredientId = 5, Quantity = 0.3f, Unit = "Liter" }
+        };
+
+                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
+            }
+
+            public RecipeDetailModel GetById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _recipeDetails ?? GetAll();
+                return data.FirstOrDefault(r => r.Id == intId);
+            }
+
+            public int DeleteById(string id)
+            {
+                if (!int.TryParse(id, out int intId)) return 0;
+                var data = _recipeDetails ?? GetAll();
+                var item = data.FirstOrDefault(r => r.Id == intId);
+                if (item == null) return 0;
+                data.Remove(item);
+                _recipeDetails = data;
+                return 1;
+            }
+
+            public int UpdateById(string id, RecipeDetailModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _recipeDetails ?? GetAll();
+                var item = data.FirstOrDefault(r => r.Id == intId);
+                if (item == null) return 0;
+                item.ProductVariantId = info.ProductVariantId;
+                item.IngredientId = info.IngredientId;
+                item.Quantity = info.Quantity;
+                item.Unit = info.Unit;
+                _recipeDetails = data;
+                return 1;
+            }
+
+            public int Insert(string id, RecipeDetailModel info)
+            {
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _recipeDetails ?? GetAll();
+                if (data.Any(r => r.Id == intId)) return 0;
+                info.Id = intId;
+                data.Add(info);
+                _recipeDetails = data;
+                return 1;
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                var data = _recipeDetails ?? GetAll();
+                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
+            }
+        }
+
         public class MockCategoryRepository : IRepository<CategoryModel>
         {
             private List<CategoryModel> _categories;
@@ -188,11 +270,11 @@ namespace Kohi.Services
             {
                 var data = _expenseCategories ?? new List<ExpenseCategoryModel>
                 {
-                    new ExpenseCategoryModel { Id = 1, CategoryName = "Raw Materials", ExpenseTypeId = 1, Description = "Cost of ingredients", Expenses = new List<ExpenseModel>() },
-                    new ExpenseCategoryModel { Id = 2, CategoryName = "Utilities", ExpenseTypeId = 2, Description = "Electricity and water", Expenses = new List<ExpenseModel>() },
-                    new ExpenseCategoryModel { Id = 3, CategoryName = "Staff", ExpenseTypeId = 1, Description = "Employee salaries", Expenses = new List<ExpenseModel>() },
-                    new ExpenseCategoryModel { Id = 4, CategoryName = "Marketing", ExpenseTypeId = 3, Description = "Advertising costs", Expenses = new List<ExpenseModel>() },
-                    new ExpenseCategoryModel { Id = 5, CategoryName = "Equipment", ExpenseTypeId = 2, Description = "Machine maintenance", Expenses = new List<ExpenseModel>() }
+                    new ExpenseCategoryModel { Id = 1, CategoryName = "Raw Materials", Description = "Cost of ingredients", Expenses = new List<ExpenseModel>() },
+                    new ExpenseCategoryModel { Id = 2, CategoryName = "Utilities", Description = "Electricity and water", Expenses = new List<ExpenseModel>() },
+                    new ExpenseCategoryModel { Id = 3, CategoryName = "Staff", Description = "Employee salaries", Expenses = new List<ExpenseModel>() },
+                    new ExpenseCategoryModel { Id = 4, CategoryName = "Marketing", Description = "Advertising costs", Expenses = new List<ExpenseModel>() },
+                    new ExpenseCategoryModel { Id = 5, CategoryName = "Equipment", Description = "Machine maintenance", Expenses = new List<ExpenseModel>() }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -223,7 +305,6 @@ namespace Kohi.Services
                 var item = data.FirstOrDefault(c => c.Id == intId);
                 if (item == null) return 0;
                 item.CategoryName = info.CategoryName;
-                item.ExpenseTypeId = info.ExpenseTypeId;
                 item.Description = info.Description;
                 item.Expenses = info.Expenses;
                 _expenseCategories = data;
@@ -431,11 +512,11 @@ namespace Kohi.Services
             {
                 var data = _invoices ?? new List<InvoiceModel>
                 {
-                    new InvoiceModel { Id = 1, CustomerId = 1, InvoiceDate = DateTime.Now.AddDays(-10), TotalAmount = 150000m, InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new InvoiceModel { Id = 2, CustomerId = 2, InvoiceDate = DateTime.Now.AddDays(-5), TotalAmount = 200000m, InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new InvoiceModel { Id = 3, CustomerId = 3, InvoiceDate = DateTime.Now.AddDays(-2), TotalAmount = 300000m, InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new InvoiceModel { Id = 4, CustomerId = 4, InvoiceDate = DateTime.Now.AddDays(-1), TotalAmount = 250000m, InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new InvoiceModel { Id = 5, CustomerId = 5, InvoiceDate = DateTime.Now, TotalAmount = 180000m, InvoiceDetails = new List<InvoiceDetailModel>() }
+                    new InvoiceModel { Id = 1, CustomerId = 1, InvoiceDate = DateTime.Now.AddDays(-10), TotalAmount = 150000f, InvoiceDetails = new List<InvoiceDetailModel>() },
+                    new InvoiceModel { Id = 2, CustomerId = 2, InvoiceDate = DateTime.Now.AddDays(-5), TotalAmount = 200000f, InvoiceDetails = new List<InvoiceDetailModel>() },
+                    new InvoiceModel { Id = 3, CustomerId = 3, InvoiceDate = DateTime.Now.AddDays(-2), TotalAmount = 300000f, InvoiceDetails = new List<InvoiceDetailModel>() },
+                    new InvoiceModel { Id = 4, CustomerId = 4, InvoiceDate = DateTime.Now.AddDays(-1), TotalAmount = 250000f, InvoiceDetails = new List<InvoiceDetailModel>() },
+                    new InvoiceModel { Id = 5, CustomerId = 5, InvoiceDate = DateTime.Now, TotalAmount = 180000f, InvoiceDetails = new List<InvoiceDetailModel>() }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -671,11 +752,11 @@ namespace Kohi.Services
             {
                 var data = _invoiceDetails ?? new List<InvoiceDetailModel>
                 {
-                    new InvoiceDetailModel { Id = 1, InvoiceId = 1, ProductId = 1, Quantity = 2, UnitPrice = 35000m, SugarLevel = 50, IceLevel = 70, Toppings = new List<OrderToppingModel>() },
-                    new InvoiceDetailModel { Id = 2, InvoiceId = 2, ProductId = 2, Quantity = 1, UnitPrice = 40000m, SugarLevel = 30, IceLevel = 50, Toppings = new List<OrderToppingModel>() },
-                    new InvoiceDetailModel { Id = 3, InvoiceId = 3, ProductId = 3, Quantity = 3, UnitPrice = 30000m, SugarLevel = 40, IceLevel = 60, Toppings = new List<OrderToppingModel>() },
-                    new InvoiceDetailModel { Id = 4, InvoiceId = 4, ProductId = 1, Quantity = 1, UnitPrice = 35000m, SugarLevel = 60, IceLevel = 80, Toppings = new List<OrderToppingModel>() },
-                    new InvoiceDetailModel { Id = 5, InvoiceId = 5, ProductId = 2, Quantity = 2, UnitPrice = 40000m, SugarLevel = 20, IceLevel = 40, Toppings = new List<OrderToppingModel>() }
+                    new InvoiceDetailModel { Id = 1, InvoiceId = 1, ProductId = 1,  SugarLevel = 50, IceLevel = 70, Toppings = new List<OrderToppingModel>() },
+                    new InvoiceDetailModel { Id = 2, InvoiceId = 2, ProductId = 2,  SugarLevel = 30, IceLevel = 50, Toppings = new List<OrderToppingModel>() },
+                    new InvoiceDetailModel { Id = 3, InvoiceId = 3, ProductId = 3,  SugarLevel = 40, IceLevel = 60, Toppings = new List<OrderToppingModel>() },
+                    new InvoiceDetailModel { Id = 4, InvoiceId = 4, ProductId = 1,  SugarLevel = 60, IceLevel = 80, Toppings = new List<OrderToppingModel>() },
+                    new InvoiceDetailModel { Id = 5, InvoiceId = 5, ProductId = 2,  SugarLevel = 20, IceLevel = 40, Toppings = new List<OrderToppingModel>() }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -707,8 +788,6 @@ namespace Kohi.Services
                 if (item == null) return 0;
                 item.InvoiceId = info.InvoiceId;
                 item.ProductId = info.ProductId;
-                item.Quantity = info.Quantity;
-                item.UnitPrice = info.UnitPrice;
                 item.SugarLevel = info.SugarLevel;
                 item.IceLevel = info.IceLevel;
                 item.Toppings = info.Toppings;
@@ -733,17 +812,17 @@ namespace Kohi.Services
             }
         }
 
-        public class MockRecipeDetailRepository : IRepository<RecipeDetailModel>
+        public class MockProductVariantRepository : IRepository<ProductVariantModel>
         {
-            private List<RecipeDetailModel> _recipeDetails;
+            private List<ProductVariantModel> _productVariants;
 
-            public MockRecipeDetailRepository() { }
-            public MockRecipeDetailRepository(List<RecipeDetailModel> recipeDetails)
+            public MockProductVariantRepository() { }
+            public MockProductVariantRepository(List<ProductVariantModel> productVariants)
             {
-                _recipeDetails = recipeDetails;
+                _productVariants = productVariants;
             }
 
-            public List<RecipeDetailModel> GetAll(
+            public List<ProductVariantModel> GetAll(
                 int pageNumber = 1,
                 int pageSize = 10,
                 string sortBy = null,
@@ -752,62 +831,68 @@ namespace Kohi.Services
                 string filterValue = null,
                 string searchKeyword = null)
             {
-                var data = _recipeDetails ?? new List<RecipeDetailModel>
+                var data = _productVariants ?? new List<ProductVariantModel>
                 {
-                    new RecipeDetailModel { RecipeId = 1, IngredientId = 1, Quantity = 200, Unit = "ml" },
-                    new RecipeDetailModel { RecipeId = 2, IngredientId = 2, Quantity = 50, Unit = "g" },
-                    new RecipeDetailModel { RecipeId = 3, IngredientId = 3, Quantity = 100, Unit = "g" },
-                    new RecipeDetailModel { RecipeId = 4, IngredientId = 4, Quantity = 150, Unit = "g" },
-                    new RecipeDetailModel { RecipeId = 1, IngredientId = 5, Quantity = 100, Unit = "ml" }
+                    new ProductVariantModel { Id = 1, ProductId = 1, Size = "Small", Price = 30000f, Cost = 18000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() },
+                    new ProductVariantModel { Id = 2, ProductId = 1, Size = "Large", Price = 40000f, Cost = 24000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() },
+                    new ProductVariantModel { Id = 3, ProductId = 2, Size = "Medium", Price = 35000f, Cost = 21000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() },
+                    new ProductVariantModel { Id = 4, ProductId = 3, Size = "Small", Price = 25000f, Cost = 15000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() },
+                    new ProductVariantModel { Id = 5, ProductId = 4, Size = "Large", Price = 45000f, Cost = 27000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
             }
 
-            public RecipeDetailModel GetById(string id)
+            public ProductVariantModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _recipeDetails ?? GetAll();
-                return data.FirstOrDefault(r => r.RecipeId == intId || r.IngredientId == intId); // Giả định RecipeId là khóa chính
+                var data = _productVariants ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
             }
 
             public int DeleteById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return 0;
-                var data = _recipeDetails ?? GetAll();
-                var item = data.FirstOrDefault(r => r.RecipeId == intId || r.IngredientId == intId);
+                var data = _productVariants ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
                 if (item == null) return 0;
                 data.Remove(item);
-                _recipeDetails = data;
+                _productVariants = data;
                 return 1;
             }
 
-            public int UpdateById(string id, RecipeDetailModel info)
+            public int UpdateById(string id, ProductVariantModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _recipeDetails ?? GetAll();
-                var item = data.FirstOrDefault(r => r.RecipeId == intId || r.IngredientId == intId);
+                var data = _productVariants ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
                 if (item == null) return 0;
-                item.RecipeId = info.RecipeId;
-                item.IngredientId = info.IngredientId;
-                item.Quantity = info.Quantity;
-                item.Unit = info.Unit;
-                _recipeDetails = data;
+                item.ProductId = info.ProductId;
+                item.Size = info.Size;
+                item.Price = info.Price;
+                item.Cost = info.Cost;
+                item.Product = info.Product;
+                item.InvoiceDetails = info.InvoiceDetails;
+                item.Toppings = info.Toppings;
+                item.RecipeDetails = info.RecipeDetails;
+                _productVariants = data;
                 return 1;
             }
 
-            public int Insert(string id, RecipeDetailModel info)
+            public int Insert(string id, ProductVariantModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _recipeDetails ?? GetAll();
-                if (data.Any(r => r.RecipeId == info.RecipeId && r.IngredientId == info.IngredientId)) return 0; // Không trùng RecipeId và IngredientId
+                var data = _productVariants ?? GetAll();
+                if (data.Any(p => p.Id == intId)) return 0;
+                info.Id = intId;
                 data.Add(info);
-                _recipeDetails = data;
+                _productVariants = data;
                 return 1;
             }
+
             public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                var data = _recipeDetails ?? GetAll();
+                var data = _productVariants ?? GetAll();
                 return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
@@ -833,11 +918,11 @@ namespace Kohi.Services
             {
                 var data = _payments ?? new List<PaymentModel>
                 {
-                    new PaymentModel { Id = 1, InvoiceId = 1, PaymentDate = DateTime.Now.AddDays(-9), Amount = 150000m, PaymentMethod = "Cash" },
-                    new PaymentModel { Id = 2, InvoiceId = 2, PaymentDate = DateTime.Now.AddDays(-4), Amount = 200000m, PaymentMethod = "Credit Card" },
-                    new PaymentModel { Id = 3, InvoiceId = 3, PaymentDate = DateTime.Now.AddDays(-1), Amount = 300000m, PaymentMethod = "Mobile" },
-                    new PaymentModel { Id = 4, InvoiceId = 4, PaymentDate = DateTime.Now, Amount = 250000m, PaymentMethod = "Cash" },
-                    new PaymentModel { Id = 5, InvoiceId = 5, PaymentDate = DateTime.Now, Amount = 180000m, PaymentMethod = "Bank Transfer" }
+                    new PaymentModel { Id = 1, InvoiceId = 1, PaymentDate = DateTime.Now.AddDays(-9), Amount = 150000f, PaymentMethod = "Cash" },
+                    new PaymentModel { Id = 2, InvoiceId = 2, PaymentDate = DateTime.Now.AddDays(-4), Amount = 200000f, PaymentMethod = "Credit Card" },
+                    new PaymentModel { Id = 3, InvoiceId = 3, PaymentDate = DateTime.Now.AddDays(-1), Amount = 300000f, PaymentMethod = "Mobile" },
+                    new PaymentModel { Id = 4, InvoiceId = 4, PaymentDate = DateTime.Now, Amount = 250000f, PaymentMethod = "Cash" },
+                    new PaymentModel { Id = 5, InvoiceId = 5, PaymentDate = DateTime.Now, Amount = 180000f, PaymentMethod = "Bank Transfer" }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -913,11 +998,11 @@ namespace Kohi.Services
             {
                 var data = _orderToppings ?? new List<OrderToppingModel>
                 {
-                    new OrderToppingModel { Id = 1, InvoiceDetailId = 1, ProductId = 2, Quantity = 1, UnitPrice = 5000m, IsFree = false },
-                    new OrderToppingModel { Id = 2, InvoiceDetailId = 2, ProductId = 2, Quantity = 2, UnitPrice = 5000m, IsFree = true },
-                    new OrderToppingModel { Id = 3, InvoiceDetailId = 3, ProductId = 2, Quantity = 1, UnitPrice = 5000m, IsFree = false },
-                    new OrderToppingModel { Id = 4, InvoiceDetailId = 4, ProductId = 2, Quantity = 1, UnitPrice = 5000m, IsFree = true },
-                    new OrderToppingModel { Id = 5, InvoiceDetailId = 5, ProductId = 2, Quantity = 2, UnitPrice = 5000m, IsFree = false }
+                    new OrderToppingModel { Id = 1, InvoiceDetailId = 1, ProductId = 2},
+                    new OrderToppingModel { Id = 2, InvoiceDetailId = 2, ProductId = 2},
+                    new OrderToppingModel { Id = 3, InvoiceDetailId = 3, ProductId = 2},
+                    new OrderToppingModel { Id = 4, InvoiceDetailId = 4, ProductId = 2},
+                    new OrderToppingModel { Id = 5, InvoiceDetailId = 5, ProductId = 2}
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -949,9 +1034,6 @@ namespace Kohi.Services
                 if (item == null) return 0;
                 item.InvoiceDetailId = info.InvoiceDetailId;
                 item.ProductId = info.ProductId;
-                item.Quantity = info.Quantity;
-                item.UnitPrice = info.UnitPrice;
-                item.IsFree = info.IsFree;
                 _orderToppings = data;
                 return 1;
             }
@@ -1076,11 +1158,11 @@ namespace Kohi.Services
             {
                 var data = _products ?? new List<ProductModel>
                 {
-                    new ProductModel { Id = 1, Name = "Black Coffee", Price = 35000f, Cost = 21000f, IsActive = true, CategoryId = 1, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new ProductModel { Id = 2, Name = "Milk Tea", Price = 40000f, Cost = 24000f, IsActive = false, CategoryId = 2, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new ProductModel { Id = 3, Name = "Green Tea", Price = 30000f, Cost = 18000f, IsActive = true, CategoryId = 3, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new ProductModel { Id = 4, Name = "Mango Smoothie", Price = 45000f, Cost = 27000f, IsActive = false, CategoryId = 4, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() },
-                    new ProductModel { Id = 5, Name = "Espresso", Price = 40000f, Cost = 24000f, IsActive = true, CategoryId = 1, ImageUrl = "kohi_logo.png", InvoiceDetails = new List<InvoiceDetailModel>() }
+                    new ProductModel { Id = 1, Name = "Black Coffee", IsActive = true, IsTopping = false, CategoryId = 1, ImageUrl = "kohi_logo.png"},
+                    new ProductModel { Id = 2, Name = "Milk Tea", IsActive = true, IsTopping = false, CategoryId = 2, ImageUrl = "kohi_logo.png"},
+                    new ProductModel { Id = 3, Name = "Green Tea", IsActive = true, IsTopping = false, CategoryId = 3, ImageUrl = "kohi_logo.png"},
+                    new ProductModel { Id = 4, Name = "Mango Smoothie", IsActive = true, IsTopping = false, CategoryId = 4, ImageUrl = "kohi_logo.png"},
+                    new ProductModel { Id = 5, Name = "Espresso", IsActive = true,IsTopping = false, CategoryId = 1, ImageUrl = "kohi_logo.png"}
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -1111,12 +1193,9 @@ namespace Kohi.Services
                 var item = data.FirstOrDefault(p => p.Id == intId);
                 if (item == null) return 0;
                 item.Name = info.Name;
-                item.Price = info.Price;
-                item.Cost = info.Cost;
                 item.IsActive = info.IsActive;
                 item.CategoryId = info.CategoryId;
                 item.ImageUrl = info.ImageUrl;
-                item.InvoiceDetails = info.InvoiceDetails;
                 _products = data;
                 return 1;
             }
@@ -1217,85 +1296,6 @@ namespace Kohi.Services
             public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
             {
                 var data = _outbounds ?? GetAll();
-                return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
-            }
-        }
-
-        public class MockRecipeRepository : IRepository<RecipeModel>
-        {
-            private List<RecipeModel> _recipes;
-
-            public MockRecipeRepository() { }
-            public MockRecipeRepository(List<RecipeModel> recipes)
-            {
-                _recipes = recipes;
-            }
-
-            public List<RecipeModel> GetAll(
-                int pageNumber = 1,
-                int pageSize = 10,
-                string sortBy = null,
-                bool sortDescending = false,
-                string filterField = null,
-                string filterValue = null,
-                string searchKeyword = null)
-            {
-                var data = _recipes ?? new List<RecipeModel>
-                {
-                    new RecipeModel { Id = 1, ProductId = 1, Ingredients = new List<RecipeDetailModel>() },
-                    new RecipeModel { Id = 2, ProductId = 2, Ingredients = new List<RecipeDetailModel>() },
-                    new RecipeModel { Id = 3, ProductId = 3, Ingredients = new List<RecipeDetailModel>() },
-                    new RecipeModel { Id = 4, ProductId = 4, Ingredients = new List<RecipeDetailModel>() },
-                    new RecipeModel { Id = 5, ProductId = 5, Ingredients = new List<RecipeDetailModel>() }
-                };
-
-                return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
-            }
-
-            public RecipeModel GetById(string id)
-            {
-                if (!int.TryParse(id, out int intId)) return null;
-                var data = _recipes ?? GetAll();
-                return data.FirstOrDefault(r => r.Id == intId);
-            }
-
-            public int DeleteById(string id)
-            {
-                if (!int.TryParse(id, out int intId)) return 0;
-                var data = _recipes ?? GetAll();
-                var item = data.FirstOrDefault(r => r.Id == intId);
-                if (item == null) return 0;
-                data.Remove(item);
-                _recipes = data;
-                return 1;
-            }
-
-            public int UpdateById(string id, RecipeModel info)
-            {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _recipes ?? GetAll();
-                var item = data.FirstOrDefault(r => r.Id == intId);
-                if (item == null) return 0;
-                item.ProductId = info.ProductId;
-                item.Ingredients = info.Ingredients;
-                _recipes = data;
-                return 1;
-            }
-
-            public int Insert(string id, RecipeModel info)
-            {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _recipes ?? GetAll();
-                if (data.Any(r => r.Id == intId)) return 0;
-                info.Id = intId;
-                data.Add(info);
-                _recipes = data;
-                return 1;
-            }
-
-            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
-            {
-                var data = _recipes ?? GetAll();
                 return ApplyCountQuery(data, filterField, filterValue, searchKeyword);
             }
         }
@@ -1611,7 +1611,6 @@ namespace Kohi.Services
         // Constructor to link Navigation Properties
         public MockDao()
         {
-            // Initialize independent data
             var categories = new MockCategoryRepository().GetAll();
             var customers = new MockCustomerRepository().GetAll();
             var expenseCategories = new MockExpenseCategoryRepository().GetAll();
@@ -1627,12 +1626,11 @@ namespace Kohi.Services
             var suppliers = new MockSupplierRepository().GetAll();
             var products = new MockProductRepository().GetAll();
             var outbounds = new MockOutboundRepository().GetAll();
-            var recipes = new MockRecipeRepository().GetAll();
+            var productVariants = new MockProductVariantRepository().GetAll();
             var taxes = new MockTaxRepository().GetAll();
             var invoiceTaxes = new MockInvoiceTaxRepository().GetAll();
             var checkInventories = new MockCheckInventoryRepository().GetAll();
 
-            // CategoryModel - ProductModel (1-n)
             foreach (var category in categories)
             {
                 category.Products = products.Where(p => p.CategoryId == category.Id).ToList();
@@ -1642,7 +1640,6 @@ namespace Kohi.Services
                 }
             }
 
-            // CustomerModel - InvoiceModel (1-n)
             foreach (var customer in customers)
             {
                 customer.Invoices = invoices.Where(i => i.CustomerId == customer.Id).ToList();
@@ -1652,7 +1649,6 @@ namespace Kohi.Services
                 }
             }
 
-            // ExpenseCategoryModel - ExpenseModel (1-n)
             foreach (var expenseCategory in expenseCategories)
             {
                 expenseCategory.Expenses = expenses.Where(e => e.ExpenseCategoryId == expenseCategory.Id).ToList();
@@ -1662,15 +1658,17 @@ namespace Kohi.Services
                 }
             }
 
-
-            // InboundModel - IngredientModel, SupplierModel (1-1)
             foreach (var inbound in inbounds)
             {
                 inbound.Ingredient = ingredients.FirstOrDefault(i => i.Id == inbound.IngredientId);
                 inbound.Supplier = suppliers.FirstOrDefault(s => s.Id == inbound.SupplierId);
             }
 
-            // InvoiceModel - InvoiceDetailModel (1-n)
+            foreach (var supplier in suppliers)
+            {
+                supplier.Inbounds = inbounds.Where(i => i.SupplierId == supplier.Id).ToList();
+            }
+
             foreach (var invoice in invoices)
             {
                 invoice.InvoiceDetails = invoiceDetails.Where(id => id.InvoiceId == invoice.Id).ToList();
@@ -1680,67 +1678,55 @@ namespace Kohi.Services
                 }
             }
 
-            // InventoryModel - InboundModel, IngredientModel, SupplierModel (1-1)
             foreach (var inventory in inventories)
             {
                 inventory.Inbound = inbounds.FirstOrDefault(ib => ib.Id == inventory.InboundId);
             }
 
-
-            // InvoiceDetailModel - ProductModel (1-1), OrderToppingModel (1-n)
-            foreach (var invoiceDetail in invoiceDetails)
-            {
-                invoiceDetail.Product = products.FirstOrDefault(p => p.Id == invoiceDetail.ProductId);
-                invoiceDetail.Toppings = orderToppings.Where(ot => ot.InvoiceDetailId == invoiceDetail.Id).ToList();
-                foreach (var topping in invoiceDetail.Toppings)
-                {
-                    topping.InvoiceDetail = invoiceDetail;
-                }
-            }
-
-            // ProductModel - InvoiceDetailModel (1-n)
             foreach (var product in products)
             {
-                product.InvoiceDetails = invoiceDetails.Where(id => id.ProductId == product.Id).ToList();
-                foreach (var invoiceDetail in product.InvoiceDetails)
+                product.ProductVariants = productVariants.Where(pv => pv.ProductId == product.Id).ToList();
+                foreach (var variant in product.ProductVariants)
                 {
-                    invoiceDetail.Product = product;
+                    variant.Product = product;
                 }
             }
 
-            // RecipeDetailModel - RecipeModel, IngredientModel (n-n)
+            foreach (var productVariant in productVariants)
+            {
+                productVariant.InvoiceDetails = invoiceDetails.Where(id => id.ProductId == productVariant.Id).ToList();
+                productVariant.Toppings = orderToppings.Where(ot => ot.ProductId == productVariant.Id).ToList();
+                productVariant.RecipeDetails = recipeDetails.Where(rd => rd.ProductVariantId == productVariant.Id).ToList();
+            }
+
+            foreach (var invoiceDetail in invoiceDetails)
+            {
+                invoiceDetail.ProductVariant = productVariants.FirstOrDefault(pv => pv.Id == invoiceDetail.ProductId);
+                invoiceDetail.Toppings = orderToppings.Where(ot => ot.InvoiceDetailId == invoiceDetail.Id).ToList();
+            }
+
             foreach (var recipeDetail in recipeDetails)
             {
-                recipeDetail.Recipe = recipes.FirstOrDefault(r => r.Id == recipeDetail.RecipeId);
+                recipeDetail.ProductVariant = productVariants.FirstOrDefault(pv => pv.Id == recipeDetail.ProductVariantId);
                 recipeDetail.Ingredient = ingredients.FirstOrDefault(i => i.Id == recipeDetail.IngredientId);
             }
 
-            // RecipeModel - RecipeDetailModel (1-n)
-            foreach (var recipe in recipes)
-            {
-                recipe.Ingredients = recipeDetails.Where(rd => rd.RecipeId == recipe.Id).ToList();
-                recipe.Product = products.FirstOrDefault(p => p.Id == recipe.ProductId);
-            }
-
-            // PaymentModel - InvoiceModel (1-1)
             foreach (var payment in payments)
             {
                 payment.Invoice = invoices.FirstOrDefault(i => i.Id == payment.InvoiceId);
             }
 
-            // OrderToppingModel - ProductModel (1-1)
             foreach (var orderTopping in orderToppings)
             {
-                orderTopping.Product = products.FirstOrDefault(p => p.Id == orderTopping.ProductId);
+                orderTopping.ProductVariant = productVariants.FirstOrDefault(pv => pv.Id == orderTopping.ProductId);
+                orderTopping.InvoiceDetail = invoiceDetails.FirstOrDefault(id => id.Id == orderTopping.InvoiceDetailId);
             }
 
-            // OutboundModel - InventoryModel (1-1)
             foreach (var outbound in outbounds)
             {
                 outbound.Inventory = inventories.FirstOrDefault(iv => iv.Id == outbound.InventoryId);
             }
 
-            // TaxModel - InvoiceTaxModel (1-n)
             foreach (var tax in taxes)
             {
                 tax.InvoiceTaxes = invoiceTaxes.Where(it => it.TaxId == tax.Id).ToList();
@@ -1750,19 +1736,16 @@ namespace Kohi.Services
                 }
             }
 
-            // InvoiceTaxModel - InvoiceModel (1-1)
             foreach (var invoiceTax in invoiceTaxes)
             {
                 invoiceTax.Invoice = invoices.FirstOrDefault(i => i.Id == invoiceTax.InvoiceId);
             }
 
-            // CheckInventoryModel - InventoryModel (1-1)
             foreach (var checkInventory in checkInventories)
             {
                 checkInventory.Inventory = inventories.FirstOrDefault(i => i.Id == checkInventory.InventoryId);
             }
 
-            // Assign repositories with linked data
             Categories = new MockCategoryRepository(categories);
             Customers = new MockCustomerRepository(customers);
             ExpenseCategories = new MockExpenseCategoryRepository(expenseCategories);
@@ -1778,7 +1761,7 @@ namespace Kohi.Services
             Suppliers = new MockSupplierRepository(suppliers);
             Products = new MockProductRepository(products);
             Outbounds = new MockOutboundRepository(outbounds);
-            Recipes = new MockRecipeRepository(recipes);
+            ProductVariants = new MockProductVariantRepository(productVariants);
             Taxes = new MockTaxRepository(taxes);
             InvoiceTaxes = new MockInvoiceTaxRepository(invoiceTaxes);
             CheckInventories = new MockCheckInventoryRepository(checkInventories);
@@ -1800,7 +1783,7 @@ namespace Kohi.Services
         public IRepository<OrderToppingModel> OrderToppings { get; set; }
         public IRepository<SupplierModel> Suppliers { get; set; }
         public IRepository<OutboundModel> Outbounds { get; set; }
-        public IRepository<RecipeModel> Recipes { get; set; }
+        public IRepository<ProductVariantModel> ProductVariants { get; set; }
         public IRepository<TaxModel> Taxes { get; set; }
         public IRepository<InvoiceTaxModel> InvoiceTaxes { get; set; }
         public IRepository<CheckInventoryModel> CheckInventories { get; set; }

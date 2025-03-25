@@ -15,13 +15,13 @@ namespace Kohi.Models
         public DateTime InboundDate { get; set; } // Ngày nhập kho
         public DateTime ExpiryDate { get; set; }  // Ngày hết hạn của lô hàng nhập
         public int SupplierId { get; set; }     // Nhà cung cấp (tùy chọn)
-        public string Notes { get; set; }        // Ghi chú (tùy chọn)
+        public string? Notes { get; set; }        // Ghi chú (tùy chọn)
 
         public float TotalCost => Quantity * (Ingredient?.CostPerUnit ?? 0); // Computed property
 
 
-        public IngredientModel Ingredient { get; set; }
-        public SupplierModel Supplier { get; set; }
+        public IngredientModel? Ingredient { get; set; }
+        public SupplierModel? Supplier { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }

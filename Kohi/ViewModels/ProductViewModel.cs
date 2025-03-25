@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Kohi.BusinessLogic;
+//using Kohi.BusinessLogic;
 using Kohi.Models;
 using Kohi.Services;
 using Kohi.Utils;
@@ -65,7 +65,7 @@ namespace Kohi.ViewModels
     {
         private IDao _dao;
 
-        private ProductService _service;
+        //private ProductService _service;
         public string NewProductName { get; set; } = "";
         public string NewCategoryId { get; set; } = "";
         public FullObservableCollection<ProductModel> Products { get; set; }
@@ -107,10 +107,7 @@ namespace Kohi.ViewModels
         }
         public async void AddProduct()
         {
-            await _service.AddProductAsync(new ProductModel { Name = NewProductName });
-            LoadData();
-            NewProductName = "";
-            NewCategoryId = null;
+
         }
 
         // Phương thức để chuyển đến trang tiếp theo
