@@ -2,12 +2,16 @@
 using Kohi.Services;
 using Kohi.Utils;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
+using Windows.Storage;
+using System.Diagnostics;
 
 namespace Kohi.ViewModels
 {
@@ -30,14 +34,27 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Categories.GetCount(); // Lấy tổng số khách hàng từ DAO
+            TotalItems = _dao.Categories.GetCount();
             var result = await Task.Run(() => _dao.Categories.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            ));
+
             Categories.Clear();
+
             foreach (var item in result)
             {
+                // Kiểm tra xem danh mục đã tồn tại trong danh sách chưa
+                if (!Categories.Any(c => c.Id == item.Id))
+                {
+                    // Đường dẫn đầy đủ tới hình ảnh trong LocalFolder
+                    if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        // Tạo đường dẫn đầy đủ
+                        StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                        item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                    }
+                }
                 Categories.Add(item);
             }
         }

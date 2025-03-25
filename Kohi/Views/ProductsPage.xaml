@@ -58,7 +58,7 @@
                     <tableView:TableViewTemplateColumn Header="Hình ảnh">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding ImageUrl, Converter={StaticResource AbsolutePathConverter}}" 
+                                <Image Source="{Binding ImageUrl}" 
                                        Width="50" Height="50" 
                                        HorizontalAlignment="Center"/>
                             </DataTemplate>

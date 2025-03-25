@@ -28,7 +28,7 @@
                     <Run Text="Tên danh mục"/>
                     <Run Text="*" Foreground="Red"/>
                 </TextBlock>
-                <TextBox PlaceholderText="Nhập tên danh mục"/>
+                <TextBox x:Name="CategoryNameTextBox" PlaceholderText="Nhập tên danh mục"/>
             </StackPanel>
 
             <StackPanel Grid.Row="1" Margin="0,0,0,10">

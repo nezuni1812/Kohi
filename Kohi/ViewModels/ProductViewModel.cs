@@ -8,6 +8,7 @@ using Kohi.BusinessLogic;
 using Kohi.Models;
 using Kohi.Services;
 using Kohi.Utils;
+using Windows.Storage;
 
 //namespace Kohi.ViewModels
 //{
@@ -90,6 +91,17 @@ namespace Kohi.ViewModels
             Products.Clear();
             foreach (var item in result)
             {
+                // Kiểm tra xem danh mục đã tồn tại trong danh sách chưa
+                if (!Products.Any(c => c.Id == item.Id))
+                {
+                    // Đường dẫn đầy đủ tới hình ảnh trong LocalFolder
+                    if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        // Tạo đường dẫn đầy đủ
+                        StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                        item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                    }
+                }
                 Products.Add(item);
             }
         }

@@ -59,7 +59,7 @@
                     <tableView:TableViewTemplateColumn Header="Hình ảnh">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding ImageUrl, Converter={StaticResource AbsolutePathConverter}}" Width="50" Height="50"/>
+                                <Image Source="{Binding ImageUrl}" Width="50" Height="50"/>
                             </DataTemplate>
                         </tableView:TableViewTemplateColumn.CellTemplate>
                     </tableView:TableViewTemplateColumn>

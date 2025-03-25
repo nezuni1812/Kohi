@@ -16,6 +16,7 @@ using Windows.Storage.Pickers;
 using Windows.Storage;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage.Streams;
+using Kohi.Utils;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -27,6 +28,7 @@ namespace Kohi.Views
     /// </summary>
     public sealed partial class AddNewCategoryPage : Page
     {
+        private StorageFile selectedImageFile;
         public AddNewCategoryPage()
         {
             this.InitializeComponent();
@@ -62,16 +64,44 @@ namespace Kohi.Views
                     // You can store the file path or file itself for later use if needed
                     // For example, if you want to save the file path to your product model:
                     // Product.ImagePath = file.Path;
-
+                    selectedImageFile = file;
                     // You can also update the UI to show the selected file name
                     outtext.Text = "Ảnh đã chọn: " + file.Name;
                 }
             }
         }
 
-        private void saveButton_click(object sender, RoutedEventArgs e)
+        private async void saveButton_click(object sender, RoutedEventArgs e)
         {
-
+            // Giả sử selectedFile là đối tượng chứa thông tin hình ảnh
+            if (selectedImageFile != null)
+            {
+                try
+                {
+                    // Kiểm tra tệp có tồn tại và truy cập được không
+                    StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                    string categoryName = CategoryNameTextBox.Text;
+                    if (string.IsNullOrEmpty(categoryName))
+                    {
+                        outtext.Text = "Vui lòng nhập tên danh mục.";
+                        return;
+                    }
+                    string normalizedName = Utils.StringUtils.NormalizeString(categoryName);
+                    string fileExtension = Path.GetExtension(selectedImageFile.Name); // Lấy phần mở rộng (ví dụ: .jpg)
+                    string flag = DateTime.Now.ToString("yyyyMMddHHmmss");
+                    normalizedName = normalizedName + flag + fileExtension; 
+                    await selectedImageFile.CopyAsync(localFolder, normalizedName, NameCollisionOption.ReplaceExisting);
+                    outtext.Text = $"Đã lưu danh mục '{normalizedName}' và hình ảnh thành công."; ;
+                }
+                catch (Exception ex)
+                {
+                    outtext.Text = "Lỗi khi lưu hình ảnh: " + ex.Message;
+                }
+            }
+            else
+            {
+                outtext.Text = "Chưa chọn hình ảnh.";
+            }
         }
     }
 }
