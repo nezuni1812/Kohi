@@ -39,10 +39,6 @@
         </Grid>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" Width="500" HorizontalAlignment="Left">
-            <!--TextBlock Text="Hình ảnh" Margin="0,0,0,5" VerticalAlignment="Center"/>
-                <TextBox Text="{x:Bind Product.ImageUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                PlaceholderText="URL hình ảnh" 
-                Width="200" Margin="10,0,10,0"/-->
             <StackPanel Orientation="Vertical" Width="300" HorizontalAlignment="Left">
                 <TextBlock x:Name="outtext" HorizontalAlignment="Left" Text="Ảnh Sản phẩm" Width="Auto" Margin="0,0,0,10"/>
                 <Image x:Name="mypic" HorizontalAlignment="Left" Width="100" Height="100" Margin="10,0,0,0" VerticalAlignment="Top" FocusVisualPrimaryBrush="Black"/>

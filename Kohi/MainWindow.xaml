@@ -83,10 +83,9 @@
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Icon="Shop" Content="Tồn kho" Tag="Kohi.Views.InventoriesPage"/>
-                        <NavigationViewItem Icon="Shop" Content="Nhập kho" Tag="Kohi.Views.InventoryReceivingPage"/>
-                        <NavigationViewItem Icon="Shop" Content="Xuất kho" Tag="Kohi.Views.InventoryDispatchPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Nhập kho" Tag="Kohi.Views.InventoryInboundPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Xuất kho" Tag="Kohi.Views.InventoryOutboundPage"/>
                         <NavigationViewItem Icon="Shop" Content="Kiểm kê kho" Tag="Kohi.Views.InventoryCheckPage"/>
-                        <NavigationViewItem Icon="Shop" Content="Lịch sử kho" Tag="Kohi.Views.InventoryHistoryPage"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Content="Thu chi" Tag="Kohi.Views.IncomeExpensePage">

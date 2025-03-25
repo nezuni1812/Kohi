@@ -51,7 +51,10 @@ namespace Kohi.Views
 
         public void addButton_click(object sender, RoutedEventArgs e)
         {
-            // Logic thêm khách hàng
+            //Frame rootFrame = new Frame();
+            //this.Content = rootFrame;
+
+            //rootFrame.Navigate(typeof(AddNewInventoryPage), null);
         }
 
         public void UpdatePageList()

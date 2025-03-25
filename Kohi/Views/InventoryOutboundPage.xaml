@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="Kohi.Views.InventoryDispatchPage"
+    x:Class="Kohi.Views.InventoryOutboundPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Kohi.Views"
@@ -33,7 +33,7 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Phiếu nhập kho" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
+        <TextBlock Grid.Row="0" Text="Xuất kho" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
 
         <Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
 
@@ -57,16 +57,16 @@
                     <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Inventory.Inbound.Ingredient.Name }" />
                     <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Inventory.Inbound.Ingredient.Unit}" />
 
-                    <tableView:TableViewNumberColumn Header="Số lượng xuất" Binding="{Binding Quantity }" />
-                    <tableView:TableViewNumberColumn Header="Số lượng còn lại" Binding="{Binding Inventory.Quantity }" />
+                    <tableView:TableViewNumberColumn Header="SL xuất" Binding="{Binding Quantity }" />
+                    <tableView:TableViewNumberColumn Header="SL còn lại" Binding="{Binding Inventory.Quantity }" />
 
-                    <tableView:TableViewTextColumn Header="Ngày xuất kho " Binding="{Binding OutboundDate   }" />
+                    <tableView:TableViewDateColumn Header="Ngày xuất kho " Binding="{Binding OutboundDate   }" />
                     <tableView:TableViewTextColumn Header="Lí do xuất kho" Binding="{Binding Purpose    }" />
 
                     <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Inventory.Inbound.Supplier.Name   }" />
 
 
-                    <tableView:TableViewTextColumn Header="Ghi chú" Binding="{Binding Notes }" />
+                    <tableView:TableViewTextColumn Header="Ghi chú" Binding="{Binding Notes }" CanFilter="False"/>
 
                 </tableView:TableView.Columns>
             </tableView:TableView>
@@ -85,7 +85,7 @@
         <Button x:Name="addButton" Grid.Row="4" Click="addButton_click" Style="{StaticResource PrimaryButtonStyle}">
             <StackPanel Orientation="Horizontal">
                 <FontIcon Glyph="&#xE710;" FontSize="14"/>
-                <TextBlock x:Name="addButtonTextBlock" Text="Thêm " Margin="5,0,0,0"/>
+                <TextBlock x:Name="addButtonTextBlock" Text="Xuất lô hàng mới" Margin="5,0,0,0"/>
             </StackPanel>
         </Button>
     </Grid>

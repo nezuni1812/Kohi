@@ -25,10 +25,10 @@ namespace Kohi.Views
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class InventoryReceivingPage : Page
+    public sealed partial class InventoryInboundPage : Page
     {
         public InboundViewModel InboundViewModel { get; set; } = new InboundViewModel();
-        public InventoryReceivingPage()
+        public InventoryInboundPage()
         {
             this.InitializeComponent();
             Loaded += InboundsPage_Loaded;
@@ -51,7 +51,10 @@ namespace Kohi.Views
 
         public void addButton_click(object sender, RoutedEventArgs e)
         {
-            // Logic thêm khách hàng
+            Frame rootFrame = new Frame();
+            this.Content = rootFrame;
+
+            rootFrame.Navigate(typeof(AddNewInventoryInboundPage), null);
         }
 
         public void UpdatePageList()

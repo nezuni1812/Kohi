@@ -55,14 +55,15 @@
                     <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Inbound.Ingredient.Name }" />
                     <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Inbound.Ingredient.Unit}" />
 
-                    <tableView:TableViewNumberColumn Header="Số lượng hiện tại" Binding="{Binding Quantity }" />
-                    <tableView:TableViewNumberColumn Header="Số lượng lúc nhập" Binding="{Binding Inbound.Quantity }" />
+                    <tableView:TableViewNumberColumn Header="SL hiện tại" Binding="{Binding Quantity }" />
+                    <tableView:TableViewNumberColumn Header="SL lúc nhập" Binding="{Binding Inbound.Quantity }" />
 
-                    <tableView:TableViewTextColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate  }" />
+                    <tableView:TableViewDateColumn Header="Ngày hết hạn" Binding="{Binding ExpiryDate  }" />
 
                     <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Inbound.Supplier.Name   }" />
 
-                    <tableView:TableViewTemplateColumn Header="Giá nhập mỗi đơn vị">
+                    <tableView:TableViewNumberColumn Header="Giá nhập" Binding="{Binding Inbound.Ingredient.CostPerUnit, Converter={StaticResource vnmoney}}" />
+                    <!--tableView:TableViewTemplateColumn Header="Giá nhập mỗi đơn vị">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Inbound.Ingredient.CostPerUnit , Converter={StaticResource vnmoney}}" />
@@ -74,7 +75,7 @@
                                 <NumberBox Value="{Binding Ingredient.CostPerUnit , Mode=TwoWay}" />
                             </DataTemplate>
                         </tableView:TableViewTemplateColumn.EditingTemplate>
-                    </tableView:TableViewTemplateColumn>
+                    </tableView:TableViewTemplateColumn-->
 
                   
                 </tableView:TableView.Columns>
