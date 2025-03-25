@@ -14,7 +14,7 @@ namespace Kohi.Models
         public int Quantity { get; set; }
         public DateTime InboundDate { get; set; }
         public DateTime ExpiryDate { get; set; }
-        public InboundModel Inbound { get; set; }
+        public InboundModel? Inbound { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

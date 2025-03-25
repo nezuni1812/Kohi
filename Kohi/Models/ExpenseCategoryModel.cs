@@ -12,8 +12,7 @@ namespace Kohi.Models
     {
         public int Id { get; set; }
         [Required]
-        public string CategoryName { get; set; } // Not null
-        public int ExpenseTypeId { get; set; }
+        public string? CategoryName { get; set; } // Not null
         public string? Description { get; set; }
 
         // Navigation Properties
