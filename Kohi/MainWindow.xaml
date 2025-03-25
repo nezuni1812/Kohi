@@ -76,7 +76,7 @@
                         <NavigationViewItem Icon="Shop" Content="Danh sách nguyên vật liệu" Tag="Kohi.Views.IngredientsPage"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Icon="People" Content="Khách hàng" Tag="Kohi.Views.CustomersPage"/>
+                <NavigationViewItem Icon="People" Content="Đối tác" Tag="Kohi.Views.PartnersPage"/>
                 <NavigationViewItem Content="Kho hàng" IsExpanded="True">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE7B8;" />
