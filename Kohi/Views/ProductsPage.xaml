@@ -58,7 +58,7 @@
                     <tableView:TableViewTemplateColumn Header="Hình ảnh">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding ImageUrl, Converter={StaticResource AbsolutePathConverter}}" 
+                                <Image Source="{Binding ImageUrl}" 
                                        Width="50" Height="50" 
                                        HorizontalAlignment="Center"/>
                             </DataTemplate>
@@ -69,43 +69,12 @@
 
                     <tableView:TableViewTextColumn Header="Tên sản phẩm" Binding="{Binding Name}" />
 
-                    <!--tableView:TableViewTemplateColumn Header="Giá bán">
-                        <tableView:TableViewTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Price, Converter={StaticResource vnmoney}}" />
-                            </DataTemplate>
-                        </tableView:TableViewTemplateColumn.CellTemplate>
 
-                        <tableView:TableViewTemplateColumn.EditingTemplate>
-                            <DataTemplate>
-                                <NumberBox Value="{Binding Price, Mode=TwoWay}" />
-                            </DataTemplate>
-                        </tableView:TableViewTemplateColumn.EditingTemplate>
-                    </tableView:TableViewTemplateColumn-->
-
-                    <tableView:TableViewNumberColumn Header="Giá bán" Binding="{Binding Price, Converter={StaticResource vnmoney}}" />
-
-                    <!--tableView:TableViewTemplateColumn Header="Giá nhập">
-                        <tableView:TableViewTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Cost, Converter={StaticResource vnmoney}}" />
-                            </DataTemplate>
-                        </tableView:TableViewTemplateColumn.CellTemplate>
-
-                        <tableView:TableViewTemplateColumn.EditingTemplate>
-                            <DataTemplate>
-                                <NumberBox Value="{Binding Cost, Mode=TwoWay}" />
-                            </DataTemplate>
-                        </tableView:TableViewTemplateColumn.EditingTemplate>
-                    </tableView:TableViewTemplateColumn-->
-
-                    <tableView:TableViewNumberColumn Header="Giá nhập" Binding="{Binding Cost, Converter={StaticResource vnmoney}}" />
-
-                    <!--tableView:TableViewTextColumn Header="Đang được bán" Binding="{Binding IsActive, Converter={StaticResource toYesNo}}" /-->
-
-                    <tableView:TableViewCheckBoxColumn Header="Đang được bán" Binding="{Binding IsActive}"/>
+                    <tableView:TableViewTextColumn Header="Đang được bán" Binding="{Binding IsActive, Converter={StaticResource toYesNo}}" />
+                    <tableView:TableViewTextColumn Header="Là topping" Binding="{Binding IsTopping, Converter={StaticResource toYesNo}}" />
 
                     <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Description }" />
+                    
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>

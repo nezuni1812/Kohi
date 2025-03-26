@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,6 +31,13 @@ namespace Kohi.Views
         public IngredientsPage()
         {
             this.InitializeComponent();
+            Loaded += IngredientsPage_Loaded;
+        }
+
+        public async void IngredientsPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            await IngredientViewModel.LoadData(); // Tải trang đầu tiên
+            UpdatePageList();
         }
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -46,6 +53,25 @@ namespace Kohi.Views
             this.Content = rootFrame;
 
             rootFrame.Navigate(typeof(AddNewIngredientPage), null);
+        }
+
+        public void UpdatePageList()
+        {
+            if (IngredientViewModel == null) return;
+            pageList.ItemsSource = Enumerable.Range(1, IngredientViewModel.TotalPages);
+            pageList.SelectedItem = IngredientViewModel.CurrentPage;
+        }
+
+        public async void OnPageSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IngredientViewModel == null || pageList.SelectedItem == null) return;
+
+            var selectedPage = (int)pageList.SelectedItem;
+            if (selectedPage != IngredientViewModel.CurrentPage)
+            {
+                await IngredientViewModel.LoadData(selectedPage);
+                UpdatePageList();
+            }
         }
     }
 }

@@ -22,20 +22,15 @@ namespace Kohi.Models
         public int? CategoryId { get; set; }  // Foreign Key to Category
 
         [Required]
-        public float Price { get; set; }
-
-        [Required]
         public bool IsActive { get; set; } = true;
-
+        public bool? IsTopping { get; set; }
         public string? Description { get; set; }
 
         public string? ImageUrl { get; set; }
 
-        [Required]
-        public float Cost { get; set; }
+        public CategoryModel? Category { get; set; }
+        public List<ProductVariantModel> ProductVariants { get; set; } = new List<ProductVariantModel>(); // Matches Ref: product_variants.product_id > products.id
 
-        public CategoryModel Category { get; set; }
-        public List<InvoiceDetailModel> InvoiceDetails { get; set; } = new List<InvoiceDetailModel>();
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }

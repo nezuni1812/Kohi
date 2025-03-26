@@ -13,24 +13,56 @@ namespace Kohi.ViewModels
     {
         private IDao _dao;
         public FullObservableCollection<IngredientModel> Ingredients { get; set; }
-
+        public int CurrentPage { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalItems { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public IngredientViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
             Ingredients = new FullObservableCollection<IngredientModel>();
-
             LoadData();
         }
 
-        private async void LoadData()
+        public async Task LoadData(int page = 1)
         {
-            await Task.Delay(0); // Giả lập delay để giữ async
-            var categories = _dao.Ingredients.GetAll();
+            CurrentPage = page;
+            TotalItems = _dao.Ingredients.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.Ingredients.GetAll(
+                pageNumber: CurrentPage,
+                pageSize: PageSize
+            )); // Lấy danh sách khách hàng phân trang
             Ingredients.Clear();
-
-            foreach (var category in categories)
+            foreach (var ingredient in result)
             {
-                Ingredients.Add(category);
+                Ingredients.Add(ingredient);
+            }
+        }
+
+        // Phương thức để chuyển đến trang tiếp theo
+        public async Task NextPage()
+        {
+            if (CurrentPage < TotalPages)
+            {
+                await LoadData(CurrentPage + 1);
+            }
+        }
+
+        // Phương thức để quay lại trang trước
+        public async Task PreviousPage()
+        {
+            if (CurrentPage > 1)
+            {
+                await LoadData(CurrentPage - 1);
+            }
+        }
+
+        // Phương thức để chuyển đến trang cụ thể
+        public async Task GoToPage(int page)
+        {
+            if (page >= 1 && page <= TotalPages)
+            {
+                await LoadData(page);
             }
         }
     }

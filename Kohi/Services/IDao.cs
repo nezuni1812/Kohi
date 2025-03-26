@@ -21,13 +21,12 @@ namespace Kohi.Services
         IRepository<InventoryModel> Inventories { get; set; }
         IRepository<IngredientModel> Ingredients { get; set; }
         IRepository<InvoiceDetailModel> InvoiceDetails { get; set; }
-        IRepository<RecipeDetailModel> RecipeDetails { get; set; }
+        IRepository<RecipeDetailModel> RecipeDetails { get; set; } // Sửa từ ProductVariantModel thành RecipeDetailModel
         IRepository<OrderToppingModel> OrderToppings { get; set; }
         IRepository<OutboundModel> Outbounds { get; set; }
-        IRepository<RecipeModel> Recipes { get; set; }
+        IRepository<ProductVariantModel> ProductVariants { get; set; } // Đổi Recipes thành ProductVariants cho rõ ràng
         IRepository<TaxModel> Taxes { get; set; }
         IRepository<InvoiceTaxModel> InvoiceTaxes { get; set; }
         IRepository<CheckInventoryModel> CheckInventories { get; set; }
-
     }
 }

@@ -4,10 +4,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Kohi.BusinessLogic;
+//using Kohi.BusinessLogic;
 using Kohi.Models;
 using Kohi.Services;
 using Kohi.Utils;
+using Windows.Storage;
 
 //namespace Kohi.ViewModels
 //{
@@ -64,7 +65,7 @@ namespace Kohi.ViewModels
     {
         private IDao _dao;
 
-        private ProductService _service;
+        //private ProductService _service;
         public string NewProductName { get; set; } = "";
         public string NewCategoryId { get; set; } = "";
         public FullObservableCollection<ProductModel> Products { get; set; }
@@ -74,41 +75,39 @@ namespace Kohi.ViewModels
         public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public ProductViewModel()
         {
-            //_dao = Service.GetKeyedSingleton<IDao>();
-            //Products = new FullObservableCollection<ProductModel>();
-            _service = new ProductService();
+            _dao = Service.GetKeyedSingleton<IDao>();
             Products = new FullObservableCollection<ProductModel>();
-
             LoadData();
         }
 
         public async Task LoadData(int page = 1)
         {
-            //CurrentPage = page;
-            //TotalItems = _dao.Products.GetCount(); // Lấy tổng số khách hàng từ DAO
-            //var result = await Task.Run(() => _dao.Products.GetAll(
-            //    pageNumber: CurrentPage,
-            //    pageSize: PageSize
-            //)); // Lấy danh sách khách hàng phân trang
-            //Products.Clear();
-            //foreach (var item in result)
-            //{
-            //    Products.Add(item);
-            //}
-            var products = await _service.GetProductAsync();
+            CurrentPage = page;
+            TotalItems = _dao.Products.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.Products.GetAll(
+                pageNumber: CurrentPage,
+                pageSize: PageSize
+            )); // Lấy danh sách khách hàng phân trang
             Products.Clear();
-
-            foreach (var product in products)
+            foreach (var item in result)
             {
-                Products.Add(product);
+                // Kiểm tra xem danh mục đã tồn tại trong danh sách chưa
+                if (!Products.Any(c => c.Id == item.Id))
+                {
+                    // Đường dẫn đầy đủ tới hình ảnh trong LocalFolder
+                    if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        // Tạo đường dẫn đầy đủ
+                        StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                        item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                    }
+                }
+                Products.Add(item);
             }
         }
         public async void AddProduct()
         {
-            await _service.AddProductAsync(new ProductModel { Name = NewProductName });
-            LoadData();
-            NewProductName = "";
-            NewCategoryId = null;
+
         }
 
         // Phương thức để chuyển đến trang tiếp theo
@@ -135,6 +134,18 @@ namespace Kohi.ViewModels
             if (page >= 1 && page <= TotalPages)
             {
                 await LoadData(page);
+            }
+        }
+
+        public async Task Add(ProductModel product)
+        {
+            try
+            {
+                int result = _dao.Products.Insert($"{TotalItems + 1}", product);
+            }
+            catch (Exception ex)
+            {
+
             }
         }
     }

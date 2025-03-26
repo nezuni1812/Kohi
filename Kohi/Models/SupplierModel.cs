@@ -17,6 +17,8 @@ namespace Kohi.Models
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string? Address { get; set; }
+        public List<InboundModel> Inbounds { get; set; } = new List<InboundModel>(); // Ref: inbound.supplier_id > suppliers.id
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }

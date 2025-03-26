@@ -1,4 +1,4 @@
-using Kohi.Models;
+﻿using Kohi.Models;
 using Kohi.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -19,6 +19,7 @@ using Windows.Foundation.Collections;
 using Windows.Storage.Pickers;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -31,6 +32,9 @@ namespace Kohi.Views
     public sealed partial class AddNewProductPage : Page
     {
         public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
+        public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
+        private StorageFile selectedImageFile;
+
         public AddNewProductPage()
         {
             this.InitializeComponent();
@@ -38,21 +42,85 @@ namespace Kohi.Views
         }
         private async void AddImageButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
+            // Initialize the picker
             var picker = new FileOpenPicker();
-            Image img = sender as Image;
-
             picker.ViewMode = PickerViewMode.Thumbnail;
-
             picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".png");
 
-            //picker.FileTypeFilter.Add(".jpg");
+            // WinUI 3 requires a window handle to initialize file pickers
+            // Get the current window handle
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            // Initialize the picker with the window handle
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
+            // Pick a file
             StorageFile file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                // Load the image into an image control
+                using (IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read))
+                {
+                    BitmapImage bitmapImage = new BitmapImage();
+                    await bitmapImage.SetSourceAsync(stream);
+                    mypic.Source = bitmapImage;
+
+                    // You can store the file path or file itself for later use if needed
+                    // For example, if you want to save the file path to your product model:
+                    // Product.ImagePath = file.Path;
+                    selectedImageFile = file;
+                    // You can also update the UI to show the selected file name
+                    outtext.Text = "Ảnh đã chọn: " + file.Name;
+                }
+            }
         }
 
-        private void saveButton_click(object sender, RoutedEventArgs e)
+        public async Task<string> SaveImage()
         {
+            // Giả sử selectedFile là đối tượng chứa thông tin hình ảnh
+            if (selectedImageFile != null)
+            {
+                try
+                {
+                    // Kiểm tra tệp có tồn tại và truy cập được không
+                    StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                    string categoryName = ProductNameTextBox.Text;
+                    if (string.IsNullOrEmpty(categoryName))
+                    {
+                        outtext.Text = "Vui lòng nhập tên sản phẩm.";
+                        return "";
+                    }
+                    string normalizedName = Utils.StringUtils.NormalizeString(categoryName);
+                    string fileExtension = Path.GetExtension(selectedImageFile.Name); // Lấy phần mở rộng (ví dụ: .jpg)
+                    string flag = DateTime.Now.ToString("yyyyMMddHHmmss");
+                    normalizedName = normalizedName + flag + fileExtension;
+                    await selectedImageFile.CopyAsync(localFolder, normalizedName, NameCollisionOption.ReplaceExisting);
+                    outtext.Text = $"Đã lưu sản phẩm '{normalizedName}' và hình ảnh thành công.";
+                    return normalizedName;
+                }
+                catch (Exception ex)
+                {
+                    outtext.Text = "Lỗi khi lưu hình ảnh: " + ex.Message;
+                    return "";
+                }
+            }
+            else
+            {
+                outtext.Text = "Chưa chọn hình ảnh.";
+                return "";
+            }
+        }
 
+        private async void saveButton_click(object sender, RoutedEventArgs e)
+        {
+            string imgName = await SaveImage();
+            //await ProductViewModel.Add(new CategoryModel()
+            //{
+            //    Name = ProductNameTextBox.Text,
+            //    ImageUrl = imgName,
+            //});
         }
     }
 }
