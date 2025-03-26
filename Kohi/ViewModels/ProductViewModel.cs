@@ -136,5 +136,17 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+
+        public async Task Add(ProductModel product)
+        {
+            try
+            {
+                int result = _dao.Products.Insert($"{TotalItems + 1}", product);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }

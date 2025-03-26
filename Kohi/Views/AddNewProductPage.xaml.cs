@@ -19,6 +19,7 @@ using Windows.Foundation.Collections;
 using Windows.Storage.Pickers;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -31,6 +32,7 @@ namespace Kohi.Views
     public sealed partial class AddNewProductPage : Page
     {
         public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
+        public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
         private StorageFile selectedImageFile;
 
         public AddNewProductPage()
@@ -75,7 +77,7 @@ namespace Kohi.Views
             }
         }
 
-        private async void saveButton_click(object sender, RoutedEventArgs e)
+        public async Task<string> SaveImage()
         {
             // Giả sử selectedFile là đối tượng chứa thông tin hình ảnh
             if (selectedImageFile != null)
@@ -88,24 +90,37 @@ namespace Kohi.Views
                     if (string.IsNullOrEmpty(categoryName))
                     {
                         outtext.Text = "Vui lòng nhập tên sản phẩm.";
-                        return;
+                        return "";
                     }
                     string normalizedName = Utils.StringUtils.NormalizeString(categoryName);
                     string fileExtension = Path.GetExtension(selectedImageFile.Name); // Lấy phần mở rộng (ví dụ: .jpg)
                     string flag = DateTime.Now.ToString("yyyyMMddHHmmss");
                     normalizedName = normalizedName + flag + fileExtension;
                     await selectedImageFile.CopyAsync(localFolder, normalizedName, NameCollisionOption.ReplaceExisting);
-                    outtext.Text = $"Đã lưu sản phẩm '{normalizedName}' và hình ảnh thành công."; ;
+                    outtext.Text = $"Đã lưu sản phẩm '{normalizedName}' và hình ảnh thành công.";
+                    return normalizedName;
                 }
                 catch (Exception ex)
                 {
                     outtext.Text = "Lỗi khi lưu hình ảnh: " + ex.Message;
+                    return "";
                 }
             }
             else
             {
                 outtext.Text = "Chưa chọn hình ảnh.";
+                return "";
             }
+        }
+
+        private async void saveButton_click(object sender, RoutedEventArgs e)
+        {
+            string imgName = await SaveImage();
+            //await ProductViewModel.Add(new CategoryModel()
+            //{
+            //    Name = ProductNameTextBox.Text,
+            //    ImageUrl = imgName,
+            //});
         }
     }
 }

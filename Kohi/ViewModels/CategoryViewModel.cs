@@ -85,5 +85,17 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+
+        public async Task Add(CategoryModel category)
+        {
+            try
+            {
+                int result = _dao.Categories.Insert($"{TotalItems + 1}", category);
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
     }
 }

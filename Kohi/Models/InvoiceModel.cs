@@ -16,7 +16,7 @@ namespace Kohi.Models
 
         public float DeliveryFee { get; set; } = 0.00f;
 
-        public string? order_type { get; set; }
+        public string? OrderType { get; set; }
 
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

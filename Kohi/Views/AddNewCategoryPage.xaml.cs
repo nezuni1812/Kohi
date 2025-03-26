@@ -17,6 +17,10 @@ using Windows.Storage;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage.Streams;
 using Kohi.Utils;
+using Kohi.ViewModels;
+using Kohi.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -29,6 +33,8 @@ namespace Kohi.Views
     public sealed partial class AddNewCategoryPage : Page
     {
         private StorageFile selectedImageFile;
+
+        public CategoryViewModel ViewModel { get; set; } = new CategoryViewModel();
         public AddNewCategoryPage()
         {
             this.InitializeComponent();
@@ -71,7 +77,7 @@ namespace Kohi.Views
             }
         }
 
-        private async void saveButton_click(object sender, RoutedEventArgs e)
+        public async Task<string> SaveImage()
         {
             // Giả sử selectedFile là đối tượng chứa thông tin hình ảnh
             if (selectedImageFile != null)
@@ -84,24 +90,37 @@ namespace Kohi.Views
                     if (string.IsNullOrEmpty(categoryName))
                     {
                         outtext.Text = "Vui lòng nhập tên danh mục.";
-                        return;
+                        return "";
                     }
                     string normalizedName = Utils.StringUtils.NormalizeString(categoryName);
                     string fileExtension = Path.GetExtension(selectedImageFile.Name); // Lấy phần mở rộng (ví dụ: .jpg)
                     string flag = DateTime.Now.ToString("yyyyMMddHHmmss");
-                    normalizedName = normalizedName + flag + fileExtension; 
+                    normalizedName = normalizedName + flag + fileExtension;
                     await selectedImageFile.CopyAsync(localFolder, normalizedName, NameCollisionOption.ReplaceExisting);
-                    outtext.Text = $"Đã lưu danh mục '{normalizedName}' và hình ảnh thành công."; ;
+                    outtext.Text = $"Đã lưu danh mục '{normalizedName}' và hình ảnh thành công.";
+                    return normalizedName;
                 }
                 catch (Exception ex)
                 {
                     outtext.Text = "Lỗi khi lưu hình ảnh: " + ex.Message;
+                    return "";
                 }
             }
             else
             {
                 outtext.Text = "Chưa chọn hình ảnh.";
+                return "";
             }
+        }
+
+        private async void saveButton_click(object sender, RoutedEventArgs e)
+        {
+            string imgName = await SaveImage();
+            await ViewModel.Add(new CategoryModel()
+            {
+                Name = CategoryNameTextBox.Text,
+                ImageUrl = imgName,
+            });
         }
     }
 }
