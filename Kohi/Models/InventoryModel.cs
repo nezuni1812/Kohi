@@ -11,7 +11,7 @@ namespace Kohi.Models
     {
         public int Id { get; set; }
         public int InboundId { get; set; }
-        public int Quantity { get; set; }
+        public float Quantity { get; set; }
         public DateTime InboundDate { get; set; }
         public DateTime ExpiryDate { get; set; }
         public InboundModel? Inbound { get; set; }
