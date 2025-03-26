@@ -27,34 +27,21 @@ namespace Kohi.Views
     /// </summary>
     public sealed partial class InventoryInboundPage : Page
     {
+        public SupplierViewModel SupplierViewModel { get; set; } = new SupplierViewModel();
+        public IngredientViewModel IngredientViewModel { get; set; } = new IngredientViewModel();
         public InboundViewModel InboundViewModel { get; set; } = new InboundViewModel();
+        public InboundModel? SelectedInbound { get; set; }
+        public int SelectedInboundId = -1;
         public InventoryInboundPage()
         {
             this.InitializeComponent();
             Loaded += InboundsPage_Loaded;
-            //GridContent.DataContext = IncomeViewModel;
+            this.DataContext = this;
         }
         public async void InboundsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await InboundViewModel.LoadData(); // Tải trang đầu tiên
+            await InboundViewModel.LoadData();
             UpdatePageList();
-        }
-
-        public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (sender is TableView tableView && tableView.SelectedItem is CustomerModel selectedCustomer)
-            {
-                int id = selectedCustomer.Id;
-                Debug.WriteLine($"Selected Customer ID: {id}");
-            }
-        }
-
-        public void addButton_click(object sender, RoutedEventArgs e)
-        {
-            Frame rootFrame = new Frame();
-            this.Content = rootFrame;
-
-            rootFrame.Navigate(typeof(AddNewInventoryInboundPage), null);
         }
 
         public void UpdatePageList()
@@ -73,6 +60,112 @@ namespace Kohi.Views
             {
                 await InboundViewModel.LoadData(selectedPage);
                 UpdatePageList();
+            }
+        }
+
+        public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is TableView tableView && tableView.SelectedItem is InboundModel selectedInbound)
+            {
+                SelectedInboundId = selectedInbound.Id;
+                InboundBatchCodeTextBox.IsEnabled = true;
+                InboundBatchCodeTextBox.Text = SelectedInboundId.ToString();
+                InboundBatchCodeTextBox.IsEnabled = false;
+                Debug.WriteLine($"Selected Inbound ID: {SelectedInboundId}");
+            }
+            else
+            {
+                SelectedInbound = null;
+                SelectedInboundId = -1;
+                Debug.WriteLine("Không có lô hàng nào được chọn!");
+            }
+        }
+
+        public async void showEditInfoDialog_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedInboundId == -1)
+            {
+                var noSelectionDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = "Không có lô hàng nào được chọn",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await noSelectionDialog.ShowAsync();
+                return;
+            }
+
+            Debug.WriteLine("showEditInfoDialog_Click triggered");
+            var result = await InfoDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+
+            }
+        }
+
+        private void InfoDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            args.Cancel = true;
+            SelectedInboundId = -1;
+        }
+
+        private void InfoDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            
+        }
+
+        public async void showDeleteInfoDialog_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedInboundId == -1)
+            {
+                var noSelectionDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = "Không có lô hàng nào được chọn",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await noSelectionDialog.ShowAsync();
+                return;
+            }
+
+            var deleteDialog = new ContentDialog
+            {
+                Title = "Xác nhận xóa",
+                Content = $"Bạn có chắc chắn muốn xóa lô hàng {SelectedInboundId} không? Lưu ý hành động này không thể hoàn tác.",
+                PrimaryButtonText = "Xóa",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await deleteDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                Debug.WriteLine($"Đã xóa lô hàng với ID: {SelectedInboundId}");
+            }
+            else
+            {
+                Debug.WriteLine("Hủy xóa lô hàng");
+            }
+        }
+        private void saveButton_click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void IngredientComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IngredientComboBox.SelectedItem is IngredientModel selectedIngredient)
+            {
+                UnitTextBlock.IsEnabled = true;
+                UnitTextBlock.Text = selectedIngredient.Unit ?? "Chưa có đơn vị";
+                UnitTextBlock.IsEnabled = false;
             }
         }
     }

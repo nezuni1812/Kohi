@@ -33,6 +33,63 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
+        <ContentDialog x:Name="CheckDialog"
+   Title="Kiểm kê hàng hóa"
+   CloseButtonText="Đóng"
+   PrimaryButtonText="Xác nhận"
+   PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+   PrimaryButtonClick="CheckDialog_PrimaryButtonClick"
+   CloseButtonClick="CheckDialog_CloseButtonClick"
+   HorizontalAlignment="Center"
+   VerticalAlignment="Center">
+
+            <Grid Width="400" ColumnSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0"  Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Mã lô hàng"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox x:Name="CheckBatchCodeTextBox" PlaceholderText="Nhập mã lô hàng"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Số lượng thực tế"/>
+                <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <NumberBox x:Name="InventoryQuantityBox" Minimum="0" SpinButtonPlacementMode="Hidden"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Ngày kiểm kê"/>
+                <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <CalendarDatePicker x:Name="InventoryDatePicker" PlaceholderText="Chọn ngày"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                    <TextBlock Text="Lý do" Margin="0,0,0,5"/>
+                    <TextBox x:Name="ReasonTextBox" PlaceholderText="Nhập lý do kiểm kê" 
+                    AcceptsReturn="True"
+                    TextWrapping="Wrap" 
+                    Height="50"/>
+                </StackPanel>
+
+            </Grid>
+        </ContentDialog>
+        
         <TextBlock Grid.Row="0" Text="Kiểm kê kho" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
 
         <Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
@@ -49,9 +106,12 @@
                  ShowExportOptions="True"
                  HeaderGridLinesVisibility="All"
                  GridLinesVisibility="All"
-                 SelectionChanged="OnSelectionChanged">
+                 SelectionChanged="OnSelectionChanged"
+                 IsReadOnly="True">
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
+
+                    <tableView:TableViewNumberColumn Header="Mã lô hàng" Binding="{Binding InventoryId}" />
 
                     <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Inventory.Inbound.Ingredient.Name }" />
                     
@@ -83,11 +143,19 @@
             </ListBox>
         </Border>
 
-        <Button x:Name="addButton" Grid.Row="4" Click="addButton_click" Style="{StaticResource PrimaryButtonStyle}">
-            <StackPanel Orientation="Horizontal">
-                <FontIcon Glyph="&#xE710;" FontSize="14"/>
-                <TextBlock x:Name="addButtonTextBlock" Text="Thêm kiểm kê lô hàng" Margin="5,0,0,0"/>
-            </StackPanel>
-        </Button>
+        <StackPanel Grid.Row="4" Orientation="Horizontal">
+            <Button x:Name="editButton" Click="showEditInfoDialog_Click" Style="{StaticResource AccentButtonStyle}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE70F;" FontSize="14"/>
+                    <TextBlock Text="Chỉnh sửa kiểm kê" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="deleteButton" Click="showDeleteInfoDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                    <TextBlock Text="Xóa kiểm kê" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
     </Grid>
 </Page>

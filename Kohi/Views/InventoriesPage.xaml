@@ -33,6 +33,200 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
+        <ContentDialog x:Name="OutboundDialog"
+            Title="Xuất kho hàng hóa"
+            CloseButtonText="Đóng"
+            PrimaryButtonText="Xác nhận"
+            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+            PrimaryButtonClick="OutboundDialog_PrimaryButtonClick"
+            CloseButtonClick="OutboundDialog_CloseButtonClick"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <Grid Width="400" ColumnSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Mã lô hàng"/>
+                    </TextBlock>
+                    <TextBox x:Name="OutboundBatchCodeTextBox" PlaceholderText="Nhập mã lô hàng"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Số lượng xuất"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <NumberBox x:Name="OutboundQuantityBox" Minimum="0" SpinButtonPlacementMode="Hidden"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Ngày xuất kho"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <CalendarDatePicker x:Name="OutboundDatePicker" PlaceholderText="Chọn ngày"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,10,10">
+                    <TextBlock Text="Lý do" Margin="0,0,0,5"/>
+                    <TextBox x:Name="OutboundReasonTextBox" PlaceholderText="Nhập lý do xuất kho" 
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap" 
+                             Height="50"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                    <TextBlock Text="Ghi chú" Margin="0,0,0,5"/>
+                    <TextBox x:Name="OutboundNotesTextBox" PlaceholderText="Nhập ghi chú"
+                             AcceptsReturn="True" 
+                             TextWrapping="Wrap" 
+                             Height="50"/>
+                </StackPanel>
+            </Grid>
+        </ContentDialog>
+
+        <ContentDialog x:Name="CheckDialog"
+           Title="Kiểm kê hàng hóa"
+           CloseButtonText="Đóng"
+           PrimaryButtonText="Xác nhận"
+           PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+           PrimaryButtonClick="CheckDialog_PrimaryButtonClick"
+           CloseButtonClick="CheckDialog_CloseButtonClick"
+           HorizontalAlignment="Center"
+           VerticalAlignment="Center">
+
+            <Grid Width="400" ColumnSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Mã lô hàng"/>
+                    </TextBlock>
+                    <TextBox x:Name="CheckBatchCodeTextBox" PlaceholderText="Nhập mã lô hàng"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Số lượng thực tế"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <NumberBox x:Name="InventoryQuantityBox" Minimum="0" SpinButtonPlacementMode="Hidden"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Ngày kiểm kê"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <CalendarDatePicker x:Name="InventoryDatePicker" PlaceholderText="Chọn ngày"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                    <TextBlock Text="Lý do" Margin="0,0,0,5"/>
+                    <TextBox x:Name="ReasonTextBox" PlaceholderText="Nhập lý do kiểm kê" 
+                            AcceptsReturn="True"
+                            TextWrapping="Wrap" 
+                            Height="50"/>
+                </StackPanel>
+
+            </Grid>
+        </ContentDialog>
+
+        <ContentDialog x:Name="InboundDialog"
+       Title="Thông tin lô hàng"
+       CloseButtonText="Đóng"
+       PrimaryButtonText="Xác nhận"
+       PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+       PrimaryButtonClick="InboundDialog_PrimaryButtonClick"
+       CloseButtonClick="InboundDialog_CloseButtonClick"
+       HorizontalAlignment="Center"
+       VerticalAlignment="Center">
+
+            <Grid Grid.Row="1" HorizontalAlignment="Left" Width="350" ColumnSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.6*"></ColumnDefinition>
+                    <ColumnDefinition Width="0.4*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Tên Nguyên vật liệu"/>
+                <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <ComboBox x:Name="IngredientComboBox" 
+                  ItemsSource="{Binding IngredientViewModel.Ingredients}" 
+                  DisplayMemberPath="Name" 
+                  PlaceholderText="-- Chọn nguyên vật liệu --" 
+                  SelectionChanged="IngredientComboBox_SelectionChanged"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10" HorizontalAlignment="Left">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Đơn vị"/>
+                    </TextBlock>
+                    <TextBox x:Name="UnitTextBlock" Text="" IsReadOnly="True" MaxWidth="50" IsEnabled="False"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Tổng giá trị lô hàng"/>
+                <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <NumberBox Minimum="0" SpinButtonPlacementMode="Compact"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Left" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Số lượng nhập"/>
+                <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <NumberBox Minimum="0" SpinButtonPlacementMode="Compact"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Text="Ngày nhập hàng" Margin="0,0,0,5"/>
+                    <CalendarDatePicker PlaceholderText="Chọn ngày"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,10">
+                    <TextBlock Text="Ngày hết hạn" Margin="0,0,0,5"/>
+                    <CalendarDatePicker PlaceholderText="Chọn ngày"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Margin="0,0,0,10">
+                    <TextBlock Text="Nhà cung cấp" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding SupplierViewModel.Suppliers}" DisplayMemberPath="Name" PlaceholderText="-- Chọn nhà cung cấp --"/>
+                </StackPanel>
+            </Grid>
+        </ContentDialog>
+        
         <TextBlock Grid.Row="0" Text="Tồn kho" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
 
         <Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
@@ -48,7 +242,8 @@
              ShowExportOptions="True"
              HeaderGridLinesVisibility="All"
              GridLinesVisibility="All"
-             SelectionChanged="OnSelectionChanged">
+             SelectionChanged="OnSelectionChanged"
+             IsReadOnly="True">
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
 
@@ -62,7 +257,7 @@
 
                     <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Inbound.Supplier.Name   }" />
 
-                    <tableView:TableViewNumberColumn Header="Giá nhập" Binding="{Binding Inbound.Ingredient.CostPerUnit, Converter={StaticResource vnmoney}}" />
+                    <tableView:TableViewNumberColumn Header="Giá nhập mỗi dơn vị" Binding="{Binding Inbound.CostPerUnit, Converter={StaticResource vnmoney}}" />
                     <!--tableView:TableViewTemplateColumn Header="Giá nhập mỗi đơn vị">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -92,11 +287,25 @@
             </ListBox>
         </Border>
 
-        <!--Button x:Name="addButton" Grid.Row="4" Click="addButton_click" Style="{StaticResource PrimaryButtonStyle}">
-            <StackPanel Orientation="Horizontal">
-                <FontIcon Glyph="&#xE710;" FontSize="14"/>
-                <TextBlock x:Name="addButtonTextBlock" Text="Thêm " Margin="5,0,0,0"/>
-            </StackPanel>
-        </Button-->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Width="Auto">
+            <Button x:Name="editButton" Click="showOutboundInventoryDialog_Click" Style="{StaticResource AccentButtonStyle}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xEDE1;" FontSize="14"/>
+                    <TextBlock Text="Xuất lô hàng" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="checkButton" Click="showCheckInventoryDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE73E;" FontSize="14"/>
+                    <TextBlock Text="Kiểm kê lô hàng" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="addButton" Click="showAddInventoryDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE710;" FontSize="14"/>
+                    <TextBlock Text="Nhập lô hàng mới" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
     </Grid>
 </Page>
