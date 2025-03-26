@@ -428,11 +428,11 @@ namespace Kohi.Services
             {
                 var data = _inbounds ?? new List<InboundModel>
                 {
-                    new InboundModel { Id = 1, IngredientId = 1, Quantity = 100, InboundDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddMonths(6), SupplierId = 1, Notes = "Fresh milk batch" },
-                    new InboundModel { Id = 2, IngredientId = 2, Quantity = 50, InboundDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddMonths(5), SupplierId = 2, Notes = "Sugar supply" },
-                    new InboundModel { Id = 3, IngredientId = 3, Quantity = 80, InboundDate = DateTime.Now.AddDays(-7), ExpiryDate = DateTime.Now.AddMonths(4), SupplierId = 3, Notes = "Tea leaves" },
-                    new InboundModel { Id = 4, IngredientId = 4, Quantity = 60, InboundDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddMonths(3), SupplierId = 4, Notes = "Coffee beans" },
-                    new InboundModel { Id = 5, IngredientId = 5, Quantity = 70, InboundDate = DateTime.Now.AddDays(-3), ExpiryDate = DateTime.Now.AddMonths(2), SupplierId = 5, Notes = "Fruit puree" }
+                    new InboundModel { Id = 1, IngredientId = 1, Quantity = 100, InboundDate = DateTime.Now.AddDays(-15), ExpiryDate = DateTime.Now.AddMonths(6), SupplierId = 1, Notes = "Fresh milk batch", TotalCost=2000000 },
+                    new InboundModel { Id = 2, IngredientId = 2, Quantity = 50, InboundDate = DateTime.Now.AddDays(-10), ExpiryDate = DateTime.Now.AddMonths(5), SupplierId = 2, Notes = "Sugar supply", TotalCost=3000000 },
+                    new InboundModel { Id = 3, IngredientId = 3, Quantity = 80, InboundDate = DateTime.Now.AddDays(-7), ExpiryDate = DateTime.Now.AddMonths(4), SupplierId = 3, Notes = "Tea leaves", TotalCost=500000 },
+                    new InboundModel { Id = 4, IngredientId = 4, Quantity = 60, InboundDate = DateTime.Now.AddDays(-5), ExpiryDate = DateTime.Now.AddMonths(3), SupplierId = 4, Notes = "Coffee beans", TotalCost=100000 },
+                    new InboundModel { Id = 5, IngredientId = 5, Quantity = 70, InboundDate = DateTime.Now.AddDays(-3), ExpiryDate = DateTime.Now.AddMonths(2), SupplierId = 5, Notes = "Fruit puree", TotalCost=300000 }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -672,11 +672,11 @@ namespace Kohi.Services
             {
                 var data = _ingredients ?? new List<IngredientModel>
                 {
-                    new IngredientModel { Id = 1, Name = "Milk", Unit = "Liter", CostPerUnit = 20000f, Description = "Fresh milk" },
-                    new IngredientModel { Id = 2, Name = "Sugar", Unit = "Kg", CostPerUnit = 15000f, Description = "Refined sugar" },
-                    new IngredientModel { Id = 3, Name = "Tea Leaves", Unit = "Kg", CostPerUnit = 30000f, Description = "Green tea leaves" },
-                    new IngredientModel { Id = 4, Name = "Coffee Beans", Unit = "Kg", CostPerUnit = 40000f, Description = "Arabica beans" },
-                    new IngredientModel { Id = 5, Name = "Fruit Puree", Unit = "Liter", CostPerUnit = 25000f, Description = "Mixed fruit puree" }
+                    new IngredientModel { Id = 1, Name = "Milk", Unit = "Liter", Description = "Fresh milk" },
+                    new IngredientModel { Id = 2, Name = "Sugar", Unit = "Kg", Description = "Refined sugar" },
+                    new IngredientModel { Id = 3, Name = "Tea Leaves", Unit = "Kg", Description = "Green tea leaves" },
+                    new IngredientModel { Id = 4, Name = "Coffee Beans", Unit = "Kg", Description = "Arabica beans" },
+                    new IngredientModel { Id = 5, Name = "Fruit Puree", Unit = "Liter", Description = "Mixed fruit puree" }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -708,7 +708,7 @@ namespace Kohi.Services
                 if (item == null) return 0;
                 item.Name = info.Name;
                 item.Unit = info.Unit;
-                item.CostPerUnit = info.CostPerUnit;
+                //item.CostPerUnit = info.CostPerUnit;
                 item.Description = info.Description;
                 _ingredients = data;
                 return 1;
