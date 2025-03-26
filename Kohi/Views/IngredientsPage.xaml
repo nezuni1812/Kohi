@@ -59,7 +59,7 @@
 
                     <tableView:TableViewTextColumn Header="Đơn vị" Binding="{Binding Unit}" />
 
-                    <tableView:TableViewNumberColumn Header="Giá mỗi đơn vị" Binding="{Binding CostPerUnit, Converter={StaticResource vnmoney}}" />
+                    <!--tableView:TableViewNumberColumn Header="Giá mỗi đơn vị" Binding="{Binding CostPerUnit, Converter={StaticResource vnmoney}}" /-->
 
                     <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Description }" />
                 </tableView:TableView.Columns>
