@@ -52,6 +52,7 @@ namespace Kohi.Views
                 addButton.Click += AddSupplier_Click;
             }
         }
+
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is TableView tableView && tableView.SelectedItem is SupplierModel selectedSupplier)

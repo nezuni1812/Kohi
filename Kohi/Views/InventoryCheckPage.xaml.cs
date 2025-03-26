@@ -63,14 +63,6 @@ namespace Kohi.Views
             }
         }
 
-        public void addButton_click(object sender, RoutedEventArgs e)
-        {
-            Frame rootFrame = new Frame();
-            this.Content = rootFrame;
-
-            rootFrame.Navigate(typeof(AddNewInventoryCheckPage), null);
-        }
-
         public void UpdatePageList()
         {
             if (InventoryCheckViewModel == null) return;

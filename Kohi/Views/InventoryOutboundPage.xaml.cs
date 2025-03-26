@@ -55,14 +55,6 @@ namespace Kohi.Views
             }
         }
 
-        public void addButton_click(object sender, RoutedEventArgs e)
-        {
-            Frame rootFrame = new Frame();
-            this.Content = rootFrame;
-
-            rootFrame.Navigate(typeof(AddNewInventoryOutboundPage), null);
-        }
-
         public void UpdatePageList()
         {
             if (OutboundViewModel == null) return;
