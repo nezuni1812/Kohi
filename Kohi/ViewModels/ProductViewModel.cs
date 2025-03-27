@@ -142,6 +142,7 @@ namespace Kohi.ViewModels
             try
             {
                 int result = _dao.Products.Insert($"{TotalItems + 1}", product);
+                product.Category = _dao.Categories.GetAll().FirstOrDefault(c => c.Id == product.CategoryId);
             }
             catch (Exception ex)
             {
