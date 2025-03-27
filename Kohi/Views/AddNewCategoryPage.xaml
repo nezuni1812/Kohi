@@ -12,17 +12,13 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Text="Thêm mới danh mục sản phẩm" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,10"/>
 
         <Grid Grid.Row="1" HorizontalAlignment="Left" Width="400">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
             <StackPanel Grid.Row="0" Margin="0,0,0,10">
                 <TextBlock Margin="0,0,0,5">
                     <Run Text="Tên danh mục"/>
@@ -30,25 +26,16 @@
                 </TextBlock>
                 <TextBox x:Name="CategoryNameTextBox" PlaceholderText="Nhập tên danh mục"/>
             </StackPanel>
-
-            <StackPanel Grid.Row="1" Margin="0,0,0,10">
-                <TextBlock Text="Mã danh mục" Margin="0,0,0,5"/>
-                <TextBox PlaceholderText="Mã tự động" IsReadOnly="True"/>
-            </StackPanel>
-
         </Grid>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Width="500" HorizontalAlignment="Left">
-            <!--TextBlock Text="Hình ảnh" Margin="0,0,0,5" VerticalAlignment="Center"/>
-                <TextBox Text="{x:Bind Product.ImageUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                PlaceholderText="URL hình ảnh" 
-                Width="200" Margin="10,0,10,0"/-->
-            <StackPanel Orientation="Vertical" Width="300" HorizontalAlignment="Left">
-                <TextBlock x:Name="outtext" HorizontalAlignment="Left" Text="Ảnh Sản phẩm" Width="Auto" Margin="0,0,0,10"/>
-                <Image x:Name="mypic" HorizontalAlignment="Left" Width="100" Height="100" Margin="10,0,0,0" VerticalAlignment="Top" FocusVisualPrimaryBrush="Black"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                    <TextBlock x:Name="outtext" Text="Ảnh Sản phẩm" TextWrapping="Wrap"/>
+                    <Image x:Name="mypic" Width="150" Height="150" HorizontalAlignment="Left"/>
+                </StackPanel>
+                <AppBarButton Icon="Camera" Width="100" Label="Thêm ảnh" Click="AddImageButton_Click"/>
             </StackPanel>
-            <AppBarButton Icon="Camera" Width="100" Label="Thêm ảnh" Click="AddImageButton_Click" HorizontalAlignment="Right"/>
-
         </StackPanel>
 
         <Button x:Name="saveButton" Grid.Row="3" Click="saveButton_click" Style="{StaticResource PrimaryButtonStyle}">
