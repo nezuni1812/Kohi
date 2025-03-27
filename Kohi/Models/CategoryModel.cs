@@ -14,12 +14,13 @@ namespace Kohi.Models
         public int Id { get; set; }  // Primary Key
 
         [Required]
-        public string Name { get; set; } = "";
+        public string Name { get; set; }
 
-        public string? ImagePath { get; set; } = "";
+        public string? ImageUrl { get; set; }
 
         public List<ProductModel> Products { get; set; } = new List<ProductModel>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
     }
 }

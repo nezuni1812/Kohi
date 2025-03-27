@@ -40,7 +40,7 @@ namespace Kohi.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-           // ViewModel.AddProduct();
+            ViewModel.AddProduct();
         }
 
         private void onCategorySelectionChanged(object sender, ItemsViewSelectionChangedEventArgs e)

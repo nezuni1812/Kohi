@@ -18,6 +18,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Kohi.Views;
 using Kohi.Services;
+using Syncfusion.Licensing;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -34,10 +35,13 @@ namespace Kohi
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
+        public static Window MainWindow { get; set; }
+
         public App()
         {
             this.InitializeComponent();
             Service.AddKeyedSingleton<IDao, MockDao>();
+            MainWindow = new MainWindow();
 
         }
 
@@ -47,6 +51,7 @@ namespace Kohi
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            SyncfusionLicenseProvider.RegisterLicense("");
             m_window = new MainWindow();
             m_window.Activate();
         }

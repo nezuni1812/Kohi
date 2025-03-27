@@ -21,11 +21,15 @@ namespace Kohi.Views
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class CustomersPage : Page
+    public sealed partial class AddNewIngredientPage : Page
     {
-        public CustomersPage()
+        public AddNewIngredientPage()
         {
             this.InitializeComponent();
+        }
+        private void saveButton_click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

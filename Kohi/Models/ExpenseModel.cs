@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    public class ExpenseModel
+    public class ExpenseModel : INotifyPropertyChanged
     {
         public int Id { get; set; }
         public int ExpenseCategoryId { get; set; }
@@ -18,6 +19,8 @@ namespace Kohi.Models
         public DateTime ExpenseDate { get; set; } // Not null, dùng DateTime thay date
 
         // Navigation Property
-        public ExpenseCategoryModel ExpenseCategory { get; set; }
+        public ExpenseCategoryModel? ExpenseCategory { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
+
     }
 }

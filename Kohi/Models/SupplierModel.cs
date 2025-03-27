@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.Models
 {
-    public class SupplierModel
+    public class SupplierModel : INotifyPropertyChanged
     {
         public int Id { get; set; }
 
@@ -16,5 +17,9 @@ namespace Kohi.Models
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string? Address { get; set; }
+        public List<InboundModel> Inbounds { get; set; } = new List<InboundModel>(); // Ref: inbound.supplier_id > suppliers.id
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
     }
 }
