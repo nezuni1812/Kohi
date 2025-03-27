@@ -48,8 +48,6 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="0.6*"/>
@@ -72,17 +70,7 @@
                     <TextBox PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Giá nhập trên mỗi đơn vị"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <NumberBox 
-                        Minimum="0" 
-                        SpinButtonPlacementMode="Hidden" 
-                        Width="200" HorizontalAlignment="Left"/>
-                </StackPanel>
-                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
                     <TextBlock Text="Mô tả" Margin="0,0,0,5"/>
                     <TextBox
                             AcceptsReturn="True" 
@@ -106,8 +94,6 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="0.6*"/>
@@ -129,18 +115,8 @@
                     </TextBlock>
                     <TextBox PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
                 </StackPanel>
-
-                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Giá nhập trên mỗi đơn vị"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <NumberBox 
-                        Minimum="0" 
-                        SpinButtonPlacementMode="Hidden" 
-                        Width="200" HorizontalAlignment="Left"/>
-                </StackPanel>
-                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
                     <TextBlock Text="Mô tả" Margin="0,0,0,5"/>
                     <TextBox
                             AcceptsReturn="True" 
