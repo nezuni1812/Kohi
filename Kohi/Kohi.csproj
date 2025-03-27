@@ -28,6 +28,7 @@
     <None Remove="Views\InventoryHistoryPage.xaml" />
     <None Remove="Views\InventoryReceivingPage.xaml" />
     <None Remove="Views\InvoiceReportPage.xaml" />
+    <None Remove="Views\PartnersPage.xaml" />
     <None Remove="Views\ProductReportPage.xaml" />
     <None Remove="Views\Products\CategoriesPage.xaml" />
     <None Remove="Views\Products\ProductsPage.xaml" />
@@ -98,6 +99,9 @@
     <None Update="Views\HomePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Views\PartnersPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\IngredientsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
