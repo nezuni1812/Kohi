@@ -16,7 +16,8 @@ using Kohi.ViewModels;
 using WinUI.TableView;
 using Kohi.Models;
 using System.Diagnostics;
-
+using System.Collections.ObjectModel;
+using Kohi.Utils;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -29,10 +30,13 @@ namespace Kohi.Views
     {
         public IncomeViewModel IncomeViewModel { get; set; } = new IncomeViewModel();
         public ExpenseViewModel ExpenseViewModel { get; set; } = new ExpenseViewModel();
+        public ExpenseCategoryViewModel ExpenseCategoryViewModel { get; set; } = new ExpenseCategoryViewModel();
+
         public IncomeExpensePage()
         {
             this.InitializeComponent();
             Loaded += ExpensesPage_Loaded;
+            this.DataContext = this;
 
             //GridContent.DataContext = IncomeViewModel;
         }
@@ -45,16 +49,16 @@ namespace Kohi.Views
 
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is CustomerModel selectedCustomer)
+            if (sender is TableView tableView && tableView.SelectedItem is ExpenseModel selectedExpense)
             {
-                int id = selectedCustomer.Id;
+                int id = selectedExpense.Id;
                 Debug.WriteLine($"Selected Customer ID: {id}");
             }
         }
 
         public void addButton_click(object sender, RoutedEventArgs e)
         {
-            // Logic thêm khách hàng
+
         }
 
         public void UpdatePageList()
@@ -78,26 +82,86 @@ namespace Kohi.Views
 
         private void SelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
         {
-            if (sender.SelectedItem == IncomeSelectorBar)
-            {
-                //ReceiptCategory.Text = "Loại phiếu thu";
-                //Amount.Text = "Số tiền thu";
-                addButtonTextBlock.Text = "Thêm phiếu thu";
-                
+            //if (sender.SelectedItem == IncomeSelectorBar)
+            //{
+            //    //ReceiptCategory.Text = "Loại phiếu thu";
+            //    //Amount.Text = "Số tiền thu";
+            //    addButtonTextBlock.Text = "Thêm phiếu thu";
 
-                //GridContent.DataContext = IncomeViewModel;
-            }
-            else if (sender.SelectedItem == ExpenseSelectorBar)
+
+            //    //GridContent.DataContext = IncomeViewModel;
+            //}
+            //else if (sender.SelectedItem == ExpenseSelectorBar)
+            //{
+            //    //ReceiptCategory.Text = "Loại phiếu chi";
+            //    //Amount.Text = "Số tiền chi";
+            //    addButtonTextBlock.Text = "Thêm phiếu chi";
+            //    MyTableView.ItemsSource = ExpenseViewModel.ExpenseReceipts; 
+            //    //GridContent.DataContext = ExpenseViewModel;
+            //}
+        }
+
+        private void ExpenseReceiptDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            args.Cancel = true;
+
+        }
+
+        private void ExpenseReceiptDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+
+        }
+
+        public async void showDeleteExpenseReceiptDialog_Click(object sender, RoutedEventArgs e)
+        {
+            var deleteDialog = new ContentDialog
             {
-                //ReceiptCategory.Text = "Loại phiếu chi";
-                //Amount.Text = "Số tiền chi";
-                addButtonTextBlock.Text = "Thêm phiếu chi";
-                MyTableView.ItemsSource = ExpenseViewModel.ExpenseReceipts; 
-                //GridContent.DataContext = ExpenseViewModel;
+                Title = "Xác nhận xóa",
+                Content = "Bạn có chắc chắn muốn xóa phiếu chi này không? Lưu ý hành động này không thể hoàn tác.",
+                PrimaryButtonText = "Xóa",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await deleteDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                Debug.WriteLine("Đã xóa phiếu");
+            }
+            else
+            {
+                Debug.WriteLine("Hủy xóa phiếu");
             }
         }
 
-        private void addButton_click(object sender, RoutedEventArgs e)
+        public async void showEditExpenseReceiptDialog_Click(object sender, RoutedEventArgs e)
+        {
+            if (false)
+            {
+                var noSelectionDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = "Không có phiếu nào được chọn",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await noSelectionDialog.ShowAsync();
+                return;
+            }
+
+            Debug.WriteLine("showEditInfoDialog_Click triggered");
+            var result = await ExpenseReceiptDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+
+            }
+        }
+
+        public async void showAddExpenseReceiptDialog_Click(object sender, RoutedEventArgs e)
         {
 
         }

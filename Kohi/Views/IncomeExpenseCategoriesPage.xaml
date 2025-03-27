@@ -23,31 +23,103 @@
 				<RowDefinition Height="Auto"></RowDefinition>
 			</Grid.RowDefinitions>
 
-			<TextBlock Grid.Row="0" Text="Danh sách phiếu thu chi" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
+            <ContentDialog x:Name="ExpenseCategoryDialog"
+    Title="Thêm phiếu chi mới"
+    CloseButtonText="Đóng"
+    PrimaryButtonText="Xác nhận"
+    PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+    PrimaryButtonClick="ExpenseCategoryDialog_PrimaryButtonClick"
+    CloseButtonClick="ExpenseCategoryDialog_CloseButtonClick"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center">
+                <Grid Grid.Row="1" ColumnSpacing="10" Width="340">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.6*"/>
+                        <ColumnDefinition Width="0.4*"/>
+                    </Grid.ColumnDefinitions>
 
-			<SelectorBar Grid.Row="1" Grid.Column="0" x:Name="SelectorBar" SelectionChanged="SelectorBar_SelectionChanged" >
+                    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Tên danh mục"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <TextBox x:Name="expenseCategoryName" PlaceholderText="Nhập tên danh mục"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Mô tả"/>
+                        </TextBlock>
+                        <TextBox x:Name="expenseCategoryNote" PlaceholderText="Nhập mô tả"/>
+                    </StackPanel>
+                </Grid>
+            </ContentDialog>
+
+            <TextBlock Grid.Row="0" Text="Danh mục chi" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
+
+			<!--SelectorBar Grid.Row="1" Grid.Column="0" x:Name="SelectorBar" SelectionChanged="SelectorBar_SelectionChanged" >
 				<SelectorBarItem x:Name="IncomeSelectorBar" Text="Phiếu thu" IsSelected="True" />
 				<SelectorBarItem x:Name="ExpenseSelectorBar" Text="Phiếu chi" />
-			</SelectorBar>
+			</SelectorBar-->
 
 			<Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
 
-			<!--AutoSuggestBox Grid.Row="2" PlaceholderText="Tìm kiếm" QueryIcon="Find" Margin="0,10,0,10"/-->
 			<Grid Grid.Row="2" Margin="0,10,0,10">
-				<!-->tableView:TableView x:Name="MyTableView"
-					 ItemsSource=""
-					 AutoGenerateColumns="False"
-					 SelectionMode="Single"
-					 CanFilterColumns="True"
-					 CanSortColumns="True"
-					 CornerButtonMode="Options"
-					 ShowExportOptions="True"
-					 HeaderGridLinesVisibility="All"
-					 GridLinesVisibility="All"
-					 SelectionChanged="OnSelectionChanged">
+                <tableView:TableView x:Name="MyTableView"
+                     ItemsSource="{x:Bind ExpenseCategoryViewModel.ExpenseCategories}"
+                     AutoGenerateColumns="False"           
+                     SelectionMode="Single"
+                     CanFilterColumns="True"
+                     CanSortColumns="True"
+                     CornerButtonMode="Options"
+                     ShowExportOptions="True"
+                     HeaderGridLinesVisibility="All"
+                     GridLinesVisibility="All"
+                     SelectionChanged="OnSelectionChanged">
+                    <tableView:TableView.Columns>
+                        <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
 
-				</tableView:TableView-->
-			</Grid>
-		</Grid>
+                        <tableView:TableViewTextColumn Header="Tên danh mục" Binding="{Binding CategoryName}" />
+
+                        <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Description}" />
+
+                    </tableView:TableView.Columns>
+                </tableView:TableView>
+            </Grid>
+            <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
+                CornerRadius="{ThemeResource ControlCornerRadius}">
+                <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </Border>
+            <StackPanel Grid.Row="4" Orientation="Horizontal">
+            <Button x:Name="editButton" Click="showEditExpenseCategoryDialog_Click" Style="{ThemeResource AccentButtonStyle}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE70F;" FontSize="14"/>
+                    <TextBlock x:Name="editButtonTextBlock" Text="Chỉnh sửa phiếu chi" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+                <Button x:Name="deleteButton" Click="showDeleteExpenseCategoryDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                    <TextBlock x:Name="deleteButtonTextBlock" Text="Xóa phiếu chi" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+                <Button x:Name="addButton" Click="showAddExpenseCategoryDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE710;" FontSize="14"/>
+                    <TextBlock x:Name="addButtonTextBlock" Text="Thêm phiếu chi" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>
