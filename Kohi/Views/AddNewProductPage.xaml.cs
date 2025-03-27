@@ -21,6 +21,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Kohi.Services;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -118,12 +119,122 @@ namespace Kohi.Views
 
         private async void saveButton_click(object sender, RoutedEventArgs e)
         {
+            // Lấy tên ảnh từ hàm SaveImage
             string imgName = await SaveImage();
-            //await ProductViewModel.Add(new CategoryModel()
-            //{
-            //    Name = ProductNameTextBox.Text,
-            //    ImageUrl = imgName,
-            //});
+
+            // Lấy CategoryModel được chọn từ ComboBox
+            var selectedCategory = CategoryProductComboBox.SelectedItem as CategoryModel;
+
+            // Kiểm tra dữ liệu bắt buộc
+            if (selectedCategory == null || string.IsNullOrWhiteSpace(ProductNameTextBox.Text))
+            {
+                Debug.WriteLine("Lỗi: Vui lòng nhập tên sản phẩm và chọn nhóm sản phẩm!");
+                return;
+            }
+
+            // Tạo ProductModel từ dữ liệu nhập
+            var product = new ProductModel
+            {
+                Name = ProductNameTextBox.Text,
+                ImageUrl = imgName,
+                CategoryId = selectedCategory.Id,
+                IsActive = IsActiveCheckBox.IsChecked == true,
+                IsTopping = IsToppingCheckBox.IsChecked,
+                Description = DescriptionTextBox.Text,
+                ProductVariants = new List<ProductVariantModel>() // Khởi tạo danh sách Variants
+            };
+
+            try
+            {
+                // Lưu Variants và RecipeDetails vào ProductModel trước khi lưu
+                if (ViewModel.Variants.Any())
+                {
+                    foreach (var variantVM in ViewModel.Variants)
+                    {
+                        // Kiểm tra dữ liệu Variant
+                        if (string.IsNullOrWhiteSpace(variantVM.Size) || variantVM.Price < 0 || variantVM.Cost < 0)
+                        {
+                            Debug.WriteLine("Lỗi: Vui lòng nhập đầy đủ thông tin kích cỡ (Tên, Giá bán, Giá nhập)!");
+                            return;
+                        }
+
+                        // In thông tin Variant để debug
+                        System.Diagnostics.Debug.WriteLine($"Variant - Size: {variantVM.Size}, Price: {variantVM.Price}, Cost: {variantVM.Cost}");
+
+                        // Tạo ProductVariantModel
+                        var variant = new ProductVariantModel
+                        {
+                            Size = variantVM.Size,
+                            Price = variantVM.Price,
+                            Cost = variantVM.Cost,
+                            RecipeDetails = new List<RecipeDetailModel>()
+                        };
+
+                        // Lưu RecipeDetails nếu có
+                        if (variantVM.RecipeDetails.Any())
+                        {
+                            foreach (var recipeVM in variantVM.RecipeDetails)
+                            {
+                                // Kiểm tra dữ liệu RecipeDetail
+                                if (recipeVM.Ingredient == null || recipeVM.Quantity <= 0)
+                                {
+                                    Debug.WriteLine("Lỗi: Vui lòng chọn nguyên vật liệu và nhập số lượng hợp lệ!");
+                                    return;
+                                }
+
+                                // In thông tin RecipeDetail để debug
+                                System.Diagnostics.Debug.WriteLine($"RecipeDetail - Ingredient: {recipeVM.Ingredient.Name}, Quantity: {recipeVM.Quantity}, Unit: {recipeVM.Unit}");
+
+                                // Tạo RecipeDetailModel
+                                var recipe = new RecipeDetailModel
+                                {
+                                    IngredientId = recipeVM.Ingredient.Id,
+                                    Quantity = recipeVM.Quantity,
+                                    Unit = recipeVM.Unit
+                                };
+                                variant.RecipeDetails.Add(recipe); // Thêm vào danh sách RecipeDetails của variant
+                            }
+                        }
+
+                        product.ProductVariants.Add(variant); // Thêm variant vào danh sách ProductVariants của product
+                    }
+                }
+
+                // Lưu ProductModel và lấy Id
+                await ProductViewModel.Add(product);
+
+                int productId = Service.GetKeyedSingleton<IDao>().Products.GetCount(); // Với MockDao
+
+                // Cập nhật ProductId và lưu Variants/RecipeDetails riêng lẻ nếu cần
+                foreach (var variant in product.ProductVariants)
+                {
+                    variant.ProductId = productId; // Gán ProductId cho variant
+                    int variantId = Service.GetKeyedSingleton<IDao>().ProductVariants.GetCount() + 1;
+                    Service.GetKeyedSingleton<IDao>().ProductVariants.Insert(variantId.ToString(), variant);
+
+                    foreach (var recipe in variant.RecipeDetails)
+                    {
+                        recipe.ProductVariantId = variantId; // Gán ProductVariantId cho recipe
+                        int recipeId = Service.GetKeyedSingleton<IDao>().RecipeDetails.GetCount() + 1;
+                        Service.GetKeyedSingleton<IDao>().RecipeDetails.Insert(recipeId.ToString(), recipe);
+                    }
+                }
+
+                // Hiển thị thông báo thành công
+                Debug.WriteLine("Lưu thành công");
+
+                // Xóa dữ liệu trên giao diện sau khi lưu
+                ProductNameTextBox.Text = string.Empty;
+                CategoryProductComboBox.SelectedItem = null;
+                IsActiveCheckBox.IsChecked = false;
+                IsToppingCheckBox.IsChecked = false;
+                DescriptionTextBox.Text = string.Empty;
+                ViewModel.Variants.Clear();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Lỗi: {ex.Message}");
+            }
         }
 
         private void AddVariantButton_Click(object sender, RoutedEventArgs e)

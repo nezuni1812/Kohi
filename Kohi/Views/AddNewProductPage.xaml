@@ -53,7 +53,8 @@
                             <ComboBox ItemsSource="{Binding Categories}"
                                 DisplayMemberPath="Name" 
                                 PlaceholderText="-- Chọn nhóm --"
-                                Width="Auto" HorizontalAlignment="Left"/>
+                                Width="Auto" HorizontalAlignment="Left"
+                                x:Name="CategoryProductComboBox"      />
                         </StackPanel>
 
                         <!--StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
@@ -73,16 +74,16 @@
                         </StackPanel-->
 
                         <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
-                            <CheckBox Content="Cho phép bán" />
+                            <CheckBox x:Name="IsActiveCheckBox" Content="Cho phép bán" />
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
-                            <CheckBox Content="Mặt hàng là Topping" />
+                            <CheckBox x:Name="IsToppingCheckBox" Content="Mặt hàng là Topping" />
                         </StackPanel>
 
                         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
                             <TextBlock Text="Mô tả" Margin="0,0,0,5"/>
-                            <TextBox AcceptsReturn="True" Height="50" TextWrapping="Wrap" PlaceholderText="Nhập mô tả sản phẩm"/>
+                            <TextBox x:Name="DescriptionTextBox" AcceptsReturn="True" Height="50" TextWrapping="Wrap" PlaceholderText="Nhập mô tả sản phẩm"/>
                         </StackPanel>
                     </Grid>
 
