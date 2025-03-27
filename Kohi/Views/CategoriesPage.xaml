@@ -49,20 +49,22 @@
              CornerButtonMode="Options"
              ShowExportOptions="True"
              HeaderGridLinesVisibility="All"
-             GridLinesVisibility="All"
-             SelectionChanged="OnSelectionChanged">
+             GridLinesVisibility="Horizontal"
+             SelectionChanged="OnSelectionChanged"
+             IsReadOnly="True"
+             RowHeight="60">
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
-
-                    <tableView:TableViewTextColumn Header="Tên danh mục" Binding="{Binding Name}" />
 
                     <tableView:TableViewTemplateColumn Header="Hình ảnh">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding ImageUrl, Converter={StaticResource AbsolutePathConverter}}" Width="30" Height="30"/>
+                                <Image Source="{Binding ImageUrl}" Width="50" Height="50"/>
                             </DataTemplate>
                         </tableView:TableViewTemplateColumn.CellTemplate>
                     </tableView:TableViewTemplateColumn>
+
+                    <tableView:TableViewTextColumn Header="Tên danh mục" Binding="{Binding Name}" />
 
                     <tableView:TableViewNumberColumn Header="Số lượng sản phẩm" Binding="{Binding Products.Count}" />
 

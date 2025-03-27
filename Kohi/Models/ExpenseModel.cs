@@ -19,7 +19,7 @@ namespace Kohi.Models
         public DateTime ExpenseDate { get; set; } // Not null, dùng DateTime thay date
 
         // Navigation Property
-        public ExpenseCategoryModel ExpenseCategory { get; set; }
+        public ExpenseCategoryModel? ExpenseCategory { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }

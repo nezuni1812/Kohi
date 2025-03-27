@@ -63,7 +63,6 @@
             ItemInvoked="NavigationViewControl_ItemInvoked"
             IsSettingsVisible="False"
             Grid.Row="2" 
-            OpenPaneLength="250"
             IsBackButtonVisible="Collapsed"
             IsPaneToggleButtonVisible="True"
                 >
@@ -74,6 +73,7 @@
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Icon="Shop" Content="Danh sách mặt hàng" Tag="Kohi.Views.ProductsPage"/>
                         <NavigationViewItem Icon="Shop" Content="Danh mục mặt hàng" Tag="Kohi.Views.CategoriesPage"/>
+                        <NavigationViewItem Icon="Shop" Content="Danh sách nguyên vật liệu" Tag="Kohi.Views.IngredientsPage"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Icon="People" Content="Đối tác" Tag="Kohi.Views.PartnersPage"/>
