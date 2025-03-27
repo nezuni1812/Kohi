@@ -20,6 +20,7 @@ using Windows.Storage.Pickers;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,13 +33,15 @@ namespace Kohi.Views
     public sealed partial class AddNewProductPage : Page
     {
         public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
+        public IngredientViewModel IngredientViewModel { get; set; } = new IngredientViewModel();
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
-        private StorageFile selectedImageFile;
+        public AddNewProductViewModel ViewModel { get; set; } = new AddNewProductViewModel();
 
+        private StorageFile selectedImageFile;
         public AddNewProductPage()
         {
             this.InitializeComponent();
-            this.DataContext = this;
+            this.DataContext = ViewModel;
         }
         private async void AddImageButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
@@ -121,6 +124,87 @@ namespace Kohi.Views
             //    Name = ProductNameTextBox.Text,
             //    ImageUrl = imgName,
             //});
+        }
+
+        private void AddVariantButton_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
+        }
+
+        private void RemoveVariantButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            var variant = (AddNewProductViewModel.ProductVariantViewModel)button.Tag;
+            ViewModel.Variants.Remove(variant);
+        }
+
+        private async void AddRecipeDetailButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button; // Ép kiểu sender thành Button
+            if (button != null)
+            {
+                var currentVariant = button.DataContext as AddNewProductViewModel.ProductVariantViewModel;
+                if (currentVariant != null)
+                {
+                    var newRecipeDetail = new AddNewProductViewModel.RecipeDetailViewModel();
+                    currentVariant.RecipeDetails.Add(newRecipeDetail);
+                }
+            }
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox != null)
+            {
+                // Lấy RecipeDetailViewModel từ DataContext của ComboBox
+                var recipeDetail = comboBox.DataContext as AddNewProductViewModel.RecipeDetailViewModel;
+                if (recipeDetail != null && recipeDetail.Ingredient != null)
+                {
+                    // Tìm TextBox (IngredientUnit) trong cùng hàng (Grid)
+                    var grid = FindParent<Grid>(comboBox);
+                    if (grid != null)
+                    {
+                        var ingredientUnit = grid.FindName("IngredientUnit") as TextBox;
+                        if (ingredientUnit != null)
+                        {
+                            // Cập nhật TextBox với Unit từ Ingredient
+                            ingredientUnit.Text = recipeDetail.Ingredient.Unit ?? "N/A";
+                        }
+                    }
+                }
+            }
+        }
+
+        private void RemoveRecipeDetailButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            var recipeDetail = button.DataContext as AddNewProductViewModel.RecipeDetailViewModel;
+
+            var listView = FindParent<ListView>(button);
+            if (listView != null)
+            {
+                var currentVariant = listView.DataContext as AddNewProductViewModel.ProductVariantViewModel;
+                if (currentVariant != null && recipeDetail != null)
+                {
+                    currentVariant.RecipeDetails.Remove(recipeDetail);
+                }
+            }
+        }
+        private T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            while (parentObject != null)
+            {
+                T parent = parentObject as T;
+                if (parent != null)
+                    return parent;
+
+                parentObject = VisualTreeHelper.GetParent(parentObject);
+            }
+
+            return null;
         }
     }
 }
