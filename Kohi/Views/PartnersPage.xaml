@@ -1,37 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-<<<<<<<< HEAD:Kohi/Views/PartnersPage.xaml
     x:Class="Kohi.Views.PartnersPage"
-========
-    x:Class="Kohi.Views.IngredientsPage"
->>>>>>>> main:Kohi/Views/IngredientsPage.xaml
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Kohi.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-<<<<<<<< HEAD:Kohi/Views/PartnersPage.xaml
     xmlns:tableView="using:WinUI.TableView"
     xmlns:converter="using:Kohi.Views.Converter">
 
-========
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:tableView="using:WinUI.TableView"
-    xmlns:converter="using:Kohi.Views.Converter">
-
-    <Page.Resources>
-        <converter:MoneyFormatConverter x:Key="vnmoney"/>
-        <converter:BooleanToYesNoConverter x:Key="toYesNo"/>
-        <Style x:Key="HeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-            <Setter Property="Margin" Value="10,0,0,0" />
-        </Style>
-    </Page.Resources>
-
->>>>>>>> main:Kohi/Views/IngredientsPage.xaml
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -44,22 +22,17 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
-<<<<<<<< HEAD:Kohi/Views/PartnersPage.xaml
         <TextBlock Grid.Row="0" Text="Danh sách đối tác" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
 
         <SelectorBar Grid.Row="1" Grid.Column="0" x:Name="SelectorBar" SelectionChanged="SelectorBar_SelectionChanged" >
             <SelectorBarItem x:Name="CustomerSelectorBar" Text="Khách hàng" IsSelected="True" />
             <SelectorBarItem x:Name="SupplierSelectorBar" Text="Nhà cung cấp" />
         </SelectorBar>
-========
-        <TextBlock Grid.Row="0" Text="Danh sách nguyên vật liệu" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
->>>>>>>> main:Kohi/Views/IngredientsPage.xaml
 
         <Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
 
         <Grid Grid.Row="2" Margin="0,10,0,10">
             <tableView:TableView x:Name="MyTableView"
-<<<<<<<< HEAD:Kohi/Views/PartnersPage.xaml
              ItemsSource="{Binding ViewModel.Customers}"
              AutoGenerateColumns="False"           
              SelectionMode="Single"
@@ -76,47 +49,14 @@
                     <tableView:TableViewTextColumn Header="Email" Binding="{Binding Email}" />
                     <tableView:TableViewTextColumn Header="Số điện thoại" Binding="{Binding Phone }" />
                     <tableView:TableViewTextColumn Header="Địa chỉ" Binding="{Binding Address  }" />
-========
-                 ItemsSource="{x:Bind IngredientViewModel.Ingredients}"
-                 AutoGenerateColumns="False"           
-                 SelectionMode="Single"
-                 CanFilterColumns="True"
-                 CanSortColumns="True"
-                 CornerButtonMode="Options"
-                 ShowExportOptions="True"
-                 HeaderGridLinesVisibility="All"
-                 GridLinesVisibility="Horizontal"
-                 SelectionChanged="OnSelectionChanged"
-                 IsReadOnly="True">
-                <tableView:TableView.Columns>
-                    
-                    <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}"/>
-                    
-                    <tableView:TableViewTextColumn Header="Tên sản phẩm" Binding="{Binding Name}" />
-
-                    <tableView:TableViewTextColumn Header="Đơn vị" Binding="{Binding Unit}" />
-
-                    <tableView:TableViewNumberColumn Header="Giá mỗi đơn vị" Binding="{Binding CostPerUnit, Converter={StaticResource vnmoney}}" />
-
-                    <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Description }" />
->>>>>>>> main:Kohi/Views/IngredientsPage.xaml
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
-        <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
-            CornerRadius="{ThemeResource ControlCornerRadius}">
-            <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-            </ListBox>
-        </Border>
+
         <Button x:Name="addButton" Grid.Row="4" Click="addButton_click" Style="{StaticResource PrimaryButtonStyle}">
             <StackPanel Orientation="Horizontal">
                 <FontIcon Glyph="&#xE710;" FontSize="14"/>
-                <TextBlock x:Name="addButtonTextBlock" Text="Thêm nguyên vật liệu" Margin="5,0,0,0"/>
+                <TextBlock x:Name="addButtonTextBlock" Text="Thêm khách hàng" Margin="5,0,0,0"/>
             </StackPanel>
         </Button>
     </Grid>
