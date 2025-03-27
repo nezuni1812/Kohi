@@ -3,25 +3,24 @@ using Kohi.Services;
 using Kohi.Utils;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Kohi.ViewModels
 {
-    public class ExpenseViewModel
+    public class ProductVariantViewModel
     {
         private IDao _dao;
-        public FullObservableCollection<ExpenseModel> ExpenseReceipts { get; set; }
+        public FullObservableCollection<ProductVariantModel> Variants { get; set; }
         public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10; 
-        public int TotalItems { get; set; } 
+        public int PageSize { get; set; } = 10;
+        public int TotalItems { get; set; }
         public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
-        public ExpenseViewModel()
+        public ProductVariantViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
-            ExpenseReceipts = new FullObservableCollection<ExpenseModel>();
+            Variants = new FullObservableCollection<ProductVariantModel>();
 
             LoadData();
         }
@@ -29,15 +28,15 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Expenses.GetCount(); // Lấy tổng số khách hàng từ DAO
-            var result = await Task.Run(() => _dao.Expenses.GetAll(
+            TotalItems = _dao.ProductVariants.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.ProductVariants.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
             )); // Lấy danh sách khách hàng phân trang
-            ExpenseReceipts.Clear();
+            Variants.Clear();
             foreach (var item in result)
             {
-                ExpenseReceipts.Add(item);
+                Variants.Add(item);
             }
         }
 

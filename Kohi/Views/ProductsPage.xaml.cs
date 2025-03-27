@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,6 +16,7 @@ using Kohi.Models;
 using Kohi.ViewModels;
 using System.Diagnostics;
 using WinUI.TableView;
+using Microsoft.UI.Xaml.Media.Animation;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -31,18 +32,50 @@ namespace Kohi.Views
         public ProductsPage()
         {
             this.InitializeComponent();
+            Loaded += ProductPage_Loaded;
             //GridContent.DataContext = IncomeViewModel;
         }
-        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        public async void ProductPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is ProductModel selectedProduct)
+            await ProductViewModel.LoadData(); // Tải trang đầu tiên
+            UpdatePageList();
+        }
+
+        public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is TableView tableView && tableView.SelectedItem is CustomerModel selectedCustomer)
             {
-                int id = selectedProduct.CategoryId ?? 0; //Category nha 
-                Debug.WriteLine($"Selected Expense ID: {id}");
+                int id = selectedCustomer.Id;
+                Debug.WriteLine($"Selected Customer ID: {id}");
             }
         }
-        private void addButton_click(object sender, RoutedEventArgs e)
+
+        public void addButton_click(object sender, RoutedEventArgs e)
         {
+            Frame rootFrame = new Frame();
+            this.Content = rootFrame;
+
+            rootFrame.Navigate(typeof(AddNewProductPage), null);
+            // Logic thêm khách hàng
+        }
+
+        public void UpdatePageList()
+        {
+            if (ProductViewModel == null) return;
+            pageList.ItemsSource = Enumerable.Range(1, ProductViewModel.TotalPages);
+            pageList.SelectedItem = ProductViewModel.CurrentPage;
+        }
+
+        public async void OnPageSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ProductViewModel == null || pageList.SelectedItem == null) return;
+
+            var selectedPage = (int)pageList.SelectedItem;
+            if (selectedPage != ProductViewModel.CurrentPage)
+            {
+                await ProductViewModel.LoadData(selectedPage);
+                UpdatePageList();
+            }
         }
     }
 }

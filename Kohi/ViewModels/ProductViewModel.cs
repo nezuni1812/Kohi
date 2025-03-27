@@ -1,15 +1,18 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Collections.ObjectModel;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 //using Kohi.BusinessLogic;
-//using Kohi.Models;
+using Kohi.Models;
+using Kohi.Services;
+using Kohi.Utils;
+using Windows.Storage;
 
 //namespace Kohi.ViewModels
 //{
-//    class ProductViewModel
+//    public class ProductViewModel
 //    {
 //        private ProductService _service;
 //        public ObservableCollection<ProductModel> Products { get; set; }
@@ -46,41 +49,103 @@
 //}
 
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Kohi.Models;
-using Kohi.Services;
-using Kohi.Utils;
+//using System;
+//using System.Collections.Generic;
+//using System.Collections.ObjectModel;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+//using Kohi.Models;
+//using Kohi.Services;
+//using Kohi.Utils;
 
 namespace Kohi.ViewModels
 {
     public class ProductViewModel
     {
         private IDao _dao;
-        public FullObservableCollection<ProductModel> Products { get; set; }
 
+        //private ProductService _service;
+        public string NewProductName { get; set; } = "";
+        public string NewCategoryId { get; set; } = "";
+        public FullObservableCollection<ProductModel> Products { get; set; }
+        public int CurrentPage { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalItems { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public ProductViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
             Products = new FullObservableCollection<ProductModel>();
-
-            LoadProducts();
+            LoadData();
         }
 
-        private async void LoadProducts()
+        public async Task LoadData(int page = 1)
         {
-            // Giả lập tải dữ liệu không đồng bộ từ MockDao
-            await Task.Delay(1); // Giả lập delay để giữ async
-            var products = _dao.Products.GetAll();
+            CurrentPage = page;
+            TotalItems = _dao.Products.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.Products.GetAll(
+                pageNumber: CurrentPage,
+                pageSize: PageSize
+            )); // Lấy danh sách khách hàng phân trang
             Products.Clear();
-
-            foreach (var product in products)
+            foreach (var item in result)
             {
-                Products.Add(product);
+                // Kiểm tra xem danh mục đã tồn tại trong danh sách chưa
+                if (!Products.Any(c => c.Id == item.Id))
+                {
+                    // Đường dẫn đầy đủ tới hình ảnh trong LocalFolder
+                    if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        // Tạo đường dẫn đầy đủ
+                        StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                        item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                    }
+                }
+                Products.Add(item);
+            }
+        }
+        public async void AddProduct()
+        {
+
+        }
+
+        // Phương thức để chuyển đến trang tiếp theo
+        public async Task NextPage()
+        {
+            if (CurrentPage < TotalPages)
+            {
+                await LoadData(CurrentPage + 1);
+            }
+        }
+
+        // Phương thức để quay lại trang trước
+        public async Task PreviousPage()
+        {
+            if (CurrentPage > 1)
+            {
+                await LoadData(CurrentPage - 1);
+            }
+        }
+
+        // Phương thức để chuyển đến trang cụ thể
+        public async Task GoToPage(int page)
+        {
+            if (page >= 1 && page <= TotalPages)
+            {
+                await LoadData(page);
+            }
+        }
+
+        public async Task Add(ProductModel product)
+        {
+            try
+            {
+                int result = _dao.Products.Insert($"{TotalItems + 1}", product);
+            }
+            catch (Exception ex)
+            {
+
             }
         }
     }

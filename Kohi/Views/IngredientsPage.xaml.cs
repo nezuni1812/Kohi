@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,53 +25,51 @@ namespace Kohi.Views
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class CategoriesPage : Page
+    public sealed partial class IngredientsPage : Page
     {
-        public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
-        public CategoriesPage()
+        public IngredientViewModel IngredientViewModel { get; set; } = new IngredientViewModel();
+        public IngredientsPage()
         {
             this.InitializeComponent();
-            Loaded += CategoriesPage_Loaded;
+            Loaded += IngredientsPage_Loaded;
         }
-        public async void CategoriesPage_Loaded(object sender, RoutedEventArgs e)
+
+        public async void IngredientsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await CategoryViewModel.LoadData(); // Tải trang đầu tiên
+            await IngredientViewModel.LoadData(); // Tải trang đầu tiên
             UpdatePageList();
         }
-
-        public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is CustomerModel selectedCustomer)
+            if (sender is TableView tableView && tableView.SelectedItem is IngredientModel selectedIngredient)
             {
-                int id = selectedCustomer.Id;
-                Debug.WriteLine($"Selected Customer ID: {id}");
+                int id = selectedIngredient.Id;
+                Debug.WriteLine($"Selected Expense ID: {id}");
             }
         }
-
-        public void addButton_click(object sender, RoutedEventArgs e)
+        private void addButton_click(object sender, RoutedEventArgs e)
         {
             Frame rootFrame = new Frame();
             this.Content = rootFrame;
 
-            rootFrame.Navigate(typeof(AddNewCategoryPage), null);
-            // Logic thêm khách hàng
+            rootFrame.Navigate(typeof(AddNewIngredientPage), null);
         }
 
         public void UpdatePageList()
         {
-            if (CategoryViewModel == null) return;
-            pageList.ItemsSource = Enumerable.Range(1, CategoryViewModel.TotalPages);
-            pageList.SelectedItem = CategoryViewModel.CurrentPage;
+            if (IngredientViewModel == null) return;
+            pageList.ItemsSource = Enumerable.Range(1, IngredientViewModel.TotalPages);
+            pageList.SelectedItem = IngredientViewModel.CurrentPage;
         }
 
         public async void OnPageSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (CategoryViewModel == null || pageList.SelectedItem == null) return;
+            if (IngredientViewModel == null || pageList.SelectedItem == null) return;
 
             var selectedPage = (int)pageList.SelectedItem;
-            if (selectedPage != CategoryViewModel.CurrentPage)
+            if (selectedPage != IngredientViewModel.CurrentPage)
             {
-                await CategoryViewModel.LoadData(selectedPage);
+                await IngredientViewModel.LoadData(selectedPage);
                 UpdatePageList();
             }
         }

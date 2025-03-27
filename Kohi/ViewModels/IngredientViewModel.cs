@@ -1,43 +1,41 @@
-﻿using Kohi.Models;
-using Kohi.Services;
-using Kohi.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Kohi.Models;
+using Kohi.Services;
+using Kohi.Utils;
 
 namespace Kohi.ViewModels
 {
-    public class ExpenseViewModel
+    public class IngredientViewModel 
     {
         private IDao _dao;
-        public FullObservableCollection<ExpenseModel> ExpenseReceipts { get; set; }
+        public FullObservableCollection<IngredientModel> Ingredients { get; set; }
         public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10; 
-        public int TotalItems { get; set; } 
+        public int PageSize { get; set; } = 10;
+        public int TotalItems { get; set; }
         public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
-        public ExpenseViewModel()
+        public IngredientViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
-            ExpenseReceipts = new FullObservableCollection<ExpenseModel>();
-
+            Ingredients = new FullObservableCollection<IngredientModel>();
             LoadData();
         }
 
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Expenses.GetCount(); // Lấy tổng số khách hàng từ DAO
-            var result = await Task.Run(() => _dao.Expenses.GetAll(
+            TotalItems = _dao.Ingredients.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.Ingredients.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
             )); // Lấy danh sách khách hàng phân trang
-            ExpenseReceipts.Clear();
-            foreach (var item in result)
+            Ingredients.Clear();
+            foreach (var ingredient in result)
             {
-                ExpenseReceipts.Add(item);
+                Ingredients.Add(ingredient);
             }
         }
 

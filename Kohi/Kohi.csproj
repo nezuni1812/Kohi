@@ -16,9 +16,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Views\AddNewCategoryPage.xaml" />
+    <None Remove="Views\AddNewIngredientPage.xaml" />
+    <None Remove="Views\AddNewProductPage.xaml" />
     <None Remove="Views\CustomersPage.xaml" />
     <None Remove="Views\HomePage.xaml" />
     <None Remove="Views\IncomeExpenseCategoriesPage.xaml" />
+    <None Remove="Views\IngredientsPage.xaml" />
     <None Remove="Views\InventoriesPage.xaml" />
     <None Remove="Views\InventoryCheckPage.xaml" />
     <None Remove="Views\InventoryDispatchPage.xaml" />
@@ -60,9 +64,11 @@
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.2" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250205002" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
 	<PackageReference Include="WinUI.TableView" Version="1.3.0-preview1" />
+	<PackageReference Include="Syncfusion.Chart.WinUI" Version="28.2.12" />
 	
   </ItemGroup>
   <ItemGroup>
@@ -81,10 +87,22 @@
     <Page Update="Views\CustomersPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Update="Views\AddNewProductPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AddNewCategoryPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AddNewIngredientPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="Views\HomePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
     <Page Update="Views\IncomeExpenseCategoriesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\IngredientsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Views\InvoiceReportPage.xaml">

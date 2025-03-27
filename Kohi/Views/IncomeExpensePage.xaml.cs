@@ -32,15 +32,47 @@ namespace Kohi.Views
         public IncomeExpensePage()
         {
             this.InitializeComponent();
+            Loaded += ExpensesPage_Loaded;
+
             //GridContent.DataContext = IncomeViewModel;
         }
 
-        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        public async void ExpensesPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is ExpenseModel selectedExpense)
+            await ExpenseViewModel.LoadData(); // Tải trang đầu tiên
+            UpdatePageList();
+        }
+
+        public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is TableView tableView && tableView.SelectedItem is CustomerModel selectedCustomer)
             {
-                int id = selectedExpense.ExpenseCategoryId; //Category nha 
-                Debug.WriteLine($"Selected Expense ID: {id}");
+                int id = selectedCustomer.Id;
+                Debug.WriteLine($"Selected Customer ID: {id}");
+            }
+        }
+
+        public void addButton_click(object sender, RoutedEventArgs e)
+        {
+            // Logic thêm khách hàng
+        }
+
+        public void UpdatePageList()
+        {
+            if (ExpenseViewModel == null) return;
+            pageList.ItemsSource = Enumerable.Range(1, ExpenseViewModel.TotalPages);
+            pageList.SelectedItem = ExpenseViewModel.CurrentPage;
+        }
+
+        public async void OnPageSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ExpenseViewModel == null || pageList.SelectedItem == null) return;
+
+            var selectedPage = (int)pageList.SelectedItem;
+            if (selectedPage != ExpenseViewModel.CurrentPage)
+            {
+                await ExpenseViewModel.LoadData(selectedPage);
+                UpdatePageList();
             }
         }
 
@@ -70,5 +102,4 @@ namespace Kohi.Views
 
         }
     }
-
 }

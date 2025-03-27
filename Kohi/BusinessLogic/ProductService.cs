@@ -19,13 +19,13 @@
 
 //        public async Task<List<ProductModel>> GetProductAsync()
 //        {
-//            return await _context.products.Include(e => e.Category).ToListAsync();
+//            return await _context.Products.Include(e => e.Category).ToListAsync();
 //        }
 
 //        //This function could change to take in a name and id instead of a Product object to naming and stuff
 //        public async Task AddProductAsync(ProductModel product)
 //        {
-//            _context.products.Add(product);
+//            _context.Products.Add(product);
 //            await _context.SaveChangesAsync();
 //        }
 //    }

@@ -41,65 +41,53 @@
 
         <Grid Grid.Row="2" Margin="0,10,0,10">
             <tableView:TableView x:Name="MyTableView"
-         ItemsSource="{x:Bind ProductViewModel.Products}"
-         AutoGenerateColumns="False"           
-         SelectionMode="Single"
-         CanFilterColumns="True"
-         CanSortColumns="True"
-         CornerButtonMode="Options"
-         ShowExportOptions="True"
-         HeaderGridLinesVisibility="All"
-         GridLinesVisibility="All"
-         SelectionChanged="OnSelectionChanged">
+             ItemsSource="{x:Bind ProductViewModel.Products}"
+             AutoGenerateColumns="False"           
+             SelectionMode="Single"
+             CanFilterColumns="True"
+             CanSortColumns="True"
+             CornerButtonMode="Options"
+             ShowExportOptions="True"
+             HeaderGridLinesVisibility="All"
+             GridLinesVisibility="Horizontal"
+             SelectionChanged="OnSelectionChanged"
+             IsReadOnly="True"
+             RowHeight="60">
                 <tableView:TableView.Columns>
-                    <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
-
-                    <tableView:TableViewNumberColumn Header="Danh mục" Binding="{Binding Category.Name}" />
-
+                    <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}"/>
                     <tableView:TableViewTemplateColumn Header="Hình ảnh">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding ImageUrl, Converter={StaticResource AbsolutePathConverter}}" Width="30" Height="30"/>
+                                <Image Source="{Binding ImageUrl}" 
+                                       Width="50" Height="50" 
+                                       HorizontalAlignment="Center"/>
                             </DataTemplate>
                         </tableView:TableViewTemplateColumn.CellTemplate>
                     </tableView:TableViewTemplateColumn>
+                    
+                    <tableView:TableViewTextColumn Header="Danh mục" Binding="{Binding Category.Name}" />
 
                     <tableView:TableViewTextColumn Header="Tên sản phẩm" Binding="{Binding Name}" />
 
-                    <tableView:TableViewTemplateColumn Header="Giá bán">
-                        <tableView:TableViewTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Price, Converter={StaticResource vnmoney}}" />
-                            </DataTemplate>
-                        </tableView:TableViewTemplateColumn.CellTemplate>
-
-                        <tableView:TableViewTemplateColumn.EditingTemplate>
-                            <DataTemplate>
-                                <NumberBox Value="{Binding Price, Mode=TwoWay}" />
-                            </DataTemplate>
-                        </tableView:TableViewTemplateColumn.EditingTemplate>
-                    </tableView:TableViewTemplateColumn>
-                    
-                    <tableView:TableViewTemplateColumn Header="Giá nhập">
-                        <tableView:TableViewTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Cost, Converter={StaticResource vnmoney}}" />
-                            </DataTemplate>
-                        </tableView:TableViewTemplateColumn.CellTemplate>
-
-                        <tableView:TableViewTemplateColumn.EditingTemplate>
-                            <DataTemplate>
-                                <NumberBox Value="{Binding Cost, Mode=TwoWay}" />
-                            </DataTemplate>
-                        </tableView:TableViewTemplateColumn.EditingTemplate>
-                    </tableView:TableViewTemplateColumn>
 
                     <tableView:TableViewTextColumn Header="Đang được bán" Binding="{Binding IsActive, Converter={StaticResource toYesNo}}" />
+                    <tableView:TableViewTextColumn Header="Là topping" Binding="{Binding IsTopping, Converter={StaticResource toYesNo}}" />
+
                     <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Description }" />
+                    
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
-
+        <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
+        CornerRadius="{ThemeResource ControlCornerRadius}">
+            <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+        </Border>
 
         <Button x:Name="addButton" Grid.Row="4" Click="addButton_click" Style="{StaticResource PrimaryButtonStyle}">
             <StackPanel Orientation="Horizontal">
