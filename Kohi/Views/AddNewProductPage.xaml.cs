@@ -140,12 +140,39 @@ namespace Kohi.Views
 
         private async void AddRecipeDetailButton_Click(object sender, RoutedEventArgs e)
         {
-            var currentVariant = ViewModel.Variants.LastOrDefault();
-
-            if (currentVariant != null)
+            var button = sender as Button; // Ép kiểu sender thành Button
+            if (button != null)
             {
-                var newRecipeDetail = new AddNewProductViewModel.RecipeDetailViewModel();
-                currentVariant.RecipeDetails.Add(newRecipeDetail);
+                var currentVariant = button.DataContext as AddNewProductViewModel.ProductVariantViewModel;
+                if (currentVariant != null)
+                {
+                    var newRecipeDetail = new AddNewProductViewModel.RecipeDetailViewModel();
+                    currentVariant.RecipeDetails.Add(newRecipeDetail);
+                }
+            }
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as ComboBox;
+            if (comboBox != null)
+            {
+                // Lấy RecipeDetailViewModel từ DataContext của ComboBox
+                var recipeDetail = comboBox.DataContext as AddNewProductViewModel.RecipeDetailViewModel;
+                if (recipeDetail != null && recipeDetail.Ingredient != null)
+                {
+                    // Tìm TextBox (IngredientUnit) trong cùng hàng (Grid)
+                    var grid = FindParent<Grid>(comboBox);
+                    if (grid != null)
+                    {
+                        var ingredientUnit = grid.FindName("IngredientUnit") as TextBox;
+                        if (ingredientUnit != null)
+                        {
+                            // Cập nhật TextBox với Unit từ Ingredient
+                            ingredientUnit.Text = recipeDetail.Ingredient.Unit ?? "N/A";
+                        }
+                    }
+                }
             }
         }
 
