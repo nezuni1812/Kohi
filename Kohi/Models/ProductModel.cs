@@ -26,7 +26,7 @@ namespace Kohi.Models
         public bool? IsTopping { get; set; }
         public string? Description { get; set; }
 
-        public string? ImagePath { get; set; }
+        public string? ImageUrl { get; set; }
 
         public CategoryModel? Category { get; set; }
         public List<ProductVariantModel> ProductVariants { get; set; } = new List<ProductVariantModel>(); // Matches Ref: product_variants.product_id > products.id

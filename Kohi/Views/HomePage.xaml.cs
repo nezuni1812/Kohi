@@ -1,4 +1,5 @@
-﻿using Kohi.ViewModels;
+﻿using Kohi.Models;
+using Kohi.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -14,6 +15,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -28,7 +30,7 @@ namespace Kohi.Views
 
     public sealed partial class HomePage : Page
     {
-        public OrderPageViewModel ViewModel { get; set; } = new OrderPageViewModel();
+        public HomePageViewModel ViewModel { get; set; } = new HomePageViewModel();
         public HomePage()
         {
             this.InitializeComponent();
@@ -40,7 +42,7 @@ namespace Kohi.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.AddProduct();
+            //ViewModel.AddProduct();
         }
 
         private void onCategorySelectionChanged(object sender, ItemsViewSelectionChangedEventArgs e)
@@ -56,45 +58,148 @@ namespace Kohi.Views
                 }
             }
         }
-        private async void showProductDialog_Click(object sender, ItemClickEventArgs e)
+
+        private async void ShowProductDialog_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("showProductDialog_Click triggered"); 
-            var clickedItem = e.ClickedItem;
+            Button button = sender as Button;
 
-            if (clickedItem != null)
+            ProductModel product = button.DataContext as ProductModel;
+
+            ContentDialog productDialog = new ContentDialog
             {
-                var itemName = clickedItem.GetType().GetProperty("Id")?.GetValue(clickedItem, null)?.ToString();
-                if (itemName != null)
-                {
-                    var result = await ProductDialog.ShowAsync();
+                Title = product.Name,
+                PrimaryButtonText = "Xác nhận",
+                PrimaryButtonStyle = (Style)Application.Current.Resources["AccentButtonStyle"],
+                SecondaryButtonText = "Hủy",
+                CloseButtonText = "Đóng",
+                XamlRoot = this.XamlRoot
+            };
 
-                    if (result == ContentDialogResult.Primary)
+            Grid dialogContent = new Grid { Width = 300, ColumnSpacing = 10 };
+            dialogContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.5, GridUnitType.Star) });
+            dialogContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.5, GridUnitType.Star) });
+            dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Product Variant
+            dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Đường và Đá
+            dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Topping
+            dialogContent.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); 
+
+            StackPanel variantPanel = new StackPanel { Margin = new Thickness(0, 0, 0, 10) };
+            variantPanel.Children.Add(new TextBlock { Text = "Đơn vị:"});
+            ItemsControl variants = new ItemsControl { ItemsSource = product.ProductVariants };
+            variants.ItemTemplate = (DataTemplate)Resources["ProductVariantTemplate"];
+            variantPanel.Children.Add(variants);
+            Grid.SetRow(variantPanel, 0); 
+            Grid.SetColumnSpan(variantPanel, 2); 
+            dialogContent.Children.Add(variantPanel);
+
+            RadioButtons sugarOptions = new RadioButtons { Header = "Đường:", SelectedIndex = 0 };
+            sugarOptions.Items.Add(new RadioButton { Content = "100%" });
+            sugarOptions.Items.Add(new RadioButton { Content = "75%" });
+            sugarOptions.Items.Add(new RadioButton { Content = "50%" });
+            sugarOptions.Items.Add(new RadioButton { Content = "25%" });
+            sugarOptions.Items.Add(new RadioButton { Content = "0%" });
+            Grid.SetRow(sugarOptions, 1); 
+            Grid.SetColumn(sugarOptions, 0);
+            dialogContent.Children.Add(sugarOptions);
+
+            RadioButtons iceOptions = new RadioButtons { Header = "Đá:", SelectedIndex = 0 };
+            iceOptions.Items.Add(new RadioButton { Content = "100%" });
+            iceOptions.Items.Add(new RadioButton { Content = "75%" });
+            iceOptions.Items.Add(new RadioButton { Content = "50%" });
+            iceOptions.Items.Add(new RadioButton { Content = "25%" });
+            iceOptions.Items.Add(new RadioButton { Content = "0%" });
+            Grid.SetRow(iceOptions, 1); 
+            Grid.SetColumn(iceOptions, 1);
+            dialogContent.Children.Add(iceOptions);
+
+            StackPanel toppingPanel = new StackPanel { Margin = new Thickness(0, 10, 0, 0) };
+            toppingPanel.Children.Add(new TextBlock { Text = "Topping:", Margin = new Thickness(0, 0, 0, 5) });
+            var toppingList = ViewModel.ToppingProducts; 
+            ItemsControl toppings = new ItemsControl { ItemsSource = toppingList };
+            toppings.ItemTemplate = (DataTemplate)Resources["ToppingTemplate"]; 
+            toppingPanel.Children.Add(toppings);
+            Grid.SetRow(toppingPanel, 2);
+            Grid.SetColumnSpan(toppingPanel, 2);
+            dialogContent.Children.Add(toppingPanel);
+
+            productDialog.Content = dialogContent;
+             
+            productDialog.PrimaryButtonClick += async (s, args) => 
+            {
+                string selectedSugar = (sugarOptions.SelectedItem as RadioButton)?.Content.ToString();
+                string selectedIce = (iceOptions.SelectedItem as RadioButton)?.Content.ToString();
+
+                ProductVariantModel selectedVariant = null;
+                foreach (var item in product.ProductVariants)
+                {
+                    var container = variants.ContainerFromItem(item) as ContentPresenter;
+                    if (container != null)
                     {
-                        string quantity = QuantityTextBox.Text;
-                        string note = NoteTextBox.Text;
-                    }
-                    else
-                    {
-                        // Người dùng nhấn Hủy hoặc Đóng
-                        // Xử lý tùy chọn
+                        var radioButton = FindVisualChild<RadioButton>(container);
+                        if (radioButton != null && radioButton.IsChecked == true)
+                        {
+                            selectedVariant = item;
+                            break;
+                        }
                     }
                 }
+
+                if (selectedVariant == null)
+                {
+                    args.Cancel = true;
+                    productDialog.Hide();
+                    await ShowErrorContentDialog(productDialog.XamlRoot, "Đơn vị không thể để trống");
+                    await productDialog.ShowAsync();
+                    return;
+                }
+
+                string variantInfo = selectedVariant != null ? $"{selectedVariant.Size} - {selectedVariant.Price}" : "Không chọn";
+
+                System.Diagnostics.Debug.WriteLine($"Product: {product.Name}, Variant: {variantInfo}, Sugar: {selectedSugar}, Ice: {selectedIce}");
+            };
+
+            await productDialog.ShowAsync();
+        }
+
+        private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            int childCount = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T foundChild)
+                {
+                    return foundChild;
+                }
+                var result = FindVisualChild<T>(child);
+                if (result != null) return result;
             }
+            return null;
         }
 
         private void ProductDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            // Xử lý khi người dùng nhấn Xác nhận
-            // Ví dụ: Kiểm tra dữ liệu nhập vào
-            if (string.IsNullOrEmpty(QuantityTextBox.Text))
+            
+        }
+
+        private async Task ShowErrorContentDialog(XamlRoot xamlRoot, string errorMessage)
+        {
+            ContentDialog errorDialog = new ContentDialog
             {
-                args.Cancel = true; // Ngăn không cho đóng dialog nếu dữ liệu không hợp lệ
-            }
+                Title = "Lỗi",
+                Content = errorMessage,
+                CloseButtonText = "Đóng",
+                XamlRoot = xamlRoot
+            };
+
+            await errorDialog.ShowAsync();
         }
 
         private void ProductDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            // Xử lý khi người dùng nhấn Hủy
+            
         }
 
         private void ProductDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

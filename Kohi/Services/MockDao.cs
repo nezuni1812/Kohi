@@ -111,10 +111,10 @@ namespace Kohi.Services
             {
                 var data = _categories ?? new List<CategoryModel>
                 {
-                    new CategoryModel { Id = 1, Name = "Cà phê", ImageUrl = "kohi_logo.png", Products = new List<ProductModel>() },
-                    new CategoryModel { Id = 2, Name = "Trà sữa", ImageUrl = "kohi_logo.png", Products = new List<ProductModel>() },
-                    new CategoryModel { Id = 3, Name = "Trà", ImageUrl = "kohi_logo.png", Products = new List<ProductModel>() },
-                    new CategoryModel { Id = 4, Name = "Đá xay", ImageUrl = "kohi_logo.png", Products = new List<ProductModel>() }
+                    new CategoryModel { Id = 1, Name = "Cà phê", ImageUrl = "latte20250327223256.jpg", Products = new List<ProductModel>() },
+                    new CategoryModel { Id = 2, Name = "Trà sữa", ImageUrl = "đa_xay_tra_xanh20250327214928.png", Products = new List<ProductModel>() },
+                    new CategoryModel { Id = 3, Name = "Trà", ImageUrl = "đa_xay_tra_xanh20250327214928.png", Products = new List<ProductModel>() },
+                    new CategoryModel { Id = 4, Name = "Đá xay", ImageUrl = "đa_xay_tra_xanh20250327214928.png", Products = new List<ProductModel>() }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -837,7 +837,8 @@ namespace Kohi.Services
                     new ProductVariantModel { Id = 2, ProductId = 1, Size = "Large", Price = 40000f, Cost = 24000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() },
                     new ProductVariantModel { Id = 3, ProductId = 2, Size = "Medium", Price = 35000f, Cost = 21000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() },
                     new ProductVariantModel { Id = 4, ProductId = 3, Size = "Small", Price = 25000f, Cost = 15000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() },
-                    new ProductVariantModel { Id = 5, ProductId = 4, Size = "Large", Price = 45000f, Cost = 27000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() }
+                    new ProductVariantModel { Id = 5, ProductId = 4, Size = "Large", Price = 45000f, Cost = 27000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() },
+                    new ProductVariantModel { Id = 6, ProductId = 5, Size = "Mặc định", Price = 5000f, Cost = 3000f, InvoiceDetails = new List<InvoiceDetailModel>(), Toppings = new List<OrderToppingModel>(), RecipeDetails = new List<RecipeDetailModel>() }
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);
@@ -1158,11 +1159,11 @@ namespace Kohi.Services
             {
                 var data = _products ?? new List<ProductModel>
                 {
-                    new ProductModel { Id = 1, Name = "Black Coffee", IsActive = true, IsTopping = false, CategoryId = 1, ImageUrl = "kohi_logo.png"},
-                    new ProductModel { Id = 2, Name = "Milk Tea", IsActive = true, IsTopping = false, CategoryId = 2, ImageUrl = "kohi_logo.png"},
-                    new ProductModel { Id = 3, Name = "Green Tea", IsActive = true, IsTopping = false, CategoryId = 3, ImageUrl = "kohi_logo.png"},
-                    new ProductModel { Id = 4, Name = "Mango Smoothie", IsActive = true, IsTopping = false, CategoryId = 4, ImageUrl = "kohi_logo.png"},
-                    new ProductModel { Id = 5, Name = "Espresso", IsActive = true,IsTopping = false, CategoryId = 1, ImageUrl = "kohi_logo.png"}
+                    new ProductModel { Id = 1, Name = "Black Coffee", IsActive = true, IsTopping = false, CategoryId = 1, ImageUrl = "latte20250327223256.jpg"},
+                    new ProductModel { Id = 2, Name = "Milk Tea", IsActive = true, IsTopping = false, CategoryId = 2, ImageUrl = "đa_xay_tra_xanh20250327214928.png"},
+                    new ProductModel { Id = 3, Name = "Green Tea", IsActive = true, IsTopping = false, CategoryId = 3, ImageUrl = "đa_xay_tra_xanh20250327214928.png"},
+                    new ProductModel { Id = 4, Name = "Mango Smoothie", IsActive = true, IsTopping = false, CategoryId = 4, ImageUrl = "đa_xay_tra_xanh20250327214928.png"},
+                    new ProductModel { Id = 5, Name = "Thạch trân châu", IsActive = true,IsTopping = true, CategoryId = 1, ImageUrl = "đa_xay_tra_xanh20250327214928.png"}
                 };
 
                 return ApplyQuery(data, pageNumber, pageSize, sortBy, sortDescending, filterField, filterValue, searchKeyword);

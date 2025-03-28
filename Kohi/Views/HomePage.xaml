@@ -4,65 +4,134 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Kohi.Views"
     xmlns:model="using:Kohi.Models"
-    xmlns:converter="using:Kohi.View.Converter"
+    xmlns:converter="using:Kohi.Views.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Loaded="Page_Loaded">
 
     <Page.Resources>
-        <converter:AbsolutePathConverter x:Key="absolute"/>
+        <converter:MoneyFormatConverter x:Key="vnmoney"/>
         <DataTemplate x:Key="ItemsViewTemplate" x:DataType="model:CategoryModel">
             <ItemContainer 
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
                 <StackPanel Orientation="Horizontal" Spacing="5" Padding="10,0,12,0" VerticalAlignment="Center">
-                    <Image Source="{x:Bind ImagePath, Converter={StaticResource absolute}}" Width="20" Height="20"/>
+                    <Image Source="{x:Bind ImageUrl}" Width="20" Height="20"/>
                     <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyTextBlockStyle}"></TextBlock>
                 </StackPanel>
             </ItemContainer>
         </DataTemplate>
 
         <DataTemplate x:Key="GridViewTemplate" x:DataType="model:ProductModel">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Width="200" Height="100" Margin="0,0,0,0" 
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        CornerRadius="10">
-                <Grid VerticalAlignment="Center" Width="100" Height="100" Margin="0,0,0,0">
-                    <Image Source="{x:Bind ImagePath, Converter={StaticResource absolute}}"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Width="250" Height="95" 
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                CornerRadius="10">
+                <Grid VerticalAlignment="Center" Margin="0,0,0,0" Width="95" Height="95">
+                    <Grid.Clip>
+                        <RectangleGeometry Rect="0,0,95,95">
+                            <RectangleGeometry.Transform>
+                                <TranslateTransform X="0" Y="0"/>
+                            </RectangleGeometry.Transform>
+                        </RectangleGeometry>
+                    </Grid.Clip>
+                    <Border Width="80" Height="80" CornerRadius="5">
+                        <Image Source="{x:Bind ImageUrl}" Stretch="UniformToFill"/>
+                    </Border>
+                </Grid>
+                <Grid Padding="0,10,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" 
+                           Text="{Binding Name}"
+                           Style="{StaticResource BodyStrongTextBlockStyle}" 
+                           FontSize="16"
+                           MaxLines="2"
+                           TextTrimming="CharacterEllipsis"
+                           TextWrapping="Wrap"
+                           Width="145"/>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="{Binding ProductVariants[0].Price, Converter={StaticResource vnmoney}}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    <Button Grid.Column="2" Grid.Row="2" Style="{StaticResource AccentButtonStyle}" Click="ShowProductDialog_Click">
+                        <FontIcon Glyph="&#xE710;" FontSize="14"/>
+                    </Button>
                 </Grid>
             </StackPanel>
         </DataTemplate>
+        <DataTemplate x:Key="ProductVariantTemplate" x:DataType="model:ProductVariantModel">
+            <RadioButton x:Name="VariantGroup" GroupName="VariantGroup">
+                <RadioButton.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" 
+                            Text="{Binding Size}" 
+                            VerticalAlignment="Center"  
+                            Width="250"/>
+
+                        <TextBlock Grid.Column="1" 
+                            Text="{Binding Price, Converter={StaticResource vnmoney}}" 
+                            VerticalAlignment="Center" 
+                            HorizontalAlignment="Right" 
+                            Margin="15,0,0,0"/>
+                    </Grid>
+                </RadioButton.Content>
+            </RadioButton>
+        </DataTemplate>
+        <DataTemplate x:Key="ToppingTemplate" x:DataType="model:ProductModel">
+            <CheckBox>
+                <CheckBox.Content>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" 
+                           Text="{Binding Name}" 
+                           VerticalAlignment="Center"  
+                           Width="250"/>
+
+                        <TextBlock Grid.Column="1" 
+                            Text="{Binding ProductVariants[0].Price, Converter={StaticResource vnmoney}}" 
+                            VerticalAlignment="Center" 
+                            HorizontalAlignment="Right" 
+                            Margin="15,0,0,0"/>
+                    </Grid>
+                </CheckBox.Content>
+            </CheckBox>
+        </DataTemplate>
+        
     </Page.Resources>
 
-    <Grid ColumnSpacing="20">
+    <Grid ColumnSpacing="0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.7*"></ColumnDefinition>
             <ColumnDefinition Width="0.3*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <ContentDialog x:Name="ProductDialog"
-               Title="Nhập thông tin sản phẩm"
-               PrimaryButtonText="Xác nhận"
-               SecondaryButtonText="Hủy"
-               CloseButtonText="Đóng"
-               PrimaryButtonClick="ProductDialog_PrimaryButtonClick"
-               SecondaryButtonClick="ProductDialog_SecondaryButtonClick"
-               CloseButtonClick="ProductDialog_CloseButtonClick"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center">
-
-            <StackPanel>
-                <TextBox x:Name="QuantityTextBox" Header="Số lượng:" PlaceholderText="Nhập số lượng"/>
-                <TextBox x:Name="NoteTextBox" Header="Ghi chú:" PlaceholderText="Nhập ghi chú"/>
-            </StackPanel>
-        </ContentDialog>
-
-        <Grid Grid.Column="0" CornerRadius="10" RowSpacing="10" Padding="0,10,0,0">
+        <Grid Grid.Column="0" CornerRadius="10" RowSpacing="10" Padding="0,0,0,0">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <ItemsView Grid.Row="0" Width="1000" HorizontalAlignment="Left" x:Name="categoriesList"
+            <TextBlock Grid.Row="0" Text="Trang chủ" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+            <TextBlock Grid.Row="1" Text="Danh mục" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+
+            <ItemsView Grid.Row="2" Width="1000" HorizontalAlignment="Left" x:Name="categoriesList"
                 ItemsSource="{x:Bind ViewModel.CategoryViewModel.Categories}" 
                 ItemTemplate="{StaticResource ItemsViewTemplate}"
                 SelectionMode="Single"
@@ -72,43 +141,94 @@
                 </ItemsView.Layout>
             </ItemsView>
 
-            <GridView Grid.Row="1" x:Name="productsList"
-                ItemsSource="{x:Bind ViewModel.ProductViewModel.Products}" 
-                ItemTemplate="{StaticResource GridViewTemplate}"
-                SelectionMode="Single"
-                IsItemClickEnabled="True"
-                ItemClick="showProductDialog_Click">
-                <GridView.ItemContainerStyle>
-                    <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
-                        <Setter Property="Margin" Value="0, 0, 10, 10"/>
-                    </Style>
-                </GridView.ItemContainerStyle>
+            <TextBlock Grid.Row="3" Text="Mặt hàng" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
-            </GridView>
+            <ScrollView Grid.Row="4">
+                <GridView x:Name="productsList"
+                    ItemsSource="{x:Bind ViewModel.Products}" 
+                    ItemTemplate="{StaticResource GridViewTemplate}"
+                    SelectionMode="None"
+                    IsItemClickEnabled="True">
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                            <Setter Property="Margin" Value="0, 0, 10, 10"/>
+                        </Style>
+                    </GridView.ItemContainerStyle>
+
+                </GridView>
+            </ScrollView>
+
         </Grid>
-        
-        <Grid Grid.Column="1" Background="Red" CornerRadius="10">
+
+        <Grid Grid.Column="1" Padding="10" CornerRadius="10" Background="{StaticResource CardBackgroundFillColorDefaultBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Thông báo -->
+                <RowDefinition Height="*"/>
+                <!-- Khoảng trống -->
+                <RowDefinition Height="Auto"/>
+                <!-- Tạm tính -->
+                <RowDefinition Height="Auto"/>
+                <!-- Thuế hóa đơn -->
+                <RowDefinition Height="Auto"/>
+                <!-- Thanh toán -->
+                <RowDefinition Height="Auto"/>
+                <!-- Nút Thanh toán -->
+            </Grid.RowDefinitions>
+
+            <!-- Thông báo -->
+            <TextBlock Grid.Row="0" 
+            Text="Không có sản phẩm nào trong đơn" 
+            Foreground="Gray" 
+            HorizontalAlignment="Center"
+            Margin="0,20,0,0"/>
+
+            <!-- Khoảng trống -->
+            <Border Grid.Row="1"/>
+
+            <!-- Tạm tính -->
+            <Grid Grid.Row="2" Background="#FFF5F5" Padding="10" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Tạm tính (0 món)" Foreground="Black"/>
+                <TextBlock Grid.Column="1" Text="0" Foreground="Black"/>
+            </Grid>
+
+            <!-- Thuế hóa đơn -->
+            <Grid Grid.Row="3" Background="#FFF5F5" Padding="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Thuế hóa đơn" Foreground="Black"/>
+                <TextBlock Grid.Column="1" Text="0" Foreground="Black"/>
+            </Grid>
+
+            <!-- Thanh toán -->
+            <Grid Grid.Row="4" Padding="10" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button >
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <SymbolIcon Symbol="Print" Margin="0,0,5,0"/>
+                        <TextBlock Text="In Tạm Tính" Foreground="Black"/>
+                    </StackPanel>
+                </Button>
+                
+                <TextBlock Grid.Column="1" Text="0" Foreground="Black" FontWeight="Bold"/>
+            </Grid>
+
+            <!-- Nút Thanh toán -->
+            <Button Grid.Row="5" 
+        Content="Thanh toán" 
+        Style="{ThemeResource AccentButtonStyle}"
+        HorizontalAlignment="Stretch" 
+        Padding="10" 
+        Margin="0,10,0,0"/>
         </Grid>
-        <!--StackPanel DataContext="{x:Bind ViewModel}">
-            <TextBlock Text="Home"/>
-            <TextBlock Text="New Product Name:" />
-            <TextBox Text="{Binding NewProductName, Mode=TwoWay}" PlaceholderText="Enter product name"/>
-
-            <TextBlock Text="Category ID (Optional):" />
-            <TextBox Text="{Binding NewCategoryId, Mode=TwoWay}" PlaceholderText="Enter category ID"/>
-
-            <Button Content="Add Product" Click="Button_Click" />
-
-            <TextBlock Text="Products List:" FontWeight="Bold" Margin="10,10,0,0"/>
-
-            <ListView ItemsSource="{Binding Products}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-
-        </StackPanel-->
     </Grid>
 </Page>
