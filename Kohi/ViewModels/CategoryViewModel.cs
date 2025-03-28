@@ -90,7 +90,7 @@ namespace Kohi.ViewModels
         {
             try
             {
-                int result = _dao.Categories.Insert($"{TotalItems + 1}", category);
+                int result = _dao.Categories.Insert(category);
             }
             catch (Exception ex)
             {

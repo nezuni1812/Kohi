@@ -12,10 +12,10 @@ namespace Kohi.Models
     {
         public int Id { get; set; }
         public int ProductId { get; set; }
-        public string? Size { get; set; }        // varchar(20), nullable
+        public string Size { get; set; }        // varchar(20), nullable
         public float Price { get; set; }        // Nullable float
         public float Cost { get; set; }         // Nullable float
-        public ProductModel? Product { get; set; }
+        public ProductModel Product { get; set; }
 
         public List<InvoiceDetailModel> InvoiceDetails { get; set; } = new List<InvoiceDetailModel>();
         public List<OrderToppingModel> Toppings { get; set; } = new List<OrderToppingModel>();

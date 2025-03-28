@@ -14,8 +14,8 @@ namespace Kohi.Models
         public int TaxId { get; set; }
 
         // Navigation Properties
-        public InvoiceModel? Invoice { get; set; }
-        public TaxModel? Tax { get; set; }
+        public InvoiceModel Invoice { get; set; }
+        public TaxModel Tax { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }

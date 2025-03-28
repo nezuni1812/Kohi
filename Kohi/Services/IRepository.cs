@@ -21,7 +21,7 @@ namespace Kohi.Services
         T GetById(string id);
         int DeleteById(string id);
         int UpdateById(string id, T info);
-        int Insert(string id, T info);
+        int Insert(T info);
         int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null);
     }
 }

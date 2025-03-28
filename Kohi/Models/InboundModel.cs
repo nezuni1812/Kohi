@@ -19,8 +19,8 @@ namespace Kohi.Models
         public float TotalCost { get; set; }
         public float CostPerUnit => Quantity != 0 ? TotalCost / Quantity : 0; // Computed property
 
-        public IngredientModel? Ingredient { get; set; }
-        public SupplierModel? Supplier { get; set; }
+        public IngredientModel Ingredient { get; set; }
+        public SupplierModel Supplier { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }

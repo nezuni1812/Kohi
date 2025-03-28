@@ -139,7 +139,7 @@ namespace Kohi.Views
                 ImageUrl = imgName,
                 CategoryId = selectedCategory.Id,
                 IsActive = IsActiveCheckBox.IsChecked == true,
-                IsTopping = IsToppingCheckBox.IsChecked,
+                IsTopping = (bool)IsToppingCheckBox.IsChecked,
                 Description = DescriptionTextBox.Text,
                 ProductVariants = new List<ProductVariantModel>() // Khởi tạo danh sách Variants
             };
@@ -210,13 +210,13 @@ namespace Kohi.Views
                 {
                     variant.ProductId = productId; // Gán ProductId cho variant
                     int variantId = Service.GetKeyedSingleton<IDao>().ProductVariants.GetCount() + 1;
-                    Service.GetKeyedSingleton<IDao>().ProductVariants.Insert(variantId.ToString(), variant);
+                    Service.GetKeyedSingleton<IDao>().ProductVariants.Insert(variant);
 
                     foreach (var recipe in variant.RecipeDetails)
                     {
                         recipe.ProductVariantId = variantId; // Gán ProductVariantId cho recipe
                         int recipeId = Service.GetKeyedSingleton<IDao>().RecipeDetails.GetCount() + 1;
-                        Service.GetKeyedSingleton<IDao>().RecipeDetails.Insert(recipeId.ToString(), recipe);
+                        Service.GetKeyedSingleton<IDao>().RecipeDetails.Insert(recipe);
                     }
                 }
 

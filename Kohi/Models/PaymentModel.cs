@@ -16,10 +16,10 @@ namespace Kohi.Models
         [Required]
         public float Amount { get; set; } // Not null
         [Required]
-        public string? PaymentMethod { get; set; } // Not null
+        public string PaymentMethod { get; set; } // Not null
 
         // Navigation Property: Liên kết tới Invoice
-        public InvoiceModel? Invoice { get; set; }
+        public InvoiceModel Invoice { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }

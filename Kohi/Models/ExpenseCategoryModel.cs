@@ -12,8 +12,8 @@ namespace Kohi.Models
     {
         public int Id { get; set; }
         [Required]
-        public string? CategoryName { get; set; } // Not null
-        public string? Description { get; set; }
+        public string CategoryName { get; set; } // Not null
+        public string Description { get; set; }
 
         // Navigation Properties
         public List<ExpenseModel> Expenses { get; set; } = new List<ExpenseModel>();

@@ -16,7 +16,7 @@ namespace Kohi.Models
         [Required]
         public string Name { get; set; }
 
-        public string? ImageUrl { get; set; }
+        public string ImageUrl { get; set; }
 
         public List<ProductModel> Products { get; set; } = new List<ProductModel>();
 

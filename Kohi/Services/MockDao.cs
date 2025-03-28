@@ -13,6 +13,8 @@ namespace Kohi.Services
         {
             private List<RecipeDetailModel> _recipeDetails;
 
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
+
             public MockRecipeDetailRepository() { }
             public MockRecipeDetailRepository(List<RecipeDetailModel> recipeDetails)
             {
@@ -72,12 +74,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, RecipeDetailModel info)
+            public int Insert(RecipeDetailModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _recipeDetails ?? GetAll();
-                if (data.Any(r => r.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _recipeDetails = data;
                 return 1;
@@ -93,6 +94,7 @@ namespace Kohi.Services
         public class MockCategoryRepository : IRepository<CategoryModel>
         {
             private List<CategoryModel> _categories;
+            private static int _nextId = 5; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockCategoryRepository() { }
             public MockCategoryRepository(List<CategoryModel> categories)
@@ -151,12 +153,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, CategoryModel info)
+            public int Insert(CategoryModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _categories ?? GetAll();
-                if (data.Any(c => c.Id == intId)) return 0; // Không cho phép trùng Id
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _categories = data;
                 return 1;
@@ -171,6 +172,7 @@ namespace Kohi.Services
         public class MockCustomerRepository : IRepository<CustomerModel>
         {
             private List<CustomerModel> _customers;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockCustomerRepository() { }
             public MockCustomerRepository(List<CustomerModel> customers)
@@ -232,12 +234,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, CustomerModel info)
+            public int Insert(CustomerModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _customers ?? GetAll();
-                if (data.Any(c => c.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _customers = data;
                 return 1;
@@ -252,6 +253,7 @@ namespace Kohi.Services
         public class MockExpenseCategoryRepository : IRepository<ExpenseCategoryModel>
         {
             private List<ExpenseCategoryModel> _expenseCategories;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockExpenseCategoryRepository() { }
             public MockExpenseCategoryRepository(List<ExpenseCategoryModel> expenseCategories)
@@ -311,12 +313,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, ExpenseCategoryModel info)
+            public int Insert(ExpenseCategoryModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _expenseCategories ?? GetAll();
-                if (data.Any(c => c.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _expenseCategories = data;
                 return 1;
@@ -331,6 +332,7 @@ namespace Kohi.Services
         public class MockExpenseRepository : IRepository<ExpenseModel>
         {
             private List<ExpenseModel> _expenses;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockExpenseRepository() { }
             public MockExpenseRepository(List<ExpenseModel> expenses)
@@ -390,12 +392,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, ExpenseModel info)
+            public int Insert(ExpenseModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _expenses ?? GetAll();
-                if (data.Any(e => e.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _expenses = data;
                 return 1;
@@ -410,6 +411,7 @@ namespace Kohi.Services
         public class MockInboundRepository : IRepository<InboundModel>
         {
             private List<InboundModel> _inbounds;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockInboundRepository() { }
             public MockInboundRepository(List<InboundModel> inbounds)
@@ -472,12 +474,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, InboundModel info)
+            public int Insert(InboundModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _inbounds ?? GetAll();
-                if (data.Any(i => i.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _inbounds = data;
                 return 1;
@@ -494,6 +495,7 @@ namespace Kohi.Services
         public class MockInvoiceRepository : IRepository<InvoiceModel>
         {
             private List<InvoiceModel> _invoices;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockInvoiceRepository() { }
             public MockInvoiceRepository(List<InvoiceModel> invoices)
@@ -554,12 +556,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, InvoiceModel info)
+            public int Insert(InvoiceModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _invoices ?? GetAll();
-                if (data.Any(i => i.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _invoices = data;
                 return 1;
@@ -574,6 +575,7 @@ namespace Kohi.Services
         public class MockInventoryRepository : IRepository<InventoryModel>
         {
             private List<InventoryModel> _inventories;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockInventoryRepository() { }
             public MockInventoryRepository(List<InventoryModel> inventories)
@@ -634,12 +636,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, InventoryModel info)
+            public int Insert(InventoryModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _inventories ?? GetAll();
-                if (data.Any(i => i.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _inventories = data;
                 return 1;
@@ -654,6 +655,7 @@ namespace Kohi.Services
         public class MockIngredientRepository : IRepository<IngredientModel>
         {
             private List<IngredientModel> _ingredients;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockIngredientRepository() { }
             public MockIngredientRepository(List<IngredientModel> ingredients)
@@ -714,12 +716,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, IngredientModel info)
+            public int Insert(IngredientModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _ingredients ?? GetAll();
-                if (data.Any(i => i.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _ingredients = data;
                 return 1;
@@ -734,6 +735,7 @@ namespace Kohi.Services
         public class MockInvoiceDetailRepository : IRepository<InvoiceDetailModel>
         {
             private List<InvoiceDetailModel> _invoiceDetails;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockInvoiceDetailRepository() { }
             public MockInvoiceDetailRepository(List<InvoiceDetailModel> invoiceDetails)
@@ -795,12 +797,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, InvoiceDetailModel info)
+            public int Insert(InvoiceDetailModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _invoiceDetails ?? GetAll();
-                if (data.Any(i => i.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _invoiceDetails = data;
                 return 1;
@@ -815,6 +816,7 @@ namespace Kohi.Services
         public class MockProductVariantRepository : IRepository<ProductVariantModel>
         {
             private List<ProductVariantModel> _productVariants;
+            private static int _nextId = 7; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockProductVariantRepository() { }
             public MockProductVariantRepository(List<ProductVariantModel> productVariants)
@@ -880,12 +882,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, ProductVariantModel info)
+            public int Insert(ProductVariantModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _productVariants ?? GetAll();
-                if (data.Any(p => p.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _productVariants = data;
                 return 1;
@@ -901,6 +902,7 @@ namespace Kohi.Services
         public class MockPaymentRepository : IRepository<PaymentModel>
         {
             private List<PaymentModel> _payments;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockPaymentRepository() { }
             public MockPaymentRepository(List<PaymentModel> payments)
@@ -961,12 +963,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, PaymentModel info)
+            public int Insert(PaymentModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _payments ?? GetAll();
-                if (data.Any(p => p.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _payments = data;
                 return 1;
@@ -981,6 +982,7 @@ namespace Kohi.Services
         public class MockOrderToppingRepository : IRepository<OrderToppingModel>
         {
             private List<OrderToppingModel> _orderToppings;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockOrderToppingRepository() { }
             public MockOrderToppingRepository(List<OrderToppingModel> orderToppings)
@@ -1039,12 +1041,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, OrderToppingModel info)
+            public int Insert(OrderToppingModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _orderToppings ?? GetAll();
-                if (data.Any(o => o.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _orderToppings = data;
                 return 1;
@@ -1060,6 +1061,7 @@ namespace Kohi.Services
         public class MockSupplierRepository : IRepository<SupplierModel>
         {
             private List<SupplierModel> _suppliers;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockSupplierRepository() { }
             public MockSupplierRepository(List<SupplierModel> suppliers)
@@ -1120,12 +1122,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, SupplierModel info)
+            public int Insert(SupplierModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _suppliers ?? GetAll();
-                if (data.Any(s => s.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _suppliers = data;
                 return 1;
@@ -1141,6 +1142,7 @@ namespace Kohi.Services
         public class MockProductRepository : IRepository<ProductModel>
         {
             private List<ProductModel> _products;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockProductRepository() { }
             public MockProductRepository(List<ProductModel> products)
@@ -1201,12 +1203,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, ProductModel info)
+            public int Insert(ProductModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _products ?? GetAll();
-                if (data.Any(p => p.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _products = data;
                 return 1;
@@ -1222,6 +1223,7 @@ namespace Kohi.Services
         public class MockOutboundRepository : IRepository<OutboundModel>
         {
             private List<OutboundModel> _outbounds;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockOutboundRepository() { }
             public MockOutboundRepository(List<OutboundModel> outbounds)
@@ -1283,12 +1285,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, OutboundModel info)
+            public int Insert(OutboundModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _outbounds ?? GetAll();
-                if (data.Any(o => o.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _outbounds = data;
                 return 1;
@@ -1304,6 +1305,7 @@ namespace Kohi.Services
         public class MockTaxRepository : IRepository<TaxModel>
         {
             private List<TaxModel> _taxes;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockTaxRepository() { }
             public MockTaxRepository(List<TaxModel> taxes)
@@ -1363,12 +1365,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, TaxModel info)
+            public int Insert(TaxModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _taxes ?? GetAll();
-                if (data.Any(t => t.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _taxes = data;
                 return 1;
@@ -1384,6 +1385,7 @@ namespace Kohi.Services
         public class MockInvoiceTaxRepository : IRepository<InvoiceTaxModel>
         {
             private List<InvoiceTaxModel> _invoiceTaxes;
+            private static int _nextId = 6; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockInvoiceTaxRepository() { }
             public MockInvoiceTaxRepository(List<InvoiceTaxModel> invoiceTaxes)
@@ -1442,12 +1444,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, InvoiceTaxModel info)
+            public int Insert(InvoiceTaxModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _invoiceTaxes ?? GetAll();
-                if (data.Any(i => i.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _invoiceTaxes = data;
                 return 1;
@@ -1463,6 +1464,7 @@ namespace Kohi.Services
         public class MockCheckInventoryRepository : IRepository<CheckInventoryModel>
         {
             private List<CheckInventoryModel> _checkInventories;
+            private static int _nextId = 4; // Biến tĩnh để theo dõi Id tiếp theo
 
             public MockCheckInventoryRepository() { }
             public MockCheckInventoryRepository(List<CheckInventoryModel> checkInventories)
@@ -1522,12 +1524,11 @@ namespace Kohi.Services
                 return 1;
             }
 
-            public int Insert(string id, CheckInventoryModel info)
+            public int Insert(CheckInventoryModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                if (info == null) return 0;
                 var data = _checkInventories ?? GetAll();
-                if (data.Any(i => i.Id == intId)) return 0;
-                info.Id = intId;
+                info.Id = _nextId++;
                 data.Add(info);
                 _checkInventories = data;
                 return 1;

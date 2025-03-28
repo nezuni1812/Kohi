@@ -13,10 +13,10 @@ namespace Kohi.Models
         public int InventoryId { get; set; }     // Mã lô hàng (liên kết với InventoryModel)
         public float Quantity { get; set; }        // Số lượng xuất từ lô này
         public DateTime OutboundDate { get; set; } // Ngày xuất kho
-        public string? Purpose { get; set; }      // Mục đích xuất (ví dụ: sản xuất, hư hỏng)
-        public string? Notes { get; set; }        // Ghi chú (tùy chọn)
+        public string Purpose { get; set; }      // Mục đích xuất (ví dụ: sản xuất, hư hỏng)
+        public string Notes { get; set; }        // Ghi chú (tùy chọn)
 
-        public InventoryModel? Inventory { get; set; }
+        public InventoryModel Inventory { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }

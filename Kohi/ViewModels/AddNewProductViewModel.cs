@@ -44,9 +44,47 @@ namespace Kohi.ViewModels
                     }).ToList()
                 }).ToList()
             };
-            int id = _dao.Products.GetCount();
-            _dao.Products.Insert($"{id + 1}", product);
+            _dao.Products.Insert(product);
         }
+
+        public async Task AddProduct(ProductModel product)
+        {
+            try
+            {
+                int result = _dao.Products.Insert(product);
+                product.Category = _dao.Categories.GetAll().FirstOrDefault(c => c.Id == product.CategoryId);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task AddProductVariant(ProductModel product)
+        {
+            try
+            {
+                 
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task AddRecipeDetails(ProductModel product)
+        {
+            try
+            {
+               
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+
 
         public class ProductVariantViewModel : INotifyPropertyChanged
         {
