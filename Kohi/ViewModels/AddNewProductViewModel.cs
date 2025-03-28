@@ -53,8 +53,8 @@ namespace Kohi.ViewModels
             public int Id { get; set; }
             public int ProductId { get; set; }
             public string? Size { get; set; }
-            public float? Price { get; set; }
-            public float? Cost { get; set; }
+            public float Price { get; set; }
+            public float Cost { get; set; }
             public FullObservableCollection<RecipeDetailViewModel> RecipeDetails { get; set; }
 
             public ProductVariantViewModel()
