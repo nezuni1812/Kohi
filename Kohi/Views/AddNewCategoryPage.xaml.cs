@@ -21,6 +21,7 @@ using Kohi.ViewModels;
 using Kohi.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Kohi.Errors;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -33,11 +34,13 @@ namespace Kohi.Views
     public sealed partial class AddNewCategoryPage : Page
     {
         private StorageFile selectedImageFile;
+        private readonly IErrorHandler _errorHandler = new EmptyInputErrorHandler();
 
         public CategoryViewModel ViewModel { get; set; } = new CategoryViewModel();
         public AddNewCategoryPage()
         {
             this.InitializeComponent();
+
         }
 
         private async void AddImageButton_Click(object sender, RoutedEventArgs e)
@@ -116,6 +119,26 @@ namespace Kohi.Views
         private async void saveButton_click(object sender, RoutedEventArgs e)
         {
             string imgName = await SaveImage();
+            var fields = new Dictionary<string, string>
+            {
+                { "Tên người dùng", CategoryNameTextBox.Text },
+                { "Email", imgName },
+            };
+
+            // 🔹 Chạy qua chuỗi xử lý lỗi (COR)
+            List<string> errors = _errorHandler?.HandleError(fields);
+
+            // 🔹 Nếu có lỗi, hiển thị tất cả lỗi, ngược lại báo thành công
+            if (errors.Any())
+            {
+                outtext.Text = string.Join("\n", errors);
+            }
+            else
+            {
+                outtext.Text = "✅ Dữ liệu hợp lệ!";
+            }
+
+            
             await ViewModel.Add(new CategoryModel()
             {
                 Name = CategoryNameTextBox.Text,
