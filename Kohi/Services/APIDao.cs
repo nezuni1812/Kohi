@@ -16,53 +16,172 @@ namespace Kohi.Services
     {
         private static readonly HttpClient client = new HttpClient();
         private static String baseURL = "http://localhost:3000";
-        private static async Task<HttpResponseMessage> APIQueryCallAsync(string URL)
-        {
-            HttpResponseMessage response = await client.GetAsync(URL);
 
-            return response;
+        private static void LogRequestDetails(HttpRequestMessage request)
+        {
+            Debug.WriteLine("Request Method: " + request.Method);
+
+            Debug.WriteLine("Request URL: " + request.RequestUri);
+
+            Debug.WriteLine("Request Headers:");
+            foreach (var header in request.Headers)
+            {
+                Debug.WriteLine($"{header.Key}: {string.Join(", ", header.Value)}");
+            }
+
+            if (request.Content != null)
+            {
+                string requestBody = request.Content.ReadAsStringAsync().Result;
+                Debug.WriteLine("Request Body: ");
+                Debug.WriteLine(requestBody);
+            }
         }
 
         public class APICategoryRepository : IRepository<CategoryModel>
         {
             public int DeleteById(string id)
             {
-                throw new NotImplementedException();
+                var reponse = client.DeleteAsync($"{baseURL}/categories?id=eq.{id}").Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed deletion");
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
             }
 
             public List<CategoryModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                throw new NotImplementedException();
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/categories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+
+                    List<CategoryModel> categories = JsonConvert.DeserializeObject<List<CategoryModel>>(jsonResponse);
+
+                    return categories;
+                }
+                else
+                {
+                    Debug.WriteLine("Error: " + response.StatusCode);
+                    return new List<CategoryModel>();
+                }
             }
 
             public CategoryModel GetById(string id)
             {
-                throw new NotImplementedException();
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/categories?id=eq.{id}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                    List<CategoryModel> categories = JsonConvert.DeserializeObject<List<CategoryModel>>(jsonResponse);
+                    if (categories?.Count > 0)
+                    {
+                        return categories[0];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Error: " + response.StatusCode);
+                    return null;
+                }
             }
 
             public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                throw new NotImplementedException();
+                client.DefaultRequestHeaders.Add("Prefer", "count=exact");
+                var response = client.GetAsync($"{baseURL}/categories").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    int total = Int32.Parse(response.Headers.GetValues("Content-Range").ToString().Split("/")[^1]);
+                    return total;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed count total");
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
             }
 
             public int Insert(string id, CategoryModel info)
             {
-                throw new NotImplementedException();
+                JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
+                jsonObject.Remove("Id");
+                jsonObject.Remove("Products");
+                JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
+                foreach (var pair in jsonObject.Properties())
+                {
+                    newJsonObject.Add(pair.Name.ToLower(), pair.Value);
+                }
+
+                string jsonContent = newJsonObject.ToString();
+                StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{baseURL}/categories")
+                {
+                    Content = content
+                };
+                LogRequestDetails(request);
+                HttpResponseMessage response = client.Send(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Handle the successful response (e.g., read the response content)
+                    string responseContent = response.Content.ReadAsStringAsync().Result;
+                    Debug.WriteLine("Category inserted successfully: " + responseContent);
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed insertion");
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
             }
 
             public int UpdateById(string id, CategoryModel info)
             {
-                throw new NotImplementedException();
+                JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
+                jsonObject.Remove("Id");
+                jsonObject.Remove("Products");
+                JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
+                foreach (var pair in jsonObject.Properties())
+                {
+                    newJsonObject.Add(pair.Name.ToLower(), pair.Value);
+                }
+                StringContent content = new StringContent(newJsonObject.ToString(), Encoding.UTF8, "application/json");
+                var reponse = client.PatchAsync($"{baseURL}/categories?id=eq.{id}", content).Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
             }
         }
 
         public class APIProductRepository : IRepository<ProductModel>
         {
             private List<ProductModel> _products;
-                
-            public APIProductRepository()
-            {
-            }
+
+            public APIProductRepository() { }
             public APIProductRepository(List<ProductModel> products)
             {
                 _products = products;
@@ -70,12 +189,23 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
-                throw new NotImplementedException();
+                var reponse = client.DeleteAsync($"{baseURL}/products?id=eq.{id}").Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed deletion");
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
             }
             public List<ProductModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
 
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/products?limit={pageSize}&offset={(pageNumber - 1)*pageSize}").Result;
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/products?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -88,49 +218,60 @@ namespace Kohi.Services
                 }
                 else
                 {
-                    Console.WriteLine("Error: " + response.StatusCode);
+                    Debug.WriteLine("Error: " + response.StatusCode);
                     return new List<ProductModel>();
                 }
             }
             public ProductModel GetById(string id)
             {
-                throw new NotImplementedException();
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/products?id=eq.{id}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                    List<ProductModel> products = JsonConvert.DeserializeObject<List<ProductModel>>(jsonResponse);
+                    if (products?.Count > 0)
+                    {
+                        return products[0];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Error: " + response.StatusCode);
+                    return null;
+                }
             }
             public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                return _products.Count;
-            }
-            private void LogRequestDetails(HttpRequestMessage request)
-            {
-                // Log the HTTP Method (e.g., GET, POST, etc.)
-                Debug.WriteLine("Request Method: " + request.Method);
-
-                // Log the Request URL
-                Debug.WriteLine("Request URL: " + request.RequestUri);
-
-                // Log the Request Headers
-                Debug.WriteLine("Request Headers:");
-                foreach (var header in request.Headers)
+                client.DefaultRequestHeaders.Add("Prefer", "count=exact");
+                var response = client.GetAsync($"{baseURL}/products").Result;
+                if (response.IsSuccessStatusCode)
                 {
-                    Debug.WriteLine($"{header.Key}: {string.Join(", ", header.Value)}");
+                    int total = Int32.Parse(response.Headers.GetValues("Content-Range").ToString().Split("/")[^1]);
+                    return total;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed count total");
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    return 0;
                 }
 
-                // Log the Request Body (if any)
-                if (request.Content != null)
-                {
-                    string requestBody = request.Content.ReadAsStringAsync().Result;
-                    Debug.WriteLine("Request Body: ");
-                    Debug.WriteLine(requestBody);
-                }
             }
+
             public int Insert(string id, ProductModel info)
             {
                 Debug.WriteLine("Insertion");
                 JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Category");
                 jsonObject.Remove("ProductVariants");
                 jsonObject.Remove("Id");
                 JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
                 foreach (var pair in jsonObject.Properties())
                 {
                     newJsonObject.Add(pair.Name.ToLower(), pair.Value);
@@ -157,13 +298,35 @@ namespace Kohi.Services
                 else
                 {
                     Debug.WriteLine("Failed insertion");
-                    Debug.WriteLine(response.ReasonPhrase);
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
                 }
                 return 1;
             }
             public int UpdateById(string id, ProductModel info)
             {
-                throw new NotImplementedException();
+                JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
+                jsonObject.Remove("Category");
+                jsonObject.Remove("ProductVariants");
+                jsonObject.Remove("Id");
+                JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
+                foreach (var pair in jsonObject.Properties())
+                {
+                    newJsonObject.Add(pair.Name.ToLower(), pair.Value);
+                }
+                StringContent content = new StringContent(newJsonObject.ToString(), Encoding.UTF8, "application/json");
+                var reponse = client.PatchAsync($"{baseURL}/products?id=eq.{id}", content).Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
             }
         }
 
@@ -171,45 +334,45 @@ namespace Kohi.Services
         {
             client.DefaultRequestHeaders.Add("Prefer", "return=representation");
 
-            //var categories = new APICategoryRepository().GetAll();
-            //var customers = new MockCustomerRepository().GetAll();
-            //var expenseCategories = new MockExpenseCategoryRepository().GetAll();
-            //var expenses = new MockExpenseRepository().GetAll();
-            //var inbounds = new MockInboundRepository().GetAll();
-            //var invoices = new MockInvoiceRepository().GetAll();
-            //var inventories = new MockInventoryRepository().GetAll();
-            //var ingredients = new MockIngredientRepository().GetAll();
-            //var invoiceDetails = new MockInvoiceDetailRepository().GetAll();
-            //var recipeDetails = new MockRecipeDetailRepository().GetAll();
-            //var payments = new MockPaymentRepository().GetAll();
-            //var orderToppings = new MockOrderToppingRepository().GetAll();
-            //var suppliers = new MockSupplierRepository().GetAll();
+            var categories = new APICategoryRepository().GetAll();
+            //var customers = new APICustomerRepository().GetAll();
+            //var expenseCategories = new APIExpenseCategoryRepository().GetAll();
+            //var expenses = new APIExpenseRepository().GetAll();
+            //var inbounds = new APIInboundRepository().GetAll();
+            //var invoices = new APIInvoiceRepository().GetAll();
+            //var inventories = new APIInventoryRepository().GetAll();
+            //var ingredients = new APIIngredientRepository().GetAll();
+            //var invoiceDetails = new APIInvoiceDetailRepository().GetAll();
+            //var recipeDetails = new APIRecipeDetailRepository().GetAll();
+            //var payments = new APIPaymentRepository().GetAll();
+            //var orderToppings = new APIOrderToppingRepository().GetAll();
+            //var suppliers = new APISupplierRepository().GetAll();
             var products = new APIProductRepository().GetAll();
-            //var outbounds = new MockOutboundRepository().GetAll();
-            //var productVariants = new MockProductVariantRepository().GetAll();
-            //var taxes = new MockTaxRepository().GetAll();
-            //var invoiceTaxes = new MockInvoiceTaxRepository().GetAll();
-            //var checkInventories = new MockCheckInventoryRepository().GetAll();
+            //var outbounds = new APIOutboundRepository().GetAll();
+            //var productVariants = new APIProductVariantRepository().GetAll();
+            //var taxes = new APITaxRepository().GetAll();
+            //var invoiceTaxes = new APIInvoiceTaxRepository().GetAll();
+            //var checkInventories = new APICheckInventoryRepository().GetAll();
 
-            //Categories = new MockCategoryRepository(categories);
-            //Customers = new MockCustomerRepository(customers);
-            //ExpenseCategories = new MockExpenseCategoryRepository(expenseCategories);
-            //Expenses = new MockExpenseRepository(expenses);
-            //Inbounds = new MockInboundRepository(inbounds);
-            //Invoices = new MockInvoiceRepository(invoices);
-            //Inventories = new MockInventoryRepository(inventories);
-            //Ingredients = new MockIngredientRepository(ingredients);
-            //InvoiceDetails = new MockInvoiceDetailRepository(invoiceDetails);
-            //RecipeDetails = new MockRecipeDetailRepository(recipeDetails);
-            //Payments = new MockPaymentRepository(payments);
-            //OrderToppings = new MockOrderToppingRepository(orderToppings);
-            //Suppliers = new MockSupplierRepository(suppliers);
+            Categories = new APICategoryRepository(categories);
+            //Customers = new APICustomerRepository(customers);
+            //ExpenseCategories = new APIExpenseCategoryRepository(expenseCategories);
+            //Expenses = new APIExpenseRepository(expenses);
+            //Inbounds = new APIInboundRepository(inbounds);
+            //Invoices = new APIInvoiceRepository(invoices);
+            //Inventories = new APIInventoryRepository(inventories);
+            //Ingredients = new APIIngredientRepository(ingredients);
+            //InvoiceDetails = new APIInvoiceDetailRepository(invoiceDetails);
+            //RecipeDetails = new APIRecipeDetailRepository(recipeDetails);
+            //Payments = new APIPaymentRepository(payments);
+            //OrderToppings = new APIOrderToppingRepository(orderToppings);
+            //Suppliers = new APISupplierRepository(suppliers);
             Products = new APIProductRepository(products);
-            //Outbounds = new MockOutboundRepository(outbounds);
-            //ProductVariants = new MockProductVariantRepository(productVariants);
-            //Taxes = new MockTaxRepository(taxes);
-            //InvoiceTaxes = new MockInvoiceTaxRepository(invoiceTaxes);
-            //CheckInventories = new MockCheckInventoryRepository(checkInventories);
+            //Outbounds = new APIOutboundRepository(outbounds);
+            //ProductVariants = new APIProductVariantRepository(productVariants);
+            //Taxes = new APITaxRepository(taxes);
+            //InvoiceTaxes = new APIInvoiceTaxRepository(invoiceTaxes);
+            //CheckInventories = new APICheckInventoryRepository(checkInventories);
         }
 
         //Properties
