@@ -1058,13 +1058,442 @@ namespace Kohi.Services
             }
         }
 
+        public class APICustomerRepository : IRepository<CustomerModel>
+        {
+            public APICustomerRepository() { }
+            public APICustomerRepository(List<CustomerModel> list) { }
+
+            public int DeleteById(string id)
+            {
+                var reponse = client.DeleteAsync($"{baseURL}/customers?id=eq.{id}").Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed deletion");
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+
+            public List<CustomerModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/customers?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+
+                    List<CustomerModel> customers = JsonConvert.DeserializeObject<List<CustomerModel>>(jsonResponse);
+
+                    return customers;
+                }
+                else
+                {
+                    Debug.WriteLine("Error: " + response.StatusCode);
+                    return new List<CustomerModel>();
+                }
+            }
+
+            public CustomerModel GetById(string id)
+            {
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/customers?id=eq.{id}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                    List<CustomerModel> customers = JsonConvert.DeserializeObject<List<CustomerModel>>(jsonResponse);
+                    if (customers?.Count > 0)
+                    {
+                        return customers[0];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Failed to get customer by ID");
+                    Debug.WriteLine("Error: " + response.StatusCode);
+                    return null;
+                }
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                client.DefaultRequestHeaders.Add("Prefer", "count=exact");
+                var response = client.GetAsync($"{baseURL}/customers").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    int
+                    total = Int32.Parse(response.Content.Headers.GetValues("Content-Range").FirstOrDefault().Split('/')[^1]);
+                    return total;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed count total");
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+            public int Insert(string id, CustomerModel info)
+            {
+                JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
+                jsonObject.Remove("Id");
+                jsonObject.Remove("Invoices");
+                JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
+                foreach (var pair in jsonObject.Properties())
+                {
+                    newJsonObject.Add(pair.Name.ToLower(), pair.Value);
+                }
+
+                string jsonContent = newJsonObject.ToString();
+                StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{baseURL}/customers")
+                {
+                    Content = content
+                };
+                LogRequestDetails(request);
+                HttpResponseMessage response = client.Send(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Handle the successful response (e.g., read the response content)
+                    string responseContent = response.Content.ReadAsStringAsync().Result;
+                    Debug.WriteLine("Customer inserted successfully: " + responseContent);
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed insertion");
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+            public int UpdateById(string id, CustomerModel info)
+            {
+                JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
+                jsonObject.Remove("Id");
+                jsonObject.Remove("Invoices");
+                JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
+                foreach (var pair in jsonObject.Properties())
+                {
+                    newJsonObject.Add(pair.Name.ToLower(), pair.Value);
+                }
+                StringContent content = new StringContent(newJsonObject.ToString(), Encoding.UTF8, "application/json");
+                var reponse = client.PatchAsync($"{baseURL}/customers?id=eq.{id}", content).Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+        }
+        
+        public class APIExpenseCategoryRepository : IRepository<ExpenseCategoryModel>
+        {
+            public APIExpenseCategoryRepository() { }
+            public APIExpenseCategoryRepository(List<ExpenseCategoryModel> list) { }
+
+            public int DeleteById(string id)
+            {
+                var reponse = client.DeleteAsync($"{baseURL}/expensecategories?id=eq.{id}").Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed deletion");
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+
+            public List<ExpenseCategoryModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/expensecategories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+
+                    List<ExpenseCategoryModel> expenseCategories = JsonConvert.DeserializeObject<List<ExpenseCategoryModel>>(jsonResponse);
+
+                    return expenseCategories;
+                }
+                else
+                {
+                    Debug.WriteLine("Error: " + response.StatusCode);
+                    return new List<ExpenseCategoryModel>();
+                }
+            }
+
+            public ExpenseCategoryModel GetById(string id)
+            {
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/expensecategories?id=eq.{id}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                    List<ExpenseCategoryModel> expenseCategories = JsonConvert.DeserializeObject<List<ExpenseCategoryModel>>(jsonResponse);
+                    if (expenseCategories?.Count > 0)
+                    {
+                        return expenseCategories[0];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Failed to get expense category by ID");
+                    Debug.WriteLine("Error: " + response.StatusCode);
+                    return null;
+                }
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                client.DefaultRequestHeaders.Add("Prefer", "count=exact");
+                var response = client.GetAsync($"{baseURL}/expensecategories").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    int total = Int32.Parse(response.Content.Headers.GetValues("Content-Range").FirstOrDefault().Split('/')[^1]);
+                    return total;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed count total");
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+            public int Insert(string id, ExpenseCategoryModel info)
+            {
+                JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
+                jsonObject.Remove("Id");
+                jsonObject.Remove("Expenses");
+                JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
+                foreach (var pair in jsonObject.Properties())
+                {
+                    newJsonObject.Add(pair.Name.ToLower(), pair.Value);
+                }
+
+                string jsonContent = newJsonObject.ToString();
+                StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{baseURL}/expensecategories")
+                {
+                    Content = content
+                };
+                LogRequestDetails(request);
+                HttpResponseMessage response = client.Send(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Handle the successful response (e.g., read the response content)
+                    string responseContent = response.Content.ReadAsStringAsync().Result;
+                    Debug.WriteLine("Expense category inserted successfully: " + responseContent);
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed insertion");
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+            public int UpdateById(string id, ExpenseCategoryModel info)
+            {
+                JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
+                jsonObject.Remove("Id");
+                jsonObject.Remove("Expenses");
+                JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
+                foreach (var pair in jsonObject.Properties())
+                {
+                    newJsonObject.Add(pair.Name.ToLower(), pair.Value);
+                }
+                StringContent content = new StringContent(newJsonObject.ToString(), Encoding.UTF8, "application/json");
+                var reponse = client.PatchAsync($"{baseURL}/expensecategories?id=eq.{id}", content).Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+        }
+        
+        public class APICheckInventoryRepository : IRepository<CheckInventoryModel>
+        {
+            public APICheckInventoryRepository() { }
+            public APICheckInventoryRepository(List<CheckInventoryModel> list) { }
+
+            public int DeleteById(string id)
+            {
+                var reponse = client.DeleteAsync($"{baseURL}/checkinventories?id=eq.{id}").Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed deletion");
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+
+            public List<CheckInventoryModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/checkinventories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+
+                    List<CheckInventoryModel> checkInventories = JsonConvert.DeserializeObject<List<CheckInventoryModel>>(jsonResponse);
+
+                    return checkInventories;
+                }
+                else
+                {
+                    Debug.WriteLine("Error: " + response.StatusCode);
+                    return new List<CheckInventoryModel>();
+                }
+            }
+
+            public CheckInventoryModel GetById(string id)
+            {
+                HttpResponseMessage response = client.GetAsync($"{baseURL}/checkinventories?id=eq.{id}").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    string jsonResponse = response.Content.ReadAsStringAsync().Result;
+                    List<CheckInventoryModel> checkInventories = JsonConvert.DeserializeObject<List<CheckInventoryModel>>(jsonResponse);
+                    if (checkInventories?.Count > 0)
+                    {
+                        return checkInventories[0];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Failed to get check inventory by ID");
+                    Debug.WriteLine("Error: " + response.StatusCode);
+                    return null;
+                }
+            }
+
+            public int GetCount(string filterField = null, string filterValue = null, string searchKeyword = null)
+            {
+                client.DefaultRequestHeaders.Add("Prefer", "count=exact");
+                var response = client.GetAsync($"{baseURL}/checkinventories").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    int total = Int32.Parse(response.Content.Headers.GetValues("Content-Range").FirstOrDefault().Split('/')[^1]);
+                    return total;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed count total");
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+            public int Insert(string id, CheckInventoryModel info)
+            {
+                JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
+                jsonObject.Remove("Id");
+                jsonObject.Remove("Inventories");
+                JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
+                foreach (var pair in jsonObject.Properties())
+                {
+                    newJsonObject.Add(pair.Name.ToLower(), pair.Value);
+                }
+
+                string jsonContent = newJsonObject.ToString();
+                StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{baseURL}/checkinventories")
+                {
+                    Content = content
+                };
+                LogRequestDetails(request);
+                HttpResponseMessage response = client.Send(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Handle the successful response (e.g., read the response content)
+                    string responseContent = response.Content.ReadAsStringAsync().Result;
+                    Debug.WriteLine("Check inventory inserted successfully: " + responseContent);
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine("Failed insertion");
+                    Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+            public int UpdateById(string id, CheckInventoryModel info)
+            {
+                JObject jsonObject = JObject.FromObject(info);
+                //Remove all object's properties that are not match with the columns
+                jsonObject.Remove("Id");
+                jsonObject.Remove("Inventory");
+                jsonObject.Remove("Discrepancy");
+                JObject newJsonObject = new JObject();
+                //keys must match with the columns in the database (lowercase)
+                foreach (var pair in jsonObject.Properties())
+                {
+                    newJsonObject.Add(pair.Name.ToLower(), pair.Value);
+                }
+                StringContent content = new StringContent(newJsonObject.ToString(), Encoding.UTF8, "application/json");
+                var reponse = client.PatchAsync($"{baseURL}/checkinventories?id=eq.{id}", content).Result;
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return 1;
+                }
+                else
+                {
+                    Debug.WriteLine(reponse.Content.ReadAsStringAsync().Result);
+                    return 0;
+                }
+            }
+        }
+        
+
         public APIDao()
         {
             client.DefaultRequestHeaders.Add("Prefer", "return=representation");
 
             var categories = new APICategoryRepository().GetAll();
-            //var customers = new APICustomerRepository().GetAll();
-            //var expenseCategories = new APIExpenseCategoryRepository().GetAll();
+            var customers = new APICustomerRepository().GetAll();
+            var expenseCategories = new APIExpenseCategoryRepository().GetAll();
             //var expenses = new APIExpenseRepository().GetAll();
             var inbounds = new APIInboundRepository().GetAll();
             //var invoices = new APIInvoiceRepository().GetAll();
@@ -1080,11 +1509,11 @@ namespace Kohi.Services
             //var productVariants = new APIProductVariantRepository().GetAll();
             //var taxes = new APITaxRepository().GetAll();
             //var invoiceTaxes = new APIInvoiceTaxRepository().GetAll();
-            //var checkInventories = new APICheckInventoryRepository().GetAll();
+            var checkInventories = new APICheckInventoryRepository().GetAll();
 
             Categories = new APICategoryRepository();
-            //Customers = new APICustomerRepository(customers);
-            //ExpenseCategories = new APIExpenseCategoryRepository(expenseCategories);
+            Customers = new APICustomerRepository(customers);
+            ExpenseCategories = new APIExpenseCategoryRepository(expenseCategories);
             //Expenses = new APIExpenseRepository(expenses);
             Inbounds = new APIInboundRepository(inbounds);
             //Invoices = new APIInvoiceRepository(invoices);
@@ -1100,7 +1529,7 @@ namespace Kohi.Services
             //ProductVariants = new APIProductVariantRepository(productVariants);
             //Taxes = new APITaxRepository(taxes);
             //InvoiceTaxes = new APIInvoiceTaxRepository(invoiceTaxes);
-            //CheckInventories = new APICheckInventoryRepository(checkInventories);
+            CheckInventories = new APICheckInventoryRepository(checkInventories);
         }
 
         //Properties
