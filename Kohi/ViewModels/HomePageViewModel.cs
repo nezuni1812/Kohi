@@ -23,12 +23,13 @@ namespace Kohi.ViewModels
         public InvoiceViewModel InvoiceViewModel { get; set; }
         public InvoiceTaxViewModel InvoiceTaxViewModel { get; set; }
 
-        public TaxViewModel TaxViewModel { get; set; }
         public FullObservableCollection<ProductModel> Products => new FullObservableCollection<ProductModel>(
             ProductViewModel.Products.Where(p => p.IsTopping != true));
 
         public FullObservableCollection<ProductModel> ToppingProducts => new FullObservableCollection<ProductModel>(
             ProductViewModel.Products.Where(p => p.IsTopping == true));
+
+        public FullObservableCollection<InvoiceDetailModel> OrderItems = new FullObservableCollection<InvoiceDetailModel>();
 
         public HomePageViewModel()
         {

@@ -62,7 +62,6 @@ namespace Kohi.Views
         private async void ShowProductDialog_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
-
             ProductModel product = button.DataContext as ProductModel;
 
             ContentDialog productDialog = new ContentDialog
@@ -81,15 +80,15 @@ namespace Kohi.Views
             dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Product Variant
             dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Đường và Đá
             dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Topping
-            dialogContent.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }); 
+            dialogContent.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
             StackPanel variantPanel = new StackPanel { Margin = new Thickness(0, 0, 0, 10) };
-            variantPanel.Children.Add(new TextBlock { Text = "Đơn vị:"});
+            variantPanel.Children.Add(new TextBlock { Text = "Đơn vị:" });
             ItemsControl variants = new ItemsControl { ItemsSource = product.ProductVariants };
             variants.ItemTemplate = (DataTemplate)Resources["ProductVariantTemplate"];
             variantPanel.Children.Add(variants);
-            Grid.SetRow(variantPanel, 0); 
-            Grid.SetColumnSpan(variantPanel, 2); 
+            Grid.SetRow(variantPanel, 0);
+            Grid.SetColumnSpan(variantPanel, 2);
             dialogContent.Children.Add(variantPanel);
 
             RadioButtons sugarOptions = new RadioButtons { Header = "Đường:", SelectedIndex = 0 };
@@ -98,7 +97,7 @@ namespace Kohi.Views
             sugarOptions.Items.Add(new RadioButton { Content = "50%" });
             sugarOptions.Items.Add(new RadioButton { Content = "25%" });
             sugarOptions.Items.Add(new RadioButton { Content = "0%" });
-            Grid.SetRow(sugarOptions, 1); 
+            Grid.SetRow(sugarOptions, 1);
             Grid.SetColumn(sugarOptions, 0);
             dialogContent.Children.Add(sugarOptions);
 
@@ -108,23 +107,23 @@ namespace Kohi.Views
             iceOptions.Items.Add(new RadioButton { Content = "50%" });
             iceOptions.Items.Add(new RadioButton { Content = "25%" });
             iceOptions.Items.Add(new RadioButton { Content = "0%" });
-            Grid.SetRow(iceOptions, 1); 
+            Grid.SetRow(iceOptions, 1);
             Grid.SetColumn(iceOptions, 1);
             dialogContent.Children.Add(iceOptions);
 
             StackPanel toppingPanel = new StackPanel { Margin = new Thickness(0, 10, 0, 0) };
             toppingPanel.Children.Add(new TextBlock { Text = "Topping:", Margin = new Thickness(0, 0, 0, 5) });
-            var toppingList = ViewModel.ToppingProducts; 
+            var toppingList = ViewModel.ToppingProducts;
             ItemsControl toppings = new ItemsControl { ItemsSource = toppingList };
-            toppings.ItemTemplate = (DataTemplate)Resources["ToppingTemplate"]; 
+            toppings.ItemTemplate = (DataTemplate)Resources["ToppingTemplate"];
             toppingPanel.Children.Add(toppings);
             Grid.SetRow(toppingPanel, 2);
             Grid.SetColumnSpan(toppingPanel, 2);
             dialogContent.Children.Add(toppingPanel);
 
             productDialog.Content = dialogContent;
-             
-            productDialog.PrimaryButtonClick += async (s, args) => 
+
+            productDialog.PrimaryButtonClick += async (s, args) =>
             {
                 string selectedSugar = (sugarOptions.SelectedItem as RadioButton)?.Content.ToString();
                 string selectedIce = (iceOptions.SelectedItem as RadioButton)?.Content.ToString();
@@ -153,12 +152,48 @@ namespace Kohi.Views
                     return;
                 }
 
-                string variantInfo = selectedVariant != null ? $"{selectedVariant.Size} - {selectedVariant.Price}" : "Không chọn";
+                // Create new InvoiceDetailModel
+                var newItem = new InvoiceDetailModel
+                {
+                    ProductId = product.Id,
+                    ProductVariant = selectedVariant,
+                    SugarLevel = int.Parse(selectedSugar.Replace("%", "")), // Convert "100%" to 100
+                    IceLevel = int.Parse(selectedIce.Replace("%", "")),     // Convert "100%" to 100
+                    Toppings = new List<OrderToppingModel>()
+                };
 
-                System.Diagnostics.Debug.WriteLine($"Product: {product.Name}, Variant: {variantInfo}, Sugar: {selectedSugar}, Ice: {selectedIce}");
+                // Add selected toppings
+                foreach (var topping in ViewModel.ToppingProducts)
+                {
+                    var container = toppings.ContainerFromItem(topping) as ContentPresenter;
+                    if (container != null)
+                    {
+                        var checkBox = FindVisualChild<CheckBox>(container);
+                        if (checkBox != null && checkBox.IsChecked == true)
+                        {
+                            newItem.Toppings.Add(new OrderToppingModel
+                            {
+                                ProductId = topping.Id,
+                                ProductVariant = topping.ProductVariants[0] // Assuming first variant for topping
+                            });
+                        }
+                    }
+                }
+
+                ViewModel.OrderItems.Add(newItem);
+
+                string variantInfo = selectedVariant != null ? $"{selectedVariant.Size} - {selectedVariant.Price}" : "Không chọn";
+                System.Diagnostics.Debug.WriteLine($"Product: {product.Name}, Variant: {variantInfo}, Sugar: {selectedSugar}, Ice: {selectedIce}, Toppings: {newItem.Toppings.Count}");
             };
 
             await productDialog.ShowAsync();
+        }
+        private void DeleteInvoiceDetail_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is InvoiceDetailModel item)
+            {
+                ViewModel.OrderItems.Remove(item); // Assuming OrderItems is your ObservableCollection
+            }
         }
 
         private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
