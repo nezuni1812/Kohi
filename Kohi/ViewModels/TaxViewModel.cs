@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kohi.ViewModels
 {
-    internal class TaxViewModel
+    public class TaxViewModel
     {
     }
 }

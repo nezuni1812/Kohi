@@ -141,6 +141,7 @@ namespace Kohi.Views
                 IsActive = IsActiveCheckBox.IsChecked == true,
                 IsTopping = (bool)IsToppingCheckBox.IsChecked,
                 Description = DescriptionTextBox.Text,
+                Category = selectedCategory, // Gán Category từ selectedCategory thay vì khởi tạo mới
                 ProductVariants = new List<ProductVariantModel>() // Khởi tạo danh sách Variants
             };
 
@@ -167,7 +168,10 @@ namespace Kohi.Views
                             Size = variantVM.Size,
                             Price = variantVM.Price,
                             Cost = variantVM.Cost,
-                            RecipeDetails = new List<RecipeDetailModel>()
+                            Product = product, // Thiết lập mối quan hệ ngược với ProductModel
+                            RecipeDetails = new List<RecipeDetailModel>(),
+                            InvoiceDetails = new List<InvoiceDetailModel>(),
+                            Toppings = new List<OrderToppingModel>()
                         };
 
                         // Lưu RecipeDetails nếu có
@@ -190,7 +194,9 @@ namespace Kohi.Views
                                 {
                                     IngredientId = recipeVM.Ingredient.Id,
                                     Quantity = recipeVM.Quantity,
-                                    Unit = recipeVM.Unit
+                                    Unit = recipeVM.Unit,
+                                    ProductVariant = variant, // Gán ProductVariant thực tế thay vì khởi tạo mới
+                                    Ingredient = recipeVM.Ingredient // Gán Ingredient từ recipeVM.Ingredient thay vì khởi tạo mới
                                 };
                                 variant.RecipeDetails.Add(recipe); // Thêm vào danh sách RecipeDetails của variant
                             }
