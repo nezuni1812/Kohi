@@ -1,3 +1,14 @@
+create role anon nologin;
+
+grant usage on schema public to anon;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO anon;
+
+-- create role authenticator noinherit login password '1234';
+
+-- grant anon to authenticator;
+
 -- CREATE TABLE admin_account (
 -- 	admin_id INT PRIMARY KEY,
 -- 	email VARCHAR(100) NOT NULL,
