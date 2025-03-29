@@ -9,6 +9,8 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+
 //using Kohi.ViewModels;
 using System.IO;
 using System.Linq;
@@ -35,6 +37,7 @@ namespace Kohi.Views
         }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine("Add product");
             ViewModel.AddProduct();
         }
     }

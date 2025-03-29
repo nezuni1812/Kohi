@@ -16,7 +16,7 @@
             <TextBlock Text="Category ID (Optional):" />
             <TextBox Text="{Binding NewCategoryId, Mode=TwoWay}" PlaceholderText="Enter category ID"/>
 
-            <Button Content="Add Product" Click="Button_Click" />
+            <Button Content="Add" Click="Button_Click" />
 
             <TextBlock Text="Products List:" FontWeight="Bold" Margin="10,10,0,0"/>
 

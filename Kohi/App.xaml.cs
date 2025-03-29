@@ -40,7 +40,7 @@ namespace Kohi
         public App()
         {
             this.InitializeComponent();
-            Service.AddKeyedSingleton<IDao, MockDao>();
+            Service.AddKeyedSingleton<IDao, APIDao>();
             MainWindow = new MainWindow();
 
         }

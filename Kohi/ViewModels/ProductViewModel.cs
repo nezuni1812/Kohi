@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -98,8 +99,15 @@ namespace Kohi.ViewModels
                     if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
                         // Tạo đường dẫn đầy đủ
-                        StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-                        item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                        try
+                        {
+                            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                            item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine("Safely skip: " + e.StackTrace);
+                        }
                     }
                 }
                 Products.Add(item);
@@ -107,7 +115,12 @@ namespace Kohi.ViewModels
         }
         public async void AddProduct()
         {
+            Debug.WriteLine(NewProductName);
+            ProductModel newProduct = new ProductModel { Name = NewProductName };
 
+            Add(newProduct);
+
+            LoadData();
         }
 
         // Phương thức để chuyển đến trang tiếp theo
@@ -145,7 +158,7 @@ namespace Kohi.ViewModels
             }
             catch (Exception ex)
             {
-
+                Debug.WriteLine(ex);
             }
         }
     }
