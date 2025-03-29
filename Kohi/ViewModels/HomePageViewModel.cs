@@ -31,6 +31,12 @@ namespace Kohi.ViewModels
 
         public FullObservableCollection<InvoiceDetailModel> OrderItems = new FullObservableCollection<InvoiceDetailModel>();
 
+        public float TotalPrice => OrderItems?.Sum(item => item.ProductVariant.Price + (item.Toppings?.Sum(t => t.ProductVariant.Price) ?? 0)) ?? 0;
+
+        public int TotalItems => OrderItems?.Count ?? 0;
+
+        public FullObservableCollection<InvoiceModel> Invoice = new FullObservableCollection<InvoiceModel>();
+
         public HomePageViewModel()
         {
             CategoryViewModel = new CategoryViewModel();

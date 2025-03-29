@@ -1,5 +1,6 @@
 ﻿using Kohi.Models;
 using Kohi.ViewModels;
+using Kohi.Views.Converter;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -18,7 +19,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-
+using Windows.UI;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -92,21 +93,15 @@ namespace Kohi.Views
             dialogContent.Children.Add(variantPanel);
 
             RadioButtons sugarOptions = new RadioButtons { Header = "Đường:", SelectedIndex = 0 };
-            sugarOptions.Items.Add(new RadioButton { Content = "100%" });
-            sugarOptions.Items.Add(new RadioButton { Content = "75%" });
-            sugarOptions.Items.Add(new RadioButton { Content = "50%" });
-            sugarOptions.Items.Add(new RadioButton { Content = "25%" });
-            sugarOptions.Items.Add(new RadioButton { Content = "0%" });
+            sugarOptions.ItemTemplate = (DataTemplate)Resources["RadioButtonTemplate"];
+            sugarOptions.ItemsSource = new List<string> { "100%", "75%", "50%", "25%", "0%" };
             Grid.SetRow(sugarOptions, 1);
             Grid.SetColumn(sugarOptions, 0);
             dialogContent.Children.Add(sugarOptions);
 
             RadioButtons iceOptions = new RadioButtons { Header = "Đá:", SelectedIndex = 0 };
-            iceOptions.Items.Add(new RadioButton { Content = "100%" });
-            iceOptions.Items.Add(new RadioButton { Content = "75%" });
-            iceOptions.Items.Add(new RadioButton { Content = "50%" });
-            iceOptions.Items.Add(new RadioButton { Content = "25%" });
-            iceOptions.Items.Add(new RadioButton { Content = "0%" });
+            iceOptions.ItemTemplate = (DataTemplate)Resources["RadioButtonTemplate"];
+            iceOptions.ItemsSource = new List<string> { "100%", "75%", "50%", "25%", "0%" };
             Grid.SetRow(iceOptions, 1);
             Grid.SetColumn(iceOptions, 1);
             dialogContent.Children.Add(iceOptions);
@@ -125,8 +120,18 @@ namespace Kohi.Views
 
             productDialog.PrimaryButtonClick += async (s, args) =>
             {
-                string selectedSugar = (sugarOptions.SelectedItem as RadioButton)?.Content.ToString();
-                string selectedIce = (iceOptions.SelectedItem as RadioButton)?.Content.ToString();
+                string selectedSugar = sugarOptions.SelectedItem?.ToString();
+                string selectedIce = iceOptions.SelectedItem?.ToString();
+
+                // Kiểm tra nếu Sugar hoặc Ice không được chọn
+                if (selectedSugar == null || selectedIce == null)
+                {
+                    args.Cancel = true;
+                    productDialog.Hide();
+                    await ShowErrorContentDialog(productDialog.XamlRoot, "Vui lòng chọn mức đường và đá");
+                    await productDialog.ShowAsync();
+                    return;
+                }
 
                 ProductVariantModel selectedVariant = null;
                 foreach (var item in product.ProductVariants)
@@ -152,17 +157,15 @@ namespace Kohi.Views
                     return;
                 }
 
-                // Create new InvoiceDetailModel
                 var newItem = new InvoiceDetailModel
                 {
                     ProductId = product.Id,
                     ProductVariant = selectedVariant,
-                    SugarLevel = int.Parse(selectedSugar.Replace("%", "")), // Convert "100%" to 100
-                    IceLevel = int.Parse(selectedIce.Replace("%", "")),     // Convert "100%" to 100
+                    SugarLevel = int.Parse(selectedSugar.Replace("%", "")),
+                    IceLevel = int.Parse(selectedIce.Replace("%", "")),
                     Toppings = new List<OrderToppingModel>()
                 };
 
-                // Add selected toppings
                 foreach (var topping in ViewModel.ToppingProducts)
                 {
                     var container = toppings.ContainerFromItem(topping) as ContentPresenter;
@@ -174,16 +177,20 @@ namespace Kohi.Views
                             newItem.Toppings.Add(new OrderToppingModel
                             {
                                 ProductId = topping.Id,
-                                ProductVariant = topping.ProductVariants[0] // Assuming first variant for topping
+                                ProductVariant = topping.ProductVariants[0] 
                             });
                         }
                     }
                 }
 
                 ViewModel.OrderItems.Add(newItem);
+                TotalItemsTextBlock.Text = ViewModel.TotalItems.ToString();
+                TotalPriceTextBlock.Text = ConvertMoney(ViewModel.TotalPrice);
+
+                Debug.WriteLine($"TotalItems: {ViewModel.TotalItems}, TotalPrice: {ViewModel.TotalPrice}");
 
                 string variantInfo = selectedVariant != null ? $"{selectedVariant.Size} - {selectedVariant.Price}" : "Không chọn";
-                System.Diagnostics.Debug.WriteLine($"Product: {product.Name}, Variant: {variantInfo}, Sugar: {selectedSugar}, Ice: {selectedIce}, Toppings: {newItem.Toppings.Count}");
+                Debug.WriteLine($"Product: {product.Name}, Variant: {variantInfo}, Sugar: {selectedSugar}, Ice: {selectedIce}, Toppings: {newItem.Toppings.Count}");
             };
 
             await productDialog.ShowAsync();
@@ -192,7 +199,9 @@ namespace Kohi.Views
         {
             if (sender is Button button && button.Tag is InvoiceDetailModel item)
             {
-                ViewModel.OrderItems.Remove(item); // Assuming OrderItems is your ObservableCollection
+                ViewModel.OrderItems.Remove(item);
+                TotalItemsTextBlock.Text = ViewModel.TotalItems.ToString();
+                TotalPriceTextBlock.Text = ConvertMoney(ViewModel.TotalPrice);
             }
         }
 
@@ -240,6 +249,60 @@ namespace Kohi.Views
         private void ProductDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             // Xử lý khi người dùng nhấn Hủy
+        }
+
+        private string ConvertMoney(float value)
+        {
+            var converter = new MoneyFormatConverter();
+            string formattedPrice = (string)converter.Convert(value, typeof(string), null, null);
+            return formattedPrice;
+        }
+
+        private void Control2_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                var suggestions = GetSuggestions(sender.Text);
+                sender.ItemsSource = suggestions;
+            }
+        }
+
+        private void Control2_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (args.ChosenSuggestion != null)
+            {
+                sender.Text = args.ChosenSuggestion.ToString();
+            }
+            else
+            {
+                Debug.WriteLine($"Query submitted: {args.QueryText}");
+            }
+        }
+
+        private void Control2_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        {
+            sender.Text = args.SelectedItem.ToString();
+        }
+
+        private List<string> GetSuggestions(string text)
+        {
+            var allSuggestions = new List<string> { "Button", "TextBox", "CheckBox", "RadioButton" };
+            return allSuggestions.Where(s => s.Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        private void DeliveryCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (DeliveryFee != null)
+            {
+                DeliveryFee.IsEnabled = true;
+            }
+        }
+        private void DeliveryCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (DeliveryFee != null)
+            {
+                DeliveryFee.IsEnabled = false;
+                DeliveryFee.Text = string.Empty;
+            }
         }
     }
 }
