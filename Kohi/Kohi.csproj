@@ -28,6 +28,7 @@
     <None Remove="Views\InventoryHistoryPage.xaml" />
     <None Remove="Views\InventoryReceivingPage.xaml" />
     <None Remove="Views\InvoiceReportPage.xaml" />
+    <None Remove="Views\PaymentPage.xaml" />
     <None Remove="Views\ProductReportPage.xaml" />
     <None Remove="Views\Products\CategoriesPage.xaml" />
     <None Remove="Views\Products\ProductsPage.xaml" />
@@ -68,6 +69,8 @@
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
 	<PackageReference Include="WinUI.TableView" Version="1.3.0-preview1" />
 	<PackageReference Include="Syncfusion.Chart.WinUI" Version="28.2.12" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	<PackageReference Include="RestSharp" Version="112.1.0" />
 	
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +101,9 @@
     <None Update="Views\HomePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Views\PaymentPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\IngredientsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

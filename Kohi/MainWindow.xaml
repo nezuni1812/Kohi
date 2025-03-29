@@ -104,7 +104,7 @@
             </NavigationView.MenuItems>
 
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Icon="Setting" Content="Thiết lập" Tag="Kohi.Views.SettingsPage"  />
+                <NavigationViewItem Icon="Setting" Content="Thiết lập" Tag="Kohi.Views.PaymentPage"  /> <!--Để tạm là Payment Page-->
             </NavigationView.FooterMenuItems>
             <!--Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="55,0,0,0"/-->
             <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" Padding="30,15,30,0"/>
