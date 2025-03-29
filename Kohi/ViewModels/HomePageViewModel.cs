@@ -14,7 +14,16 @@ namespace Kohi.ViewModels
     {
         public CategoryViewModel CategoryViewModel { get; set; }
         public ProductViewModel ProductViewModel { get; set; }
+        //public ProductVariantViewModel ProductVariantViewModel { get; set; } 
+        public OrderToppingViewModel OrderToppingViewModel { get; set; }
+        public InvoiceDetailViewModel InvoiceDetailViewModel { get; set; }
+        public CustomerViewModel CustomerViewModel { get; set; }
+        public PaymentViewModel PaymentViewModel { get; set; }
 
+        public InvoiceViewModel InvoiceViewModel { get; set; }
+        public InvoiceTaxViewModel InvoiceTaxViewModel { get; set; }
+
+        public TaxViewModel TaxViewModel { get; set; }
         public FullObservableCollection<ProductModel> Products => new FullObservableCollection<ProductModel>(
             ProductViewModel.Products.Where(p => p.IsTopping != true));
 
@@ -25,6 +34,13 @@ namespace Kohi.ViewModels
         {
             CategoryViewModel = new CategoryViewModel();
             ProductViewModel = new ProductViewModel();
+            //ProductVariantViewModel = new ProductVariantViewModel();
+            OrderToppingViewModel = new OrderToppingViewModel();
+            InvoiceDetailViewModel = new InvoiceDetailViewModel();
+            CustomerViewModel = new CustomerViewModel();
+            PaymentViewModel = new PaymentViewModel();
+            InvoiceViewModel = new InvoiceViewModel();
+            InvoiceTaxViewModel = new InvoiceTaxViewModel();
         }
     }
 }

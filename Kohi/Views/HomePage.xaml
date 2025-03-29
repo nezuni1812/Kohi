@@ -176,12 +176,36 @@
                 <!-- Nút Thanh toán -->
             </Grid.RowDefinitions>
 
-            <!-- Thông báo -->
-            <TextBlock Grid.Row="0" 
-            Text="Không có sản phẩm nào trong đơn" 
-            Foreground="Gray" 
+            <Grid Grid.Row="0" 
             HorizontalAlignment="Center"
-            Margin="0,20,0,0"/>
+            Margin="0,20,0,0">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Matcha"/>
+                        <TextBlock Text="20000đ"/>
+                        <Button>
+                            <FontIcon Glyph="&#xE74D;" />
+                        </Button>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock>
+                            <Run Text="Size S"/>
+                            <Run Text=" - "/>
+                            <Run Text="100% Đường"/>
+                            <Run Text=" - "/>
+                            <Run Text="100% Đá"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Thạch trân châu"/>
+                            <Run Text="5000đ"/>
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Thạch dừa"/>
+                            <Run Text="5000đ"/>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
 
             <!-- Khoảng trống -->
             <Border Grid.Row="1"/>
