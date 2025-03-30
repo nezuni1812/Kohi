@@ -28,13 +28,10 @@
             </StackPanel>
         </Grid>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left">
-            <StackPanel Orientation="Vertical">
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                    <TextBlock x:Name="outtext" Text="Ảnh Sản phẩm" TextWrapping="Wrap"/>
-                    <Image x:Name="mypic" Width="150" Height="150" HorizontalAlignment="Left"/>
-                </StackPanel>
-                <AppBarButton Icon="Camera" Width="100" Label="Thêm ảnh" Click="AddImageButton_Click"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Width="500" HorizontalAlignment="Left">
+            <StackPanel Orientation="Vertical" Width="300" HorizontalAlignment="Left">
+                <TextBlock x:Name="outtext" HorizontalAlignment="Left" Text="Ảnh Sản phẩm" Width="Auto" Margin="0,0,0,10"/>
+                <Image x:Name="mypic" HorizontalAlignment="Left" Width="100" Height="100" Margin="10,0,0,0" VerticalAlignment="Top" FocusVisualPrimaryBrush="Black"/>
             </StackPanel>
         </StackPanel>
 

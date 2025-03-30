@@ -17,16 +17,20 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Views\AddNewCategoryPage.xaml" />
+    <None Remove="Views\AddNewIngredientPage.xaml" />
+    <None Remove="Views\AddNewInventoryCheckPage.xaml" />
+    <None Remove="Views\AddNewInventoryInboundPage.xaml" />
+    <None Remove="Views\AddNewInventoryOutboundPage.xaml" />
     <None Remove="Views\AddNewProductPage.xaml" />
     <None Remove="Views\CustomersPage.xaml" />
+    <None Remove="Views\AddNewCustomerPage.xaml" />
+    <None Remove="Views\AddNewSupplierPage.xaml" />
     <None Remove="Views\HomePage.xaml" />
     <None Remove="Views\IngredientsPage.xaml" />
     <None Remove="Views\InventoriesPage.xaml" />
     <None Remove="Views\InventoryCheckPage.xaml" />
-    <None Remove="Views\InventoryDispatchPage.xaml" />
-    <None Remove="Views\InventoryHistoryPage.xaml" />
-    <None Remove="Views\InventoryReceivingPage.xaml" />
     <None Remove="Views\InvoiceReportPage.xaml" />
+    <None Remove="Views\PartnersPage.xaml" />
     <None Remove="Views\ProductReportPage.xaml" />
     <None Remove="Views\Products\CategoriesPage.xaml" />
     <None Remove="Views\Products\ProductsPage.xaml" />
@@ -62,6 +66,7 @@
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.2" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250205002" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.11" />
@@ -82,7 +87,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\CustomersPage.xaml">
+    <Page Update="Views\AddNewCustomerPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AddNewSupplierPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Views\AddNewProductPage.xaml">
@@ -91,10 +99,25 @@
     <Page Update="Views\AddNewCategoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Update="Views\AddNewIngredientPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AddNewInventoryCheckPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AddNewInventoryInboundPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\AddNewInventoryOutboundPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="Views\HomePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
     <Page Update="Views\IngredientsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\PartnersPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Views\InvoiceReportPage.xaml">
@@ -109,16 +132,13 @@
     <Page Update="Views\IncomeExpensePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Views\InventoryHistoryPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Update="Views\InventoryCheckPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Views\InventoryDispatchPage.xaml">
+    <Page Update="Views\InventoryOutboundPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="Views\InventoryReceivingPage.xaml">
+    <Page Update="Views\InventoryInboundPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Views\InventoriesPage.xaml">

@@ -20,8 +20,8 @@ namespace Kohi.ViewModels
         private IDao _dao;
         public FullObservableCollection<CategoryModel> Categories { get; set; }
         public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10; 
-        public int TotalItems { get; set; } 
+        public int PageSize { get; set; } = 10;
+        public int TotalItems { get; set; }
         public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public CategoryViewModel()
         {
@@ -51,8 +51,15 @@ namespace Kohi.ViewModels
                     if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
                         // Tạo đường dẫn đầy đủ
-                        StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-                        item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                        try
+                        {
+                            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                            item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine("Safely skip: " + e.StackTrace);
+                        }
                     }
                 }
                 Categories.Add(item);
@@ -94,7 +101,7 @@ namespace Kohi.ViewModels
             }
             catch (Exception ex)
             {
-                
+
             }
         }
     }
