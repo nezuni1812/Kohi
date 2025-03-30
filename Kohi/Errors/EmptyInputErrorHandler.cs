@@ -22,7 +22,7 @@ namespace Kohi.Errors
             {
                 if (string.IsNullOrWhiteSpace(field.Value))
                 {
-                    errors.Add($"Trường '{field.Key}' không được để trống.");
+                    errors.Add($"⚠ Trường '{field.Key}' không được để trống.");
                 }
             }
 
