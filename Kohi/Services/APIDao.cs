@@ -151,6 +151,11 @@ namespace Kohi.Services
                 }
             }
 
+            public int Insert(CategoryModel info)
+            {
+                return Insert("", info);
+            }
+
             public int UpdateById(string id, CategoryModel info)
             {
                 JObject jsonObject = JObject.FromObject(info);
@@ -302,6 +307,12 @@ namespace Kohi.Services
                 }
                 return 0;
             }
+
+            public int Insert(ProductModel info)
+            {
+                return Insert("", info);
+            }
+
             public int UpdateById(string id, ProductModel info)
             {
                 JObject jsonObject = JObject.FromObject(info);
@@ -445,6 +456,11 @@ namespace Kohi.Services
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
                     return 0;
                 }
+            }
+
+            public int Insert(InventoryModel info)
+            {
+                return Insert("", info);
             }
 
             public int UpdateById(string id, InventoryModel info)
@@ -604,6 +620,11 @@ namespace Kohi.Services
                 return 0;
             }
 
+            public int Insert(IngredientModel info)
+            {
+                return Insert("", info);
+            }
+
             public int UpdateById(string id, IngredientModel info)
             {
                 JObject jsonObject = JObject.FromObject(info);
@@ -745,6 +766,11 @@ namespace Kohi.Services
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
                     return 0;
                 }
+            }
+
+            public int Insert(SupplierModel info)
+            {
+                return Insert("", info);
             }
 
             public int UpdateById(string id, SupplierModel info)
@@ -889,6 +915,12 @@ namespace Kohi.Services
                     return 0;
                 }
             }
+
+            public int Insert(InboundModel info)
+            {
+                throw new NotImplementedException();
+            }
+
             public int UpdateById(string id, InboundModel info)
             {
                 JObject jsonObject = JObject.FromObject(info);
@@ -1031,6 +1063,12 @@ namespace Kohi.Services
                     return 0;
                 }
             }
+
+            public int Insert(OutboundModel info)
+            {
+                return Insert("", info);
+            }
+
             public int UpdateById(string id, OutboundModel info)
             {
                 JObject jsonObject = JObject.FromObject(info);
@@ -1174,6 +1212,12 @@ namespace Kohi.Services
                     return 0;
                 }
             }
+
+            public int Insert(CustomerModel info)
+            {
+                return Insert("", info);
+            }
+
             public int UpdateById(string id, CustomerModel info)
             {
                 JObject jsonObject = JObject.FromObject(info);
@@ -1316,6 +1360,12 @@ namespace Kohi.Services
                     return 0;
                 }
             }
+
+            public int Insert(ExpenseCategoryModel info)
+            {
+                return Insert("", info);
+            }
+
             public int UpdateById(string id, ExpenseCategoryModel info)
             {
                 JObject jsonObject = JObject.FromObject(info);
@@ -1458,6 +1508,12 @@ namespace Kohi.Services
                     return 0;
                 }
             }
+
+            public int Insert(CheckInventoryModel info)
+            {
+                return Insert("", info);
+            }
+
             public int UpdateById(string id, CheckInventoryModel info)
             {
                 JObject jsonObject = JObject.FromObject(info);
