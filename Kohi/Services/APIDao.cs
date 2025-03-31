@@ -16,6 +16,10 @@ namespace Kohi.Services
     {
         private static readonly HttpClient client = new HttpClient();
         private static String baseURL = "http://localhost:3000";
+        private static JsonSerializer serializer = new JsonSerializer
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
 
         private static void LogRequestDetails(HttpRequestMessage request)
         {
@@ -61,12 +65,18 @@ namespace Kohi.Services
 
             public List<CategoryModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_categories != null)
+                {
+                    return _categories;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/categories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<CategoryModel> categories = JsonConvert.DeserializeObject<List<CategoryModel>>(jsonResponse);
+
+                    _categories = categories;
 
                     return categories;
                 }
@@ -120,7 +130,11 @@ namespace Kohi.Services
 
             public int Insert(string id, CategoryModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null) return 0;
+
+                _categories.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Products");
@@ -151,6 +165,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _categories.RemoveAt(_categories.Count - 1);
                     return 0;
                 }
             }
@@ -214,7 +229,10 @@ namespace Kohi.Services
             }
             public List<ProductModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-
+                if (_products != null)
+                {
+                    return _products;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/products?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -274,7 +292,11 @@ namespace Kohi.Services
             public int Insert(string id, ProductModel info)
             {
                 Debug.WriteLine("Insertion");
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null) return 0;
+
+                _products.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Category");
                 jsonObject.Remove("ProductVariants");
@@ -302,13 +324,14 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     product = JsonConvert.DeserializeObject<List<ProductModel>>(responseContent)[0];
                     Debug.WriteLine("Person inserted successfully: " + product.Id);
-                    return product.Id;
+                    return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
                 }
+                _products.RemoveAt(_products.Count - 1);
                 return 0;
             }
 
@@ -347,8 +370,10 @@ namespace Kohi.Services
 
         public class APIInventoryRepository : IRepository<InventoryModel>
         {
+            private List<InventoryModel> _inventories;
+
             public APIInventoryRepository() { }
-            public APIInventoryRepository(List<InventoryModel> list) { }
+            public APIInventoryRepository(List<InventoryModel> list) { _inventories = list; }
 
             public int DeleteById(string id)
             {
@@ -368,12 +393,18 @@ namespace Kohi.Services
 
             public List<InventoryModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_inventories != null)
+                {
+                    return _inventories;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/inventories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<InventoryModel> inventories = JsonConvert.DeserializeObject<List<InventoryModel>>(jsonResponse);
+
+                    _inventories = inventories;
 
                     return inventories;
                 }
@@ -427,7 +458,14 @@ namespace Kohi.Services
 
             public int Insert(string id, InventoryModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+
+                _inventories.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Inbound");
@@ -458,6 +496,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _inventories.RemoveAt(_inventories.Count - 1);
                     return 0;
                 }
             }
@@ -507,8 +546,9 @@ namespace Kohi.Services
 
         public class APIIngredientRepository : IRepository<IngredientModel>
         {
+            private List<IngredientModel> _ingredients;
             public APIIngredientRepository() { }
-            public APIIngredientRepository(List<IngredientModel> list) { }
+            public APIIngredientRepository(List<IngredientModel> list) { _ingredients = list; }
             public int DeleteById(string id)
             {
                 var reponse = client.DeleteAsync($"{baseURL}/ingredients?id=eq.{id}").Result;
@@ -527,6 +567,10 @@ namespace Kohi.Services
 
             public List<IngredientModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_ingredients != null)
+                {
+                    return _ingredients;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/ingredients?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -534,7 +578,7 @@ namespace Kohi.Services
 
                     List<IngredientModel> ingredients = JsonConvert.DeserializeObject<List<IngredientModel>>(jsonResponse);
 
-                    //_ingredients = ingredients;
+                    _ingredients = ingredients;
 
                     return ingredients;
                 }
@@ -588,7 +632,11 @@ namespace Kohi.Services
             public int Insert(string id, IngredientModel info)
             {
                 Debug.WriteLine("Insertion");
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null) return 0;
+
+                _ingredients.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 JObject newJsonObject = new JObject();
@@ -620,6 +668,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _ingredients.RemoveAt(_ingredients.Count - 1);
                 }
                 return 0;
             }
@@ -657,8 +706,9 @@ namespace Kohi.Services
 
         public class APISupplierRepository : IRepository<SupplierModel>
         {
+            private List<SupplierModel> _suppliers;
             public APISupplierRepository() { }
-            public APISupplierRepository(List<SupplierModel> list) { }
+            public APISupplierRepository(List<SupplierModel> list) { _suppliers = list; }
 
             public int DeleteById(string id)
             {
@@ -678,12 +728,18 @@ namespace Kohi.Services
 
             public List<SupplierModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_suppliers != null)
+                {
+                    return _suppliers;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/suppliers?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<SupplierModel> suppliers = JsonConvert.DeserializeObject<List<SupplierModel>>(jsonResponse);
+
+                    _suppliers = suppliers;
 
                     return suppliers;
                 }
@@ -737,7 +793,11 @@ namespace Kohi.Services
 
             public int Insert(string id, SupplierModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null) return 0;
+
+                _suppliers.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Inbounds");
@@ -768,6 +828,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _suppliers.RemoveAt(_suppliers.Count - 1);
                     return 0;
                 }
             }
@@ -806,8 +867,9 @@ namespace Kohi.Services
 
         public class APIInboundRepository : IRepository<InboundModel>
         {
+            private List<InboundModel> _inbounds;
             public APIInboundRepository() { }
-            public APIInboundRepository(List<InboundModel> list) { }
+            public APIInboundRepository(List<InboundModel> list) { _inbounds = list; }
 
             public int DeleteById(string id)
             {
@@ -827,12 +889,18 @@ namespace Kohi.Services
 
             public List<InboundModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_inbounds != null)
+                {
+                    return _inbounds;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/inbounds?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<InboundModel> inbounds = JsonConvert.DeserializeObject<List<InboundModel>>(jsonResponse);
+
+                    _inbounds = inbounds;
 
                     return inbounds;
                 }
@@ -885,10 +953,15 @@ namespace Kohi.Services
             }
             public int Insert(string id, InboundModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null) return 0;
+
+                _inbounds.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
-                jsonObject.Remove("Inventories");
+                jsonObject.Remove("Ingredient");
+                jsonObject.Remove("Supplier");
                 JObject newJsonObject = new JObject();
                 //keys must match with the columns in the database (lowercase)
                 foreach (var pair in jsonObject.Properties())
@@ -916,6 +989,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _inbounds.RemoveAt(_inbounds.Count - 1);
                     return 0;
                 }
             }
@@ -954,8 +1028,9 @@ namespace Kohi.Services
 
         public class APIOutboundRepository : IRepository<OutboundModel>
         {
+            private List<OutboundModel> _outbounds;
             public APIOutboundRepository() { }
-            public APIOutboundRepository(List<OutboundModel> list) { }
+            public APIOutboundRepository(List<OutboundModel> list) { _outbounds = list; }
 
             public int DeleteById(string id)
             {
@@ -975,12 +1050,18 @@ namespace Kohi.Services
 
             public List<OutboundModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_outbounds != null)
+                {
+                    return _outbounds;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/outbounds?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<OutboundModel> outbounds = JsonConvert.DeserializeObject<List<OutboundModel>>(jsonResponse);
+
+                    _outbounds = outbounds;
 
                     return outbounds;
                 }
@@ -1033,10 +1114,17 @@ namespace Kohi.Services
             }
             public int Insert(string id, OutboundModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+
+                _outbounds.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
-                jsonObject.Remove("Inventories");
+                jsonObject.Remove("Inventory");
                 JObject newJsonObject = new JObject();
                 //keys must match with the columns in the database (lowercase)
                 foreach (var pair in jsonObject.Properties())
@@ -1064,6 +1152,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _outbounds.RemoveAt(_outbounds.Count - 1);
                     return 0;
                 }
             }
@@ -1102,8 +1191,9 @@ namespace Kohi.Services
 
         public class APICustomerRepository : IRepository<CustomerModel>
         {
+            private List<CustomerModel> _customers;
             public APICustomerRepository() { }
-            public APICustomerRepository(List<CustomerModel> list) { }
+            public APICustomerRepository(List<CustomerModel> list) { _customers = list; }
 
             public int DeleteById(string id)
             {
@@ -1123,12 +1213,18 @@ namespace Kohi.Services
 
             public List<CustomerModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_customers != null)
+                {
+                    return _customers;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/customers?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<CustomerModel> customers = JsonConvert.DeserializeObject<List<CustomerModel>>(jsonResponse);
+
+                    _customers = customers;
 
                     return customers;
                 }
@@ -1182,7 +1278,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, CustomerModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+
+                _customers.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Invoices");
@@ -1213,6 +1316,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _customers.RemoveAt(_customers.Count - 1);
                     return 0;
                 }
             }
@@ -1251,8 +1355,9 @@ namespace Kohi.Services
 
         public class APIExpenseCategoryRepository : IRepository<ExpenseCategoryModel>
         {
+            private List<ExpenseCategoryModel> _expenseCategories;
             public APIExpenseCategoryRepository() { }
-            public APIExpenseCategoryRepository(List<ExpenseCategoryModel> list) { }
+            public APIExpenseCategoryRepository(List<ExpenseCategoryModel> list) { _expenseCategories = list; }
 
             public int DeleteById(string id)
             {
@@ -1272,12 +1377,18 @@ namespace Kohi.Services
 
             public List<ExpenseCategoryModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_expenseCategories != null)
+                {
+                    return _expenseCategories;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/expensecategories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<ExpenseCategoryModel> expenseCategories = JsonConvert.DeserializeObject<List<ExpenseCategoryModel>>(jsonResponse);
+
+                    _expenseCategories = expenseCategories;
 
                     return expenseCategories;
                 }
@@ -1330,7 +1441,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, ExpenseCategoryModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+
+                _expenseCategories.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Expenses");
@@ -1361,6 +1479,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _expenseCategories.RemoveAt(_expenseCategories.Count - 1);
                     return 0;
                 }
             }
@@ -1399,8 +1518,9 @@ namespace Kohi.Services
 
         public class APICheckInventoryRepository : IRepository<CheckInventoryModel>
         {
+            private List<CheckInventoryModel> _checkInventories;
             public APICheckInventoryRepository() { }
-            public APICheckInventoryRepository(List<CheckInventoryModel> list) { }
+            public APICheckInventoryRepository(List<CheckInventoryModel> list) { _checkInventories = list; }
 
             public int DeleteById(string id)
             {
@@ -1420,12 +1540,18 @@ namespace Kohi.Services
 
             public List<CheckInventoryModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_checkInventories != null)
+                {
+                    return _checkInventories;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/checkinventories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<CheckInventoryModel> checkInventories = JsonConvert.DeserializeObject<List<CheckInventoryModel>>(jsonResponse);
+
+                    _checkInventories = checkInventories;
 
                     return checkInventories;
                 }
@@ -1478,10 +1604,18 @@ namespace Kohi.Services
             }
             public int Insert(string id, CheckInventoryModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+
+                _checkInventories.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
-                jsonObject.Remove("Inventories");
+                jsonObject.Remove("Inventory");
+                jsonObject.Remove("Discrepancy");
                 JObject newJsonObject = new JObject();
                 //keys must match with the columns in the database (lowercase)
                 foreach (var pair in jsonObject.Properties())
@@ -1509,6 +1643,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _checkInventories.RemoveAt(_checkInventories.Count - 1);
                     return 0;
                 }
             }
@@ -1549,8 +1684,9 @@ namespace Kohi.Services
 
         public class APIProductVariantRepository : IRepository<ProductVariantModel>
         {
+            private List<ProductVariantModel> _productVariants;
             public APIProductVariantRepository() { }
-            public APIProductVariantRepository(List<ProductVariantModel> list) { }
+            public APIProductVariantRepository(List<ProductVariantModel> list) { _productVariants = list; }
 
             public int DeleteById(string id)
             {
@@ -1570,12 +1706,18 @@ namespace Kohi.Services
 
             public List<ProductVariantModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_productVariants != null)
+                {
+                    return _productVariants;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/productvariants?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<ProductVariantModel> productVariants = JsonConvert.DeserializeObject<List<ProductVariantModel>>(jsonResponse);
+
+                    _productVariants = productVariants;
 
                     return productVariants;
                 }
@@ -1628,7 +1770,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, ProductVariantModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+
+                _productVariants.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Product");
@@ -1663,6 +1812,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _productVariants.RemoveAt(_productVariants.Count - 1);
                     return 0;
                 }
             }
@@ -1707,8 +1857,9 @@ namespace Kohi.Services
 
         public class APIExpenseRepository : IRepository<ExpenseModel>
         {
+            private List<ExpenseModel> _expenses;
             public APIExpenseRepository() { }
-            public APIExpenseRepository(List<ExpenseModel> list) { }
+            public APIExpenseRepository(List<ExpenseModel> list) { _expenses = list; }
 
             public int DeleteById(string id)
             {
@@ -1728,12 +1879,18 @@ namespace Kohi.Services
 
             public List<ExpenseModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_expenses != null)
+                {
+                    return _expenses;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/expenses?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<ExpenseModel> expenses = JsonConvert.DeserializeObject<List<ExpenseModel>>(jsonResponse);
+
+                    _expenses = expenses;
 
                     return expenses;
                 }
@@ -1786,7 +1943,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, ExpenseModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+
+                _expenses.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("ExpenseCategory");
@@ -1818,6 +1982,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _expenses.RemoveAt(_expenses.Count - 1);
                     return 0;
                 }
             }
@@ -1856,9 +2021,9 @@ namespace Kohi.Services
 
         public class APIInvoiceRepository : IRepository<InvoiceModel>
         {
-
+            private List<InvoiceModel> _invoices;
             public APIInvoiceRepository() { }
-            public APIInvoiceRepository(List<InvoiceModel> list) { }
+            public APIInvoiceRepository(List<InvoiceModel> list) { _invoices = list; }
 
             public int DeleteById(string id)
             {
@@ -1878,6 +2043,10 @@ namespace Kohi.Services
 
             public List<InvoiceModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_invoices != null)
+                {
+                    return _invoices;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoices?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1885,6 +2054,7 @@ namespace Kohi.Services
 
                     List<InvoiceModel> invoices = JsonConvert.DeserializeObject<List<InvoiceModel>>(jsonResponse);
 
+                    _invoices = invoices;
                     return invoices;
                 }
                 else
@@ -1936,10 +2106,18 @@ namespace Kohi.Services
             }
             public int Insert(string id, InvoiceModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+
+                _invoices.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Customer");
+                jsonObject.Remove("InvoiceDetails");
 
                 JObject newJsonObject = new JObject();
                 //keys must match with the columns in the database (lowercase)
@@ -1968,6 +2146,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _invoices.RemoveAt(_invoices.Count - 1);
                     return 0;
                 }
             }
@@ -2005,8 +2184,9 @@ namespace Kohi.Services
 
         public class APIInvoiceDetailRepository : IRepository<InvoiceDetailModel>
         {
+            private List<InvoiceDetailModel> _invoiceDetails;
             public APIInvoiceDetailRepository() { }
-            public APIInvoiceDetailRepository(List<InvoiceDetailModel> list) { }
+            public APIInvoiceDetailRepository(List<InvoiceDetailModel> list) { _invoiceDetails = list; }
 
             public int DeleteById(string id)
             {
@@ -2026,12 +2206,18 @@ namespace Kohi.Services
 
             public List<InvoiceDetailModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_invoiceDetails != null)
+                {
+                    return _invoiceDetails;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicedetails?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<InvoiceDetailModel> invoiceDetails = JsonConvert.DeserializeObject<List<InvoiceDetailModel>>(jsonResponse);
+
+                    _invoiceDetails = invoiceDetails;
 
                     return invoiceDetails;
                 }
@@ -2084,7 +2270,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, InvoiceDetailModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+                
+                _invoiceDetails.Add(info);
+                
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Invoice");
@@ -2118,6 +2311,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _invoiceDetails.RemoveAt(_invoiceDetails.Count - 1);
                     return 0;
                 }
             }
@@ -2160,8 +2354,9 @@ namespace Kohi.Services
 
         public class APIRecipeDetailRepository : IRepository<RecipeDetailModel>
         {
+            private List<RecipeDetailModel> _recipeDetails;
             public APIRecipeDetailRepository() { }
-            public APIRecipeDetailRepository(List<RecipeDetailModel> list) { }
+            public APIRecipeDetailRepository(List<RecipeDetailModel> list) { _recipeDetails = list; }
 
             public int DeleteById(string id)
             {
@@ -2181,12 +2376,18 @@ namespace Kohi.Services
 
             public List<RecipeDetailModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_recipeDetails != null)
+                {
+                    return _recipeDetails;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/recipedetails?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<RecipeDetailModel> recipeDetails = JsonConvert.DeserializeObject<List<RecipeDetailModel>>(jsonResponse);
+
+                    _recipeDetails = recipeDetails;
 
                     return recipeDetails;
                 }
@@ -2239,7 +2440,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, RecipeDetailModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+                
+                _recipeDetails.Add(info);
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("ProductVariant");
@@ -2272,6 +2480,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _recipeDetails.RemoveAt(_recipeDetails.Count - 1);
                     return 0;
                 }
             }
@@ -2312,8 +2521,9 @@ namespace Kohi.Services
 
         public class APIPaymentRepository : IRepository<PaymentModel>
         {
+            private List<PaymentModel> _payments;
             public APIPaymentRepository() { }
-            public APIPaymentRepository(List<PaymentModel> list) { }
+            public APIPaymentRepository(List<PaymentModel> list) { _payments = list; }
 
             public int DeleteById(string id)
             {
@@ -2333,12 +2543,18 @@ namespace Kohi.Services
 
             public List<PaymentModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_payments != null)
+                {
+                    return _payments;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/payments?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<PaymentModel> payments = JsonConvert.DeserializeObject<List<PaymentModel>>(jsonResponse);
+
+                    _payments = payments;
 
                     return payments;
                 }
@@ -2377,8 +2593,7 @@ namespace Kohi.Services
             {
                 client.DefaultRequestHeaders.Add("Prefer", "count=exact");
                 var response = client.GetAsync($"{baseURL}/payments").Result;
-                if (response
-.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
                     int total = Int32.Parse(response.Content.Headers.GetValues("Content-Range").FirstOrDefault().Split('/')[^1]);
                     return total;
@@ -2392,7 +2607,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, PaymentModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+                
+                _payments.Add(info);
+                
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Invoice");
@@ -2424,6 +2646,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _payments.RemoveAt(_payments.Count - 1);
                     return 0;
                 }
             }
@@ -2462,8 +2685,9 @@ namespace Kohi.Services
 
         public class APIOrderToppingRepository : IRepository<OrderToppingModel>
         {
+            private List<OrderToppingModel> _orderToppings;
             public APIOrderToppingRepository() { }
-            public APIOrderToppingRepository(List<OrderToppingModel> list) { }
+            public APIOrderToppingRepository(List<OrderToppingModel> list) { _orderToppings = list; }
 
             public int DeleteById(string id)
             {
@@ -2483,12 +2707,18 @@ namespace Kohi.Services
 
             public List<OrderToppingModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_orderToppings != null)
+                {
+                    return _orderToppings;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/ordertoppings?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<OrderToppingModel> orderToppings = JsonConvert.DeserializeObject<List<OrderToppingModel>>(jsonResponse);
+
+                    _orderToppings = orderToppings;
 
                     return orderToppings;
                 }
@@ -2541,7 +2771,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, OrderToppingModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+                
+                _orderToppings.Add(info);
+                
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("InvoiceDetail");
@@ -2574,6 +2811,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _orderToppings.RemoveAt(_orderToppings.Count - 1);
                     return 0;
                 }
             }
@@ -2613,8 +2851,9 @@ namespace Kohi.Services
 
         public class APITaxRepository : IRepository<TaxModel>
         {
+            private List<TaxModel> _taxes;
             public APITaxRepository() { }
-            public APITaxRepository(List<TaxModel> list) { }
+            public APITaxRepository(List<TaxModel> list) { _taxes = list; }
 
             public int DeleteById(string id)
             {
@@ -2634,12 +2873,18 @@ namespace Kohi.Services
 
             public List<TaxModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_taxes != null)
+                {
+                    return _taxes;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/taxes?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<TaxModel> taxes = JsonConvert.DeserializeObject<List<TaxModel>>(jsonResponse);
+
+                    _taxes = taxes;
 
                     return taxes;
                 }
@@ -2692,7 +2937,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, TaxModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+                
+                _taxes.Add(info);
+                
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
 
@@ -2723,6 +2975,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _taxes.RemoveAt(_taxes.Count - 1);
                     return 0;
                 }
             }
@@ -2760,8 +3013,9 @@ namespace Kohi.Services
 
         public class APIInvoiceTaxRepository : IRepository<InvoiceTaxModel>
         {
+            private List<InvoiceTaxModel> _invoiceTaxes;
             public APIInvoiceTaxRepository() { }
-            public APIInvoiceTaxRepository(List<InvoiceTaxModel> list) { }
+            public APIInvoiceTaxRepository(List<InvoiceTaxModel> list) { _invoiceTaxes = list; }
 
             public int DeleteById(string id)
             {
@@ -2781,12 +3035,18 @@ namespace Kohi.Services
 
             public List<InvoiceTaxModel> GetAll(int pageNumber = 1, int pageSize = 10, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                if (_invoiceTaxes != null)
+                {
+                    return _invoiceTaxes;
+                }
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicetaxes?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
 
                     List<InvoiceTaxModel> invoiceTaxes = JsonConvert.DeserializeObject<List<InvoiceTaxModel>>(jsonResponse);
+
+                    _invoiceTaxes = invoiceTaxes;
 
                     return invoiceTaxes;
                 }
@@ -2839,7 +3099,14 @@ namespace Kohi.Services
             }
             public int Insert(string id, InvoiceTaxModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (info == null)
+                {
+                    return 0;
+                }
+                
+                _invoiceTaxes.Add(info);
+                
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Invoice");
@@ -2872,6 +3139,7 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
+                    _invoiceTaxes.RemoveAt(_invoiceTaxes.Count - 1);
                     return 0;
                 }
             }
