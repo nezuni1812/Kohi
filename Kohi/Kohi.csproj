@@ -26,6 +26,7 @@
     <None Remove="Views\AddNewCustomerPage.xaml" />
     <None Remove="Views\AddNewSupplierPage.xaml" />
     <None Remove="Views\HomePage.xaml" />
+    <None Remove="Views\IncomeExpenseCategoriesPage.xaml" />
     <None Remove="Views\IngredientsPage.xaml" />
     <None Remove="Views\InventoriesPage.xaml" />
     <None Remove="Views\InventoryCheckPage.xaml" />
@@ -114,7 +115,7 @@
     <None Update="Views\HomePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
-    <Page Update="Views\PartnersPage.xaml">
+    <Page Update="Views\IncomeExpenseCategoriesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Views\IngredientsPage.xaml">

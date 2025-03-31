@@ -88,10 +88,22 @@
                         <NavigationViewItem Icon="Shop" Content="Kiểm kê kho" Tag="Kohi.Views.InventoryCheckPage"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Thu chi" Tag="Kohi.Views.IncomeExpensePage">
+                <NavigationViewItem Content="Thu chi">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xEC59;" />
                     </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Danh sách phiếu thu chi" Tag="Kohi.Views.IncomeExpensePage">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEC59;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Danh mục thu chi" Tag="Kohi.Views.IncomeExpenseCategoriesPage">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEC59;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Icon="Page" Content="Báo cáo" IsExpanded="True" >
                     <NavigationViewItem.MenuItems>
