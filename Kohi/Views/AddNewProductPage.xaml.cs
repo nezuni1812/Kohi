@@ -22,6 +22,7 @@ using Windows.Storage.Streams;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Kohi.Services;
+using Kohi.Errors;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -39,6 +40,9 @@ namespace Kohi.Views
         public AddNewProductViewModel ViewModel { get; set; } = new AddNewProductViewModel();
 
         private StorageFile selectedImageFile;
+
+        private readonly IErrorHandler _errorHandler;
+
         public AddNewProductPage()
         {
             this.InitializeComponent();
@@ -47,6 +51,17 @@ namespace Kohi.Views
             {
                 ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
             }
+            // Danh sách các trường cần kiểm tra số hợp lệ
+            var numericFields = new List<string> { "Price", "Cost", "Quantity"};
+
+            // Khởi tạo các Error Handler
+            var emptyInputHandler = new EmptyInputErrorHandler();
+            var positiveNumberValidationHandler = new PositiveNumberValidationErrorHandler(numericFields);
+
+            // Nối chuỗi xử lý lỗi
+            emptyInputHandler.SetNext(positiveNumberValidationHandler);
+            _errorHandler = emptyInputHandler;
+
         }
         private async void AddImageButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
@@ -128,43 +143,68 @@ namespace Kohi.Views
 
             // Lấy CategoryModel được chọn từ ComboBox
             var selectedCategory = CategoryProductComboBox.SelectedItem as CategoryModel;
-
-            // Kiểm tra dữ liệu bắt buộc
-            if (selectedCategory == null || string.IsNullOrWhiteSpace(ProductNameTextBox.Text))
+            
+            List<string> errors = new List<string>();
+            string categoryName = "";
+            if (selectedCategory is not null)
             {
-                Debug.WriteLine("Lỗi: Vui lòng nhập tên sản phẩm và chọn nhóm sản phẩm!");
+                categoryName = selectedCategory.Name;
+            }
+
+            var fields = new Dictionary<string, string>
+            {
+                { "Tên danh mục", categoryName },
+                { "Hình sản phẩm", imgName },
+                { "Tên sản phẩm", ProductNameTextBox.Text },
+            };
+
+            List<string> validationErrors = _errorHandler?.HandleError(fields) ?? new List<string>();
+            errors.AddRange(validationErrors);
+
+            if (HasErrors(errors))
+            {
                 return;
             }
 
-            // Tạo ProductModel từ dữ liệu nhập
-            var product = new ProductModel
-            {
-                Name = ProductNameTextBox.Text,
-                ImageUrl = imgName,
-                CategoryId = selectedCategory.Id,
-                IsActive = IsActiveCheckBox.IsChecked == true,
-                IsTopping = (bool)IsToppingCheckBox.IsChecked,
-                Description = DescriptionTextBox.Text,
-                Category = selectedCategory, // Gán Category từ selectedCategory thay vì khởi tạo mới
-                ProductVariants = new List<ProductVariantModel>() // Khởi tạo danh sách Variants
-            };
-
             try
             {
+                var product = new ProductModel
+                {
+                    Name = ProductNameTextBox.Text,
+                    ImageUrl = imgName,
+                    CategoryId = selectedCategory.Id,
+                    IsActive = IsActiveCheckBox.IsChecked == true,
+                    IsTopping = (bool)IsToppingCheckBox.IsChecked,
+                    Description = DescriptionTextBox.Text,
+                    Category = selectedCategory, // Gán Category từ selectedCategory thay vì khởi tạo mới
+                    ProductVariants = new List<ProductVariantModel>() // Khởi tạo danh sách Variants
+                };
+
                 // Lưu Variants và RecipeDetails vào ProductModel trước khi lưu
                 if (ViewModel.Variants.Any())
                 {
                     foreach (var variantVM in ViewModel.Variants)
                     {
                         // Kiểm tra dữ liệu Variant
-                        if (string.IsNullOrWhiteSpace(variantVM.Size) || variantVM.Price < 0 || variantVM.Cost < 0)
+                        //if (string.IsNullOrWhiteSpace(variantVM.Size) || variantVM.Price < 0 || variantVM.Cost < 0)
+                        //{
+                        //    Debug.WriteLine("Lỗi: Vui lòng nhập đầy đủ thông tin kích cỡ (Tên, Giá bán, Giá nhập)!");
+                        //    return;
+                        //}
+                        var variantFields = new Dictionary<string, string>
+                            {
+                                { "Size", variantVM.Size },
+                                { "Price", variantVM.Price.ToString() },
+                                { "Cost", variantVM.Cost.ToString() }
+                            };
+
+                        List<string> variantErrors = _errorHandler?.HandleError(variantFields) ?? new List<string>();
+                        errors.AddRange(variantErrors);
+
+                        if (HasErrors(errors))
                         {
-                            Debug.WriteLine("Lỗi: Vui lòng nhập đầy đủ thông tin kích cỡ (Tên, Giá bán, Giá nhập)!");
                             return;
                         }
-
-                        // In thông tin Variant để debug
-                        System.Diagnostics.Debug.WriteLine($"Variant - Size: {variantVM.Size}, Price: {variantVM.Price}, Cost: {variantVM.Cost}");
 
                         // Tạo ProductVariantModel
                         var variant = new ProductVariantModel
@@ -183,15 +223,19 @@ namespace Kohi.Views
                         {
                             foreach (var recipeVM in variantVM.RecipeDetails)
                             {
-                                // Kiểm tra dữ liệu RecipeDetail
-                                if (recipeVM.Ingredient == null || recipeVM.Quantity <= 0)
+                                var recipeFields = new Dictionary<string, string>
                                 {
-                                    Debug.WriteLine("Lỗi: Vui lòng chọn nguyên vật liệu và nhập số lượng hợp lệ!");
+                                    { "Ingredient", recipeVM.Ingredient?.Name ?? "" },
+                                    { "Quantity", recipeVM.Quantity.ToString() }
+                                };
+
+                                List<string> recipeErrors = _errorHandler?.HandleError(recipeFields) ?? new List<string>();
+                                errors.AddRange(recipeErrors);
+
+                                if (HasErrors(errors))
+                                {
                                     return;
                                 }
-
-                                // In thông tin RecipeDetail để debug
-                                System.Diagnostics.Debug.WriteLine($"RecipeDetail - Ingredient: {recipeVM.Ingredient.Name}, Quantity: {recipeVM.Quantity}, Unit: {recipeVM.Unit}");
 
                                 // Tạo RecipeDetailModel
                                 var recipe = new RecipeDetailModel
@@ -247,6 +291,25 @@ namespace Kohi.Views
             }
         }
 
+        public bool PrintErrors(List<string> errors)
+        {
+            if (errors.Any())
+            {
+                Debug.WriteLine(string.Join("\n", errors));
+                return true; // Có lỗi
+            }
+            else
+            {
+                Debug.WriteLine("✅ Dữ liệu hợp lệ!");
+                return false; // Không có lỗi
+            }
+        }
+
+        // Thêm hàm Helper để kiểm tra và in lỗi, trả về true nếu có lỗi
+        private bool HasErrors(List<string> errors)
+        {
+            return PrintErrors(errors);
+        }
         private void AddVariantButton_Click(object sender, RoutedEventArgs e)
         {
             if (IsToppingCheckBox.IsChecked != true)
