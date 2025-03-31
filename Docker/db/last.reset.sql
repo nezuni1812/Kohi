@@ -1,0 +1,18 @@
+-- DO
+-- $$
+-- DECLARE
+--     sequence_name text;
+-- BEGIN
+--     -- Loop through all sequences related to SERIAL columns in the 'public' schema
+--     FOR sequence_name IN
+--         SELECT pg_get_serial_sequence(table_name, column_name)
+--         FROM information_schema.columns
+--         WHERE table_schema = 'public'  -- Specify the schema name (e.g., 'public')
+--           AND column_default LIKE 'nextval%'  -- Filters columns with SERIAL sequences
+--     LOOP
+--         -- Reset the sequence to the maximum value of the corresponding table's Id column
+--         EXECUTE format('SELECT setval(%L, COALESCE((SELECT MAX(Id) FROM %I), 1), false)', 
+--                        sequence_name, sequence_name);
+--     END LOOP;
+-- END;
+-- $$;
