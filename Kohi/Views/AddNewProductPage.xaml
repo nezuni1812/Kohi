@@ -78,7 +78,7 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
-                            <CheckBox x:Name="IsToppingCheckBox" Content="Mặt hàng là Topping" />
+                            <CheckBox x:Name="IsToppingCheckBox" Content="Mặt hàng là Topping" Checked="IsToppingCheckBox_Checked" Unchecked="IsToppingCheckBox_Unchecked"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
@@ -200,7 +200,7 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
-                        <Button Click="AddVariantButton_Click" Margin="0,10,0,10" Style="{ThemeResource AccentButtonStyle}">
+                        <Button x:Name="AddVariantButton" Click="AddVariantButton_Click" Margin="0,10,0,10" Style="{ThemeResource AccentButtonStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <FontIcon Glyph="&#xE710;" Margin="0,0,5,0" FontSize="14"/>
                                 <TextBlock Text="Thêm kích cỡ sản phẩm"/>
