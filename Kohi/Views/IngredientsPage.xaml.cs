@@ -177,6 +177,7 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                IngredientViewModel.Delete(selectedIngredientId.ToString());
                 Debug.WriteLine($"Đã xóa nguyên vật liệu ID: {selectedIngredientId}");
             }
             else

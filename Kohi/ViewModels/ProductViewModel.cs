@@ -162,5 +162,29 @@ namespace Kohi.ViewModels
                 Debug.WriteLine(ex);
             }
         }
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.Products.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, ProductModel product)
+        {
+            try
+            {
+                int result = _dao.Products.UpdateById(id, product);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }

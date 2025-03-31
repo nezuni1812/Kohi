@@ -65,5 +65,41 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+        public async Task Add(IngredientModel ingredient)
+        {
+            try
+            {
+                int result = _dao.Ingredients.Insert(ingredient);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.Ingredients.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, IngredientModel ingredient)
+        {
+            try
+            {
+                int result = _dao.Ingredients.UpdateById(id, ingredient);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }
