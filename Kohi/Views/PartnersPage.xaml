@@ -22,6 +22,104 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
+        <ContentDialog x:Name="SupplierDialog"
+            Title="Thêm nhà cung cấp mới"
+            CloseButtonText="Đóng"
+            PrimaryButtonText="Xác nhận"
+            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+            PrimaryButtonClick="SupplierDialog_PrimaryButtonClick"
+            CloseButtonClick="SupplierDialog_CloseButtonClick"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <Grid Grid.Row="1" ColumnSpacing="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Tên"/>
+                        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox x:Name="supplierName" PlaceholderText="Nhập họ và tên"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Số điện thoại"/>
+                        <!--Run Text="*" Foreground="Red"/-->
+                    </TextBlock>
+                    <TextBox x:Name="supplierPhone" PlaceholderText="Nhập số điện thoại"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Email"/>
+                        <!--Run Text="*" Foreground="Red"/-->
+                    </TextBlock>
+                    <TextBox x:Name="supplierEmail" PlaceholderText="Nhập email"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Địa chỉ"/>
+                    </TextBlock>
+                    <TextBox x:Name="supplierAddress" PlaceholderText="Nhập địa chỉ"/>
+                </StackPanel>
+            </Grid>
+        </ContentDialog>
+
+        <ContentDialog x:Name="CustomerDialog"
+            Title="Thêm khách hàng mới"
+            CloseButtonText="Đóng"
+            PrimaryButtonText="Xác nhận"
+            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+            PrimaryButtonClick="CustomerDialog_PrimaryButtonClick"
+            CloseButtonClick="CustomerDialog_CloseButtonClick"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <Grid Grid.Row="1" ColumnSpacing="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Họ và tên"/>
+                <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox x:Name="customerName" PlaceholderText="Nhập họ và tên"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                        <Run Text="Số điện thoại"/>
+                        <!--Run Text="*" Foreground="Red"/-->
+                    </TextBlock>
+                    <TextBox x:Name="customerPhone" PlaceholderText="Nhập số điện thoại"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Email"/>
+                    <!--Run Text="*" Foreground="Red"/-->
+                    </TextBlock>
+                    <TextBox x:Name="customerEmail" PlaceholderText="Nhập email"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Địa chỉ"/>
+                    </TextBlock>
+                    <TextBox x:Name="customerAddress" PlaceholderText="Nhập địa chỉ"/>
+                </StackPanel>
+            </Grid>
+        </ContentDialog>
+        
         <TextBlock Grid.Row="0" Text="Danh sách đối tác" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
 
         <SelectorBar Grid.Row="1" Grid.Column="0" x:Name="SelectorBar" SelectionChanged="SelectorBar_SelectionChanged" >
@@ -52,22 +150,26 @@
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
-        <!--Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
-        CornerRadius="{ThemeResource ControlCornerRadius}">
-            <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-            </ListBox>
-        </Border-->
-
-        <Button x:Name="addButton" Grid.Row="4" Click="addButton_click" Style="{StaticResource PrimaryButtonStyle}">
-            <StackPanel Orientation="Horizontal">
-                <FontIcon Glyph="&#xE710;" FontSize="14"/>
-                <TextBlock x:Name="addButtonTextBlock" Text="Thêm khách hàng" Margin="5,0,0,0"/>
-            </StackPanel>
-        </Button>
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Width="Auto">
+            <Button x:Name="editButton" Style="{ThemeResource AccentButtonStyle}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE70F;" FontSize="14"/>
+                    <TextBlock x:Name="editButtonTextBlock" Text="Chỉnh sửa khách hàng" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="deleteButton" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                    <TextBlock x:Name="deleteButtonTextBlock" Text="Xóa khách hàng" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <Button x:Name="addButton" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="&#xE710;" FontSize="14"/>
+                    <TextBlock x:Name="addButtonTextBlock" Text="Thêm khách hàng" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        
     </Grid>
 </Page>

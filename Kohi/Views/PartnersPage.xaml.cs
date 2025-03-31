@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using WinUI.TableView;
@@ -41,15 +42,28 @@ namespace Kohi.Views
             {
                 MyTableView.ItemsSource = CustomerViewModel.Customers;
                 addButtonTextBlock.Text = "Thêm khách hàng";
-                addButton.Click -= AddSupplier_Click;
-                addButton.Click += AddCustomer_Click;
+                addButton.Click -= showAddSupplierDialog_Click;
+                addButton.Click += showAddCustomerDialog_Click;
+
+                deleteButtonTextBlock.Text = "Xóa khách hàng";
+                deleteButton.Click -= ShowDeleteSupplierDialog;
+                deleteButton.Click += ShowDeleteCustomerDialog;
+
+                editButtonTextBlock.Text = "Chỉnh sửa khách hàng";
             }
             else if (sender.SelectedItem == SupplierSelectorBar)
             {
                 MyTableView.ItemsSource = SupplierViewModel.Suppliers;
                 addButtonTextBlock.Text = "Thêm nhà cung cấp";
-                addButton.Click -= AddCustomer_Click;
-                addButton.Click += AddSupplier_Click;
+                addButton.Click -= showAddCustomerDialog_Click;
+                addButton.Click += showAddSupplierDialog_Click;
+
+                deleteButtonTextBlock.Text = "Xóa nhà cung cấp";
+                deleteButton.Click -= ShowDeleteCustomerDialog;
+                deleteButton.Click += ShowDeleteSupplierDialog;
+
+                editButtonTextBlock.Text = "Chỉnh sửa nhà cung cấp";
+
             }
         }
 
@@ -62,21 +76,106 @@ namespace Kohi.Views
             }
         }
 
-        private void AddCustomer_Click(object sender, RoutedEventArgs e)
-        {
-            Frame.Navigate(typeof(AddNewCustomerPage));
-        }
-
-        private void AddSupplier_Click(object sender, RoutedEventArgs e)
-        {
-            Frame.Navigate(typeof(AddNewSupplierPage));
-        }
         private void addButton_click(object sender, RoutedEventArgs e)
         {
-            //Frame rootFrame = new Frame();
-            //this.Content = rootFrame;
 
-            //rootFrame.Navigate(typeof(AddNewSupplierPage), null);
+        }
+
+        private void SupplierDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            args.Cancel = true;
+        }
+
+        private void SupplierDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+
+        }
+        private void CustomerDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            args.Cancel = true;
+        }
+
+        private void CustomerDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+
+        }
+
+        public async void showAddSupplierDialog_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("showAddSupplierDialog_Click triggered");
+            var result = await SupplierDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+
+        public async void showAddCustomerDialog_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("showAddCustomerDialog_Click triggered");
+            var result = await CustomerDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+
+        public async void ShowDeleteSupplierDialog(object sender, RoutedEventArgs e)
+        {
+            var deleteDialog = new ContentDialog
+            {
+                Title = "Xác nhận xóa",
+                Content = "Bạn có chắc chắn muốn xóa nhà cung cấp này không? Lưu ý hành động này không thể hoàn tác.",
+                PrimaryButtonText = "Xóa",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await deleteDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                Debug.WriteLine("Đã xóa nhà cung cấp");
+            }
+            else
+            {
+                Debug.WriteLine("Hủy xóa nhà cung cấp");
+            }
+        }
+
+        public async void ShowDeleteCustomerDialog(object sender, RoutedEventArgs e)
+        {
+            var deleteDialog = new ContentDialog
+            {
+                Title = "Xác nhận xóa",
+                Content = "Bạn có chắc chắn muốn xóa khách hàng này không? Lưu ý hành động này không thể hoàn tác.",
+                PrimaryButtonText = "Xóa",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await deleteDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                Debug.WriteLine("Đã xóa khách hàng");
+            }
+            else
+            {
+                Debug.WriteLine("Hủy xóa khách hàng");
+            }
         }
     }
 }
