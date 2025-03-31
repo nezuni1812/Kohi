@@ -44,10 +44,10 @@ namespace Kohi.Views
 
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is CustomerModel selectedCustomer)
+            if (sender is TableView tableView && tableView.SelectedItem is CategoryModel selectedId)
             {
-                int id = selectedCustomer.Id;
-                Debug.WriteLine($"Selected Customer ID: {id}");
+                selectedCategoryId = selectedId.Id;
+                Debug.WriteLine($"Selected Category ID: {selectedCategoryId}");
             }
         }
 
@@ -89,6 +89,7 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                CategoryViewModel.Delete(selectedCategoryId.ToString());
                 Debug.WriteLine($"Đã xóa danh mục ID: {selectedCategoryId}");
             }
             else

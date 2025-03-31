@@ -27,7 +27,6 @@ namespace Kohi.ViewModels
         {
             _dao = Service.GetKeyedSingleton<IDao>();
             Categories = new FullObservableCollection<CategoryModel>();
-
             LoadData();
         }
 
@@ -98,6 +97,31 @@ namespace Kohi.ViewModels
             try
             {
                 int result = _dao.Categories.Insert(category);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.Categories.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, CategoryModel category)
+        {
+            try
+            {
+                int result = _dao.Categories.UpdateById(id, category);
             }
             catch (Exception ex)
             {

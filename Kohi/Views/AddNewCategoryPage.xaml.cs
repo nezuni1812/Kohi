@@ -121,8 +121,8 @@ namespace Kohi.Views
             string imgName = await SaveImage();
             var fields = new Dictionary<string, string>
             {
-                { "Tên người dùng", CategoryNameTextBox.Text },
-                { "Email", imgName },
+                { "Tên danh mục", CategoryNameTextBox.Text },
+                { "Hình ảnh", imgName },
             };
 
             // 🔹 Chạy qua chuỗi xử lý lỗi (COR)
