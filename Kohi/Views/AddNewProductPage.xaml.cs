@@ -43,6 +43,10 @@ namespace Kohi.Views
         {
             this.InitializeComponent();
             this.DataContext = ViewModel;
+            if (!ViewModel.Variants.Any())
+            {
+                ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
+            }
         }
         private async void AddImageButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
@@ -239,14 +243,22 @@ namespace Kohi.Views
 
         private void AddVariantButton_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
+            if (IsToppingCheckBox.IsChecked != true)
+            {
+                ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
+            }
         }
 
         private void RemoveVariantButton_Click(object sender, RoutedEventArgs e)
         {
             var button = (Button)sender;
             var variant = (AddNewProductViewModel.ProductVariantViewModel)button.Tag;
-            ViewModel.Variants.Remove(variant);
+
+            int index = ViewModel.Variants.IndexOf(variant);
+            if (ViewModel.Variants.Count > 1 && index >= 0)
+            {
+                ViewModel.Variants.RemoveAt(index);
+            }
         }
 
         private async void AddRecipeDetailButton_Click(object sender, RoutedEventArgs e)
@@ -316,6 +328,23 @@ namespace Kohi.Views
             }
 
             return null;
+        }
+
+        private void IsToppingCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            AddVariantButton.IsEnabled = false;
+
+            if (ViewModel.Variants.Count > 1)
+            {
+                var firstVariant = ViewModel.Variants.First();
+                ViewModel.Variants.Clear();
+                ViewModel.Variants.Add(firstVariant);
+            }
+        }
+
+        private void IsToppingCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            AddVariantButton.IsEnabled = true;
         }
     }
 }
