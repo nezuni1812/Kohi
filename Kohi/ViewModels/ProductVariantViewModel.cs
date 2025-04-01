@@ -66,5 +66,41 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+        public async Task Add(ProductVariantModel productVariant)
+        {
+            try
+            {
+                int result = _dao.ProductVariants.Insert(productVariant);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.ProductVariants.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, ProductVariantModel productVariantModel)
+        {
+            try
+            {
+                int result = _dao.ProductVariants.UpdateById(id, productVariantModel);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }

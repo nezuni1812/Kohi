@@ -20,14 +20,13 @@ namespace Kohi.ViewModels
         private IDao _dao;
         public FullObservableCollection<CategoryModel> Categories { get; set; }
         public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10; 
-        public int TotalItems { get; set; } 
+        public int PageSize { get; set; } = 10;
+        public int TotalItems { get; set; }
         public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
         public CategoryViewModel()
         {
             _dao = Service.GetKeyedSingleton<IDao>();
             Categories = new FullObservableCollection<CategoryModel>();
-
             LoadData();
         }
 
@@ -51,8 +50,15 @@ namespace Kohi.ViewModels
                     if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
                         // Tạo đường dẫn đầy đủ
-                        StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-                        item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                        try
+                        {
+                            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                            item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine("Safely skip: " + e.StackTrace);
+                        }
                     }
                 }
                 Categories.Add(item);
@@ -94,7 +100,46 @@ namespace Kohi.ViewModels
             }
             catch (Exception ex)
             {
-                
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.Categories.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, CategoryModel category)
+        {
+            try
+            {
+                int result = _dao.Categories.UpdateById(id, category);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task<CategoryModel> GetById(string id)
+        {
+            try
+            {
+                var category = _dao.Categories.GetById(id); // Đồng bộ
+                return category;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
             }
         }
     }

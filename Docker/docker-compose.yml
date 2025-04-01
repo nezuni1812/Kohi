@@ -9,12 +9,25 @@ services:
     environment:
       POSTGRES_PASSWORD: 1234
       POSTGRES_USER: kohi
+      POSTGRES_DB: kohi
     ports:
       - 5432:5432
     volumes:
       - type: bind 
         source: ./db
         target: /docker-entrypoint-initdb.d  
+        
+  # server:
+  #   image: postgrest/postgrest
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     PGRST_DB_URI: postgres://postgres:1234@db:5432/kohi
+  #     # PGRST_OPENAPI_SERVER_PROXY_URI: http://127.0.0.1:3000
+  #   volumes:
+  #     - ./config/postgrest.conf:/etc/postgrest.conf
+  #   depends_on:
+  #     - db 
         
   adminer:
     # Dang nhap tren web: localhost:8080

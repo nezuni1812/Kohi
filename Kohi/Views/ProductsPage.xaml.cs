@@ -28,6 +28,9 @@ namespace Kohi.Views
     /// </summary>
     public sealed partial class ProductsPage : Page
     {
+        //public ProductModel? selectedProduct { get; set; }
+
+        public int selectedProductId = -1;
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
         public ProductsPage()
         {
@@ -43,20 +46,87 @@ namespace Kohi.Views
 
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is CustomerModel selectedCustomer)
+            if (sender is TableView tableView && tableView.SelectedItem is ProductModel selectedProduct)
             {
-                int id = selectedCustomer.Id;
-                Debug.WriteLine($"Selected Customer ID: {id}");
+                selectedProductId = selectedProduct.Id;
+                Debug.WriteLine($"Selected Product ID: {selectedProductId}");
+            }
+            else
+            {
+                selectedProduct = null;
+                selectedProductId = -1;
+                Debug.WriteLine("Không có sản phẩm nào được chọn!");
             }
         }
 
-        public void addButton_click(object sender, RoutedEventArgs e)
+        public void showAddProduct_Click(object sender, RoutedEventArgs e)
         {
             Frame rootFrame = new Frame();
             this.Content = rootFrame;
 
             rootFrame.Navigate(typeof(AddNewProductPage), null);
             // Logic thêm khách hàng
+        }
+
+        public async void showDeleteProductDialog_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedProductId == -1)
+            {
+                var noSelectionDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = "Không có sản phẩm nào được chọn",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await noSelectionDialog.ShowAsync();
+                return;
+            }
+
+            var deleteDialog = new ContentDialog
+            {
+                Title = "Xác nhận xóa",
+                Content = $"Bạn có chắc chắn muốn xóa sản phẩm có ID là {selectedProductId} không? Lưu ý hành động này không thể hoàn tác.",
+                PrimaryButtonText = "Xóa",
+                CloseButtonText = "Hủy",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await deleteDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                ProductViewModel.Delete(selectedProductId.ToString());
+                Debug.WriteLine($"Đã xóa sản phẩm ID: {selectedProductId}");
+            }
+            else
+            {
+                Debug.WriteLine("Hủy xóa sản phẩm");
+            }
+        }
+
+        public async void showEditProduct_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedProductId == -1)
+            {
+                var noSelectionDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = "Không có sản phẩm nào được chọn",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await noSelectionDialog.ShowAsync();
+                return;
+            }
+
+            Frame rootFrame = new Frame();
+            this.Content = rootFrame;
+
+            rootFrame.Navigate(typeof(EditProductPage), selectedProductId);
         }
 
         public void UpdatePageList()

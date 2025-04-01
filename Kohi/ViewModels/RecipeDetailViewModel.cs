@@ -66,5 +66,41 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+        public async Task Add(RecipeDetailModel recipeDetail)
+        {
+            try
+            {
+                int result = _dao.RecipeDetails.Insert(recipeDetail);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.RecipeDetails.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, RecipeDetailModel recipeDetail)
+        {
+            try
+            {
+                int result = _dao.RecipeDetails.UpdateById(id, recipeDetail);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }

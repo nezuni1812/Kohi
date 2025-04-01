@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,5 +66,51 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+        public async Task Add(IngredientModel ingredient)
+        {
+            try
+            {
+                int result = _dao.Ingredients.Insert(ingredient);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.Ingredients.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, IngredientModel ingredient)
+        {
+            try
+            {
+                int result = _dao.Ingredients.UpdateById(id, ingredient);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task<List<IngredientModel>> GetAll()
+        {
+            TotalItems = _dao.Ingredients.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.Ingredients.GetAll()); // Lấy tất cả dữ liệu mà không phân trang
+
+            // Bạn có thể trả về kết quả ngay lập tức hoặc thêm các thao tác khác ở đây
+            return result.ToList(); // Trả về danh sách các nguyên liệu
+        }
+
     }
 }

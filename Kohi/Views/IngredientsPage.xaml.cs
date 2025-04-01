@@ -29,9 +29,9 @@ namespace Kohi.Views
     {
         public IngredientViewModel IngredientViewModel { get; set; } = new IngredientViewModel();
 
-        public IngredientModel? SelectedIngredient { get; set; }
+        public IngredientModel? selectedIngredient { get; set; }
 
-        public int SelectedIngredientId = -1;
+        public int selectedIngredientId = -1;
         public IngredientsPage()
         {
             this.InitializeComponent();
@@ -47,13 +47,13 @@ namespace Kohi.Views
         {
             if (sender is TableView tableView && tableView.SelectedItem is IngredientModel selectedIngredient)
             {
-                SelectedIngredientId = selectedIngredient.Id;
-                Debug.WriteLine($"Selected Ingredient ID: {SelectedIngredientId}");
+                selectedIngredientId = selectedIngredient.Id;
+                Debug.WriteLine($"Selected Ingredient ID: {selectedIngredientId}");
             }
             else
             {
-                SelectedIngredient = null;
-                SelectedIngredientId = -1;
+                selectedIngredient = null;
+                selectedIngredientId = -1;
                 Debug.WriteLine("Không có nguyên vật liệu nào được chọn!");
             }
         }
@@ -95,7 +95,7 @@ namespace Kohi.Views
         private void AddIngredientDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             args.Cancel = true;
-            SelectedIngredientId = -1;
+            selectedIngredientId = -1;
         }
 
         private void AddIngredientDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -105,7 +105,7 @@ namespace Kohi.Views
 
         public async void showEditIngredientDialog_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedIngredientId == -1)
+            if (selectedIngredientId == -1)
             {
                 var noSelectionDialog = new ContentDialog
                 {
@@ -138,7 +138,7 @@ namespace Kohi.Views
         private void EditIngredientDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             args.Cancel = true;
-            SelectedIngredientId = -1;
+            selectedIngredientId = -1;
         }
 
         private void EditIngredientDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -149,7 +149,7 @@ namespace Kohi.Views
 
         public async void showDeleteIngredientDialog_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedIngredientId == -1)
+            if (selectedIngredientId == -1)
             {
                 var noSelectionDialog = new ContentDialog
                 {
@@ -166,7 +166,7 @@ namespace Kohi.Views
             var deleteDialog = new ContentDialog
             {
                 Title = "Xác nhận xóa",
-                Content = $"Bạn có chắc chắn muốn xóa nguyên vật liệu có ID là {SelectedIngredientId} không? Lưu ý hành động này không thể hoàn tác.",
+                Content = $"Bạn có chắc chắn muốn xóa nguyên vật liệu có ID là {selectedIngredientId} không? Lưu ý hành động này không thể hoàn tác.",
                 PrimaryButtonText = "Xóa",
                 CloseButtonText = "Hủy",
                 DefaultButton = ContentDialogButton.Primary,
@@ -177,7 +177,8 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                Debug.WriteLine($"Đã xóa nguyên vật liệu ID: {SelectedIngredientId}");
+                IngredientViewModel.Delete(selectedIngredientId.ToString());
+                Debug.WriteLine($"Đã xóa nguyên vật liệu ID: {selectedIngredientId}");
             }
             else
             {

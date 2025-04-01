@@ -1,4 +1,4 @@
-﻿using Kohi.Models;
+using Kohi.Models;
 using Kohi.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;

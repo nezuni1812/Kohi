@@ -67,5 +67,47 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+        public async Task Add(CheckInventoryModel checkInventory)
+        {
+            try
+            {
+                int result = _dao.CheckInventories.Insert(checkInventory);
+                var inventory = _dao.Inventories.GetById(checkInventory.InventoryId.ToString());
+                //inventory.Quantity = checkInventory.ActualQuantity;
+
+                _dao.Inventories.UpdateById(checkInventory.InventoryId.ToString(), inventory);
+                checkInventory.Inventory = inventory;
+                checkInventory.Discrepancy = checkInventory.Inventory.Quantity - checkInventory.ActualQuantity;
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.CheckInventories.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, CheckInventoryModel checkInventory)
+        {
+            try
+            {
+                int result = _dao.CheckInventories.UpdateById(id, checkInventory);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }

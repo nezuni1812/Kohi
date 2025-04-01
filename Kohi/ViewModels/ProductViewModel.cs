@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 using Kohi.Models;
 using Kohi.Services;
 using Kohi.Utils;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.Storage;
 
 //namespace Kohi.ViewModels
@@ -98,8 +100,15 @@ namespace Kohi.ViewModels
                     if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
                         // Tạo đường dẫn đầy đủ
-                        StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-                        item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                        try
+                        {
+                            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                            item.ImageUrl = System.IO.Path.Combine(localFolder.Path, item.ImageUrl);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine("Safely skip: " + e.StackTrace);
+                        }
                     }
                 }
                 Products.Add(item);
@@ -107,7 +116,12 @@ namespace Kohi.ViewModels
         }
         public async void AddProduct()
         {
+            Debug.WriteLine(NewProductName);
+            ProductModel newProduct = new ProductModel { Name = NewProductName };
 
+            Add(newProduct);
+
+            LoadData();
         }
 
         // Phương thức để chuyển đến trang tiếp theo
@@ -146,7 +160,100 @@ namespace Kohi.ViewModels
             }
             catch (Exception ex)
             {
+                Debug.WriteLine(ex);
+            }
+        }
+        public async Task Delete(string id)
+        {
+            try
+            {
+                _dao.Products.GetAll();
 
+                ProductModel product = _dao.Products.GetById(id);
+                if (product == null)
+                {
+                    Debug.WriteLine("Không tìm thấy sản phẩm cần xóa");
+                    await LoadData(CurrentPage);
+                    return;
+                }
+                var variantList = product.ProductVariants;
+                var variantIdList = variantList.Select(v => v.Id).ToList();
+                Debug.WriteLine("Variant count: " + variantIdList.Count);
+
+                if (product.IsTopping == false)
+                {
+                    var invoiceDetailList = _dao.InvoiceDetails.GetAll();
+                    foreach (var invoiceDetail in invoiceDetailList)
+                    {
+                        if (variantIdList.Contains(invoiceDetail.ProductId))
+                        {
+                            Debug.WriteLine("Không thể xóa sản phẩm này vì đã có hóa đơn sử dụng");
+                            await LoadData(CurrentPage);
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    var orderToppingList = _dao.OrderToppings.GetAll();
+                    foreach (var orderTopping in orderToppingList)
+                    {
+                        if (variantIdList.Contains(orderTopping.ProductVariant.Id))
+                        {
+                            Debug.WriteLine("Không thể xóa sản phẩm này vì đã sử dụng thành topping");
+                            await LoadData(CurrentPage);
+                            return;
+                        }
+                    }
+                }
+
+                var recipeDetailList = _dao.RecipeDetails.GetAll();
+                var recipeDetailIdList = new List<int>();
+                foreach (var recipeDetail in recipeDetailList)
+                {
+                    if (variantIdList.Contains(recipeDetail.ProductVariantId))
+                    {
+                        recipeDetailIdList.Add(recipeDetail.Id);
+                    }
+                }
+
+                recipeDetailIdList.ForEach(id => _dao.RecipeDetails.DeleteById(id + ""));
+                Debug.WriteLine("Đã xóa recipeDetails");
+                variantIdList.ForEach(id => _dao.ProductVariants.DeleteById(id + ""));
+                Debug.WriteLine("Đã xóa product variants");
+
+                int result = _dao.Products.DeleteById(id);
+
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, ProductModel product)
+        {
+            try
+            {
+                int result = _dao.Products.UpdateById(id, product);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        public async Task<ProductModel> GetById(string id)
+        {
+            try
+            {
+                var product = _dao.Products.GetById(id); // Đồng bộ
+                return product;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
             }
         }
     }

@@ -69,5 +69,16 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+        public async Task Add(CustomerModel customer)
+        {
+            try
+            {
+                int result = _dao.Customers.Insert(customer);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }

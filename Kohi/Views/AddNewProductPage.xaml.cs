@@ -22,15 +22,11 @@ using Windows.Storage.Streams;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Kohi.Services;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Kohi.Errors;
+using Kohi.Utils;
 
 namespace Kohi.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class AddNewProductPage : Page
     {
         public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
@@ -39,74 +35,79 @@ namespace Kohi.Views
         public AddNewProductViewModel ViewModel { get; set; } = new AddNewProductViewModel();
 
         private StorageFile selectedImageFile;
+        private readonly IErrorHandler _errorHandler;
+
         public AddNewProductPage()
         {
             this.InitializeComponent();
             this.DataContext = ViewModel;
+            if (!ViewModel.Variants.Any())
+            {
+                ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
+            }
+
+            var numericFields = new List<string> { "Price", "Cost", "Quantity" };
+            var emptyInputHandler = new EmptyInputErrorHandler();
+            var positiveNumberValidationHandler = new PositiveNumberValidationErrorHandler(numericFields);
+            emptyInputHandler.SetNext(positiveNumberValidationHandler);
+            _errorHandler = emptyInputHandler;
         }
-        private async void AddImageButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+
+        private async void AddImageButton_Click(object sender, RoutedEventArgs e)
         {
-            // Initialize the picker
-            var picker = new FileOpenPicker();
-            picker.ViewMode = PickerViewMode.Thumbnail;
-            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            var picker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.PicturesLibrary
+            };
             picker.FileTypeFilter.Add(".jpg");
             picker.FileTypeFilter.Add(".jpeg");
             picker.FileTypeFilter.Add(".png");
 
-            // WinUI 3 requires a window handle to initialize file pickers
-            // Get the current window handle
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-            // Initialize the picker with the window handle
             WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
 
-            // Pick a file
-            StorageFile file = await picker.PickSingleFileAsync();
-            if (file != null)
+            selectedImageFile = await picker.PickSingleFileAsync();
+            if (selectedImageFile != null)
             {
-                // Load the image into an image control
-                using (IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read))
+                // Hiển thị ảnh đã chọn lên UI
+                using (IRandomAccessStream stream = await selectedImageFile.OpenAsync(FileAccessMode.Read))
                 {
                     BitmapImage bitmapImage = new BitmapImage();
                     await bitmapImage.SetSourceAsync(stream);
                     mypic.Source = bitmapImage;
-
-                    // You can store the file path or file itself for later use if needed
-                    // For example, if you want to save the file path to your product model:
-                    // Product.ImagePath = file.Path;
-                    selectedImageFile = file;
-                    // You can also update the UI to show the selected file name
-                    outtext.Text = "Ảnh đã chọn: " + file.Name;
                 }
+                outtext.Text = "Ảnh đã chọn: " + selectedImageFile.Name;
             }
         }
 
-        public async Task<string> SaveImage()
+        private async Task<string> SaveImage()
         {
-            // Giả sử selectedFile là đối tượng chứa thông tin hình ảnh
             if (selectedImageFile != null)
             {
                 try
                 {
-                    // Kiểm tra tệp có tồn tại và truy cập được không
                     StorageFolder localFolder = ApplicationData.Current.LocalFolder;
-                    string categoryName = ProductNameTextBox.Text;
-                    if (string.IsNullOrEmpty(categoryName))
+                    string productName = ProductNameTextBox.Text;
+                    if (string.IsNullOrEmpty(productName))
                     {
                         outtext.Text = "Vui lòng nhập tên sản phẩm.";
                         return "";
                     }
-                    string normalizedName = Utils.StringUtils.NormalizeString(categoryName);
-                    string fileExtension = Path.GetExtension(selectedImageFile.Name); // Lấy phần mở rộng (ví dụ: .jpg)
+                    string normalizedName = Utils.StringUtils.NormalizeString(productName);
+                    string fileExtension = Path.GetExtension(selectedImageFile.Name);
                     string flag = DateTime.Now.ToString("yyyyMMddHHmmss");
-                    normalizedName = normalizedName + flag + fileExtension;
-                    await selectedImageFile.CopyAsync(localFolder, normalizedName, NameCollisionOption.ReplaceExisting);
-                    outtext.Text = $"Đã lưu sản phẩm '{normalizedName}' và hình ảnh thành công.";
-                    return normalizedName;
+                    string imageFileName = normalizedName + flag + fileExtension;
+
+                    Debug.WriteLine($"Đang lưu tệp: {imageFileName} vào {localFolder.Path}");
+                    await selectedImageFile.CopyAsync(localFolder, imageFileName, NameCollisionOption.ReplaceExisting);
+                    outtext.Text = $"Đã lưu hình ảnh '{imageFileName}' thành công.";
+                    return imageFileName; // Trả về tên tệp gồm normalizedName + flag + fileExtension
                 }
                 catch (Exception ex)
                 {
-                    outtext.Text = "Lỗi khi lưu hình ảnh: " + ex.Message;
+                    Debug.WriteLine($"Lỗi lưu ảnh: {ex.Message}");
+                    outtext.Text = $"Lỗi khi lưu hình ảnh: {ex.Message}";
                     return "";
                 }
             }
@@ -119,146 +120,186 @@ namespace Kohi.Views
 
         private async void saveButton_click(object sender, RoutedEventArgs e)
         {
-            // Lấy tên ảnh từ hàm SaveImage
             string imgName = await SaveImage();
 
-            // Lấy CategoryModel được chọn từ ComboBox
             var selectedCategory = CategoryProductComboBox.SelectedItem as CategoryModel;
+            List<string> errors = new List<string>();
+            string categoryName = selectedCategory?.Name ?? "";
 
-            // Kiểm tra dữ liệu bắt buộc
-            if (selectedCategory == null || string.IsNullOrWhiteSpace(ProductNameTextBox.Text))
+            var fields = new Dictionary<string, string>
             {
-                Debug.WriteLine("Lỗi: Vui lòng nhập tên sản phẩm và chọn nhóm sản phẩm!");
+                { "Tên danh mục", categoryName },
+                { "Hình sản phẩm", imgName },
+                { "Tên sản phẩm", ProductNameTextBox.Text },
+            };
+
+            Debug.WriteLine("hoang" + imgName);
+
+            List<string> validationErrors = _errorHandler?.HandleError(fields) ?? new List<string>();
+            errors.AddRange(validationErrors);
+
+            if (HasErrors(errors))
+            {
                 return;
             }
 
-            // Tạo ProductModel từ dữ liệu nhập
-            var product = new ProductModel
-            {
-                Name = ProductNameTextBox.Text,
-                ImageUrl = imgName,
-                CategoryId = selectedCategory.Id,
-                IsActive = IsActiveCheckBox.IsChecked == true,
-                IsTopping = (bool)IsToppingCheckBox.IsChecked,
-                Description = DescriptionTextBox.Text,
-                ProductVariants = new List<ProductVariantModel>() // Khởi tạo danh sách Variants
-            };
-
             try
             {
-                // Lưu Variants và RecipeDetails vào ProductModel trước khi lưu
+                var product = new ProductModel
+                {
+                    Name = ProductNameTextBox.Text,
+                    ImageUrl = imgName, // Lưu tên tệp vào ImageUrl (bao gồm timestamp)
+                    CategoryId = selectedCategory?.Id ?? 0,
+                    IsActive = IsActiveCheckBox.IsChecked == true,
+                    IsTopping = IsToppingCheckBox.IsChecked == true,
+                    Description = DescriptionTextBox.Text,
+                    Category = selectedCategory,
+                    ProductVariants = new List<ProductVariantModel>()
+                };
+
                 if (ViewModel.Variants.Any())
                 {
                     foreach (var variantVM in ViewModel.Variants)
                     {
-                        // Kiểm tra dữ liệu Variant
-                        if (string.IsNullOrWhiteSpace(variantVM.Size) || variantVM.Price < 0 || variantVM.Cost < 0)
+                        var variantFields = new Dictionary<string, string>
                         {
-                            Debug.WriteLine("Lỗi: Vui lòng nhập đầy đủ thông tin kích cỡ (Tên, Giá bán, Giá nhập)!");
+                            { "Size", variantVM.Size ?? "" },
+                            { "Price", variantVM.Price.ToString() },
+                            { "Cost", variantVM.Cost.ToString() }
+                        };
+
+                        List<string> variantErrors = _errorHandler?.HandleError(variantFields) ?? new List<string>();
+                        errors.AddRange(variantErrors);
+
+                        if (HasErrors(errors))
+                        {
                             return;
                         }
 
-                        // In thông tin Variant để debug
-                        System.Diagnostics.Debug.WriteLine($"Variant - Size: {variantVM.Size}, Price: {variantVM.Price}, Cost: {variantVM.Cost}");
-
-                        // Tạo ProductVariantModel
                         var variant = new ProductVariantModel
                         {
                             Size = variantVM.Size,
                             Price = variantVM.Price,
                             Cost = variantVM.Cost,
-                            RecipeDetails = new List<RecipeDetailModel>()
+                            Product = product,
+                            RecipeDetails = new List<RecipeDetailModel>(),
+                            InvoiceDetails = new List<InvoiceDetailModel>(),
+                            Toppings = new List<OrderToppingModel>()
                         };
 
-                        // Lưu RecipeDetails nếu có
                         if (variantVM.RecipeDetails.Any())
                         {
                             foreach (var recipeVM in variantVM.RecipeDetails)
                             {
-                                // Kiểm tra dữ liệu RecipeDetail
-                                if (recipeVM.Ingredient == null || recipeVM.Quantity <= 0)
+                                var recipeFields = new Dictionary<string, string>
                                 {
-                                    Debug.WriteLine("Lỗi: Vui lòng chọn nguyên vật liệu và nhập số lượng hợp lệ!");
+                                    { "Ingredient", recipeVM.Ingredient?.Name ?? "" },
+                                    { "Quantity", recipeVM.Quantity.ToString() }
+                                };
+
+                                List<string> recipeErrors = _errorHandler?.HandleError(recipeFields) ?? new List<string>();
+                                errors.AddRange(recipeErrors);
+
+                                if (HasErrors(errors))
+                                {
                                     return;
                                 }
 
-                                // In thông tin RecipeDetail để debug
-                                System.Diagnostics.Debug.WriteLine($"RecipeDetail - Ingredient: {recipeVM.Ingredient.Name}, Quantity: {recipeVM.Quantity}, Unit: {recipeVM.Unit}");
-
-                                // Tạo RecipeDetailModel
                                 var recipe = new RecipeDetailModel
                                 {
-                                    IngredientId = recipeVM.Ingredient.Id,
+                                    IngredientId = recipeVM.Ingredient?.Id ?? 0,
                                     Quantity = recipeVM.Quantity,
-                                    Unit = recipeVM.Unit
+                                    Unit = recipeVM.Unit,
+                                    ProductVariant = variant,
+                                    Ingredient = recipeVM.Ingredient
                                 };
-                                variant.RecipeDetails.Add(recipe); // Thêm vào danh sách RecipeDetails của variant
+                                variant.RecipeDetails.Add(recipe);
                             }
                         }
 
-                        product.ProductVariants.Add(variant); // Thêm variant vào danh sách ProductVariants của product
+                        product.ProductVariants.Add(variant);
                     }
                 }
 
-                // Lưu ProductModel và lấy Id
                 await ProductViewModel.Add(product);
 
-                int productId = Service.GetKeyedSingleton<IDao>().Products.GetCount(); // Với MockDao
-
-                // Cập nhật ProductId và lưu Variants/RecipeDetails riêng lẻ nếu cần
                 foreach (var variant in product.ProductVariants)
                 {
-                    variant.ProductId = productId; // Gán ProductId cho variant
-                    int variantId = Service.GetKeyedSingleton<IDao>().ProductVariants.GetCount() + 1;
+                    variant.ProductId = product.Id;
                     Service.GetKeyedSingleton<IDao>().ProductVariants.Insert(variant);
 
                     foreach (var recipe in variant.RecipeDetails)
                     {
-                        recipe.ProductVariantId = variantId; // Gán ProductVariantId cho recipe
-                        int recipeId = Service.GetKeyedSingleton<IDao>().RecipeDetails.GetCount() + 1;
+                        recipe.ProductVariantId = variant.Id;
                         Service.GetKeyedSingleton<IDao>().RecipeDetails.Insert(recipe);
                     }
                 }
 
-                // Hiển thị thông báo thành công
-                Debug.WriteLine("Lưu thành công");
-
-                // Xóa dữ liệu trên giao diện sau khi lưu
+                outtext.Text = "✅ Đã thêm sản phẩm thành công!";
                 ProductNameTextBox.Text = string.Empty;
                 CategoryProductComboBox.SelectedItem = null;
                 IsActiveCheckBox.IsChecked = false;
                 IsToppingCheckBox.IsChecked = false;
                 DescriptionTextBox.Text = string.Empty;
                 ViewModel.Variants.Clear();
+                mypic.Source = null;
+                selectedImageFile = null;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Lỗi: {ex.Message}");
+                Debug.WriteLine($"Lỗi thêm sản phẩm: {ex.Message}");
+                outtext.Text = $"Lỗi khi thêm sản phẩm: {ex.Message}";
             }
+        }
+
+        public bool PrintErrors(List<string> errors)
+        {
+            if (errors.Any())
+            {
+                outtext.Text = string.Join("\n", errors);
+                return true;
+            }
+            else
+            {
+                outtext.Text = "✅ Dữ liệu hợp lệ!";
+                return false;
+            }
+        }
+
+        private bool HasErrors(List<string> errors)
+        {
+            return PrintErrors(errors);
         }
 
         private void AddVariantButton_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
+            if (IsToppingCheckBox.IsChecked != true)
+            {
+                ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
+            }
         }
 
         private void RemoveVariantButton_Click(object sender, RoutedEventArgs e)
         {
             var button = (Button)sender;
             var variant = (AddNewProductViewModel.ProductVariantViewModel)button.Tag;
-            ViewModel.Variants.Remove(variant);
+
+            int index = ViewModel.Variants.IndexOf(variant);
+            if (ViewModel.Variants.Count > 1 && index >= 0)
+            {
+                ViewModel.Variants.RemoveAt(index);
+            }
         }
 
         private async void AddRecipeDetailButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button; // Ép kiểu sender thành Button
+            var button = sender as Button;
             if (button != null)
             {
                 var currentVariant = button.DataContext as AddNewProductViewModel.ProductVariantViewModel;
                 if (currentVariant != null)
                 {
-                    var newRecipeDetail = new AddNewProductViewModel.RecipeDetailViewModel();
-                    currentVariant.RecipeDetails.Add(newRecipeDetail);
+                    currentVariant.RecipeDetails.Add(new AddNewProductViewModel.RecipeDetailViewModel());
                 }
             }
         }
@@ -268,18 +309,15 @@ namespace Kohi.Views
             var comboBox = sender as ComboBox;
             if (comboBox != null)
             {
-                // Lấy RecipeDetailViewModel từ DataContext của ComboBox
                 var recipeDetail = comboBox.DataContext as AddNewProductViewModel.RecipeDetailViewModel;
                 if (recipeDetail != null && recipeDetail.Ingredient != null)
                 {
-                    // Tìm TextBox (IngredientUnit) trong cùng hàng (Grid)
                     var grid = FindParent<Grid>(comboBox);
                     if (grid != null)
                     {
                         var ingredientUnit = grid.FindName("IngredientUnit") as TextBox;
                         if (ingredientUnit != null)
                         {
-                            // Cập nhật TextBox với Unit từ Ingredient
                             ingredientUnit.Text = recipeDetail.Ingredient.Unit ?? "N/A";
                         }
                     }
@@ -302,20 +340,39 @@ namespace Kohi.Views
                 }
             }
         }
+
         private T FindParent<T>(DependencyObject child) where T : DependencyObject
         {
             DependencyObject parentObject = VisualTreeHelper.GetParent(child);
-
             while (parentObject != null)
             {
                 T parent = parentObject as T;
                 if (parent != null)
                     return parent;
-
                 parentObject = VisualTreeHelper.GetParent(parentObject);
             }
-
             return null;
+        }
+
+        private void IsToppingCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            AddVariantButton.IsEnabled = false;
+            if (ViewModel.Variants.Count > 1)
+            {
+                var firstVariant = ViewModel.Variants.First();
+                ViewModel.Variants.Clear();
+                ViewModel.Variants.Add(firstVariant);
+            }
+        }
+
+        private void IsToppingCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            AddVariantButton.IsEnabled = true;
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(ProductsPage));
         }
     }
 }
