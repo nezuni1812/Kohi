@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Kohi.Models;
 using Kohi.Services;
 using Kohi.Utils;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.Storage;
 
 //namespace Kohi.ViewModels
@@ -166,7 +167,63 @@ namespace Kohi.ViewModels
         {
             try
             {
+                _dao.Products.GetAll();
+
+                ProductModel product = _dao.Products.GetById(id);
+                if (product == null)
+                {
+                    Debug.WriteLine("Không tìm thấy sản phẩm cần xóa");
+                    await LoadData(CurrentPage);
+                    return;
+                }
+                var variantList = product.ProductVariants;
+                Debug.WriteLine("Variant count: " + variantList.Count);
+                var variantIdList = variantList.Select(v => v.Id).ToList();
+
+                if (product.IsTopping == false)
+                {
+                    var invoiceDetailList = _dao.InvoiceDetails.GetAll();
+                    foreach (var invoiceDetail in invoiceDetailList)
+                    {
+                        if (variantIdList.Contains(invoiceDetail.ProductId))
+                        {
+                            Debug.WriteLine("Không thể xóa sản phẩm này vì đã có hóa đơn sử dụng");
+                            await LoadData(CurrentPage);
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    var orderToppingList = _dao.OrderToppings.GetAll();
+                    foreach (var orderTopping in orderToppingList)
+                    {
+                        if (variantIdList.Contains(orderTopping.ProductVariant.Id))
+                        {
+                            Debug.WriteLine("Không thể xóa sản phẩm này vì đã sử dụng thành topping");
+                            await LoadData(CurrentPage);
+                            return;
+                        }
+                    }
+                }
+
+                var recipeDetailList = _dao.RecipeDetails.GetAll();
+                var recipeDetailIdList = new List<int>();
+                foreach (var recipeDetail in recipeDetailList)
+                {
+                    if (variantIdList.Contains(recipeDetail.ProductVariantId))
+                    {
+                        recipeDetailIdList.Add(recipeDetail.Id);
+                    }
+                }
+
+                recipeDetailIdList.ForEach(id => _dao.RecipeDetails.DeleteById(id + ""));
+                Debug.WriteLine("Đã xóa recipeDetails");
+                variantIdList.ForEach(id => _dao.ProductVariants.DeleteById(id + ""));
+                Debug.WriteLine("Đã xóa product variants");
+
                 int result = _dao.Products.DeleteById(id);
+
                 await LoadData(CurrentPage);
             }
             catch (Exception ex)

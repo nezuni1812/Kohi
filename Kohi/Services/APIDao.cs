@@ -95,6 +95,10 @@ namespace Kohi.Services
 
             public CategoryModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _categories ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/categories?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -222,10 +226,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/products?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _products.FirstOrDefault(r => r.Id == intId);
+                    _products.Remove(item);
                     return 1;
                 }
                 else
@@ -260,6 +267,10 @@ namespace Kohi.Services
             }
             public ProductModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _products ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/products?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -388,10 +399,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/inventories?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _inventories.FirstOrDefault(r => r.Id == intId);
+                    _inventories.Remove(item);
                     return 1;
                 }
                 else
@@ -428,6 +442,10 @@ namespace Kohi.Services
 
             public InventoryModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _inventories ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/inventories?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -565,10 +583,13 @@ namespace Kohi.Services
             public APIIngredientRepository(List<IngredientModel> list) { _ingredients = list; }
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/ingredients?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _ingredients.FirstOrDefault(r => r.Id == intId);
+                    _ingredients.Remove(item);
                     return 1;
                 }
                 else
@@ -605,6 +626,10 @@ namespace Kohi.Services
 
             public IngredientModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _ingredients ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/ingredients?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -729,10 +754,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/suppliers?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _suppliers.FirstOrDefault(r => r.Id == intId);
+                    _suppliers.Remove(item);
                     return 1;
                 }
                 else
@@ -769,6 +797,10 @@ namespace Kohi.Services
 
             public SupplierModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _suppliers ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/suppliers?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -893,10 +925,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/inbounds?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _inbounds.FirstOrDefault(r => r.Id == intId);
+                    _inbounds.Remove(item);
                     return 1;
                 }
                 else
@@ -933,6 +968,10 @@ namespace Kohi.Services
 
             public InboundModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _inbounds ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/inbounds?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1057,10 +1096,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/outbounds?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _outbounds.FirstOrDefault(r => r.Id == intId);
+                    _outbounds.Remove(item);
                     return 1;
                 }
                 else
@@ -1097,6 +1139,10 @@ namespace Kohi.Services
 
             public OutboundModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _outbounds ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/outbounds?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1223,10 +1269,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/customers?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _customers.FirstOrDefault(r => r.Id == intId);
+                    _customers.Remove(item);
                     return 1;
                 }
                 else
@@ -1263,6 +1312,10 @@ namespace Kohi.Services
 
             public CustomerModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _customers ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/customers?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1433,6 +1486,10 @@ namespace Kohi.Services
 
             public ExpenseCategoryModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _expenseCategories ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/expensecategories?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1559,10 +1616,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/checkinventories?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _checkInventories.FirstOrDefault(r => r.Id == intId);
+                    _checkInventories.Remove(item);
                     return 1;
                 }
                 else
@@ -1599,6 +1659,11 @@ namespace Kohi.Services
 
             public CheckInventoryModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _checkInventories ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/checkinventories?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1728,10 +1793,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/productvariants?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _productVariants.FirstOrDefault(r => r.Id == intId);
+                    _productVariants.Remove(item);
                     return 1;
                 }
                 else
@@ -1768,6 +1836,10 @@ namespace Kohi.Services
 
             public ProductVariantModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _productVariants ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/productvariants?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1904,10 +1976,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/expenses?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _expenses.FirstOrDefault(r => r.Id == intId);
+                    _expenses.Remove(item);
                     return 1;
                 }
                 else
@@ -1944,6 +2019,10 @@ namespace Kohi.Services
 
             public ExpenseModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _expenses ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/expenses?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2071,10 +2150,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/invoices?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _invoices.FirstOrDefault(r => r.Id == intId);
+                    _invoices.Remove(item);
                     return 1;
                 }
                 else
@@ -2110,6 +2192,10 @@ namespace Kohi.Services
 
             public InvoiceModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _invoices ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoices?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2237,10 +2323,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/invoicedetails?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _invoiceDetails.FirstOrDefault(r => r.Id == intId);
+                    _invoiceDetails.Remove(item);
                     return 1;
                 }
                 else
@@ -2277,6 +2366,10 @@ namespace Kohi.Services
 
             public InvoiceDetailModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _invoiceDetails ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicedetails?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2410,10 +2503,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/recipedetails?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _recipeDetails.FirstOrDefault(r => r.Id == intId);
+                    _recipeDetails.Remove(item);
                     return 1;
                 }
                 else
@@ -2450,6 +2546,10 @@ namespace Kohi.Services
 
             public RecipeDetailModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _recipeDetails ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/recipedetails?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2580,10 +2680,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/payments?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _payments.FirstOrDefault(r => r.Id == intId);
+                    _payments.Remove(item);
                     return 1;
                 }
                 else
@@ -2620,6 +2723,10 @@ namespace Kohi.Services
 
             public PaymentModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _payments ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/payments?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2747,10 +2854,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/ordertoppings?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _orderToppings.FirstOrDefault(r => r.Id == intId);
+                    _orderToppings.Remove(item);
                     return 1;
                 }
                 else
@@ -2787,6 +2897,10 @@ namespace Kohi.Services
 
             public OrderToppingModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _orderToppings ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/ordertoppings?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2916,10 +3030,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/taxes?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _taxes.FirstOrDefault(r => r.Id == intId);
+                    _taxes.Remove(item);
                     return 1;
                 }
                 else
@@ -2956,6 +3073,10 @@ namespace Kohi.Services
 
             public TaxModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _taxes ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/taxes?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -3081,10 +3202,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/invoicetaxes?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _invoiceTaxes.FirstOrDefault(r => r.Id == intId);
+                    _invoiceTaxes.Remove(item);
                     return 1;
                 }
                 else
@@ -3121,6 +3245,10 @@ namespace Kohi.Services
 
             public InvoiceTaxModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _invoiceTaxes ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicetaxes?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
