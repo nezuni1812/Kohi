@@ -177,8 +177,8 @@ namespace Kohi.ViewModels
                     return;
                 }
                 var variantList = product.ProductVariants;
-                Debug.WriteLine("Variant count: " + variantList.Count);
                 var variantIdList = variantList.Select(v => v.Id).ToList();
+                Debug.WriteLine("Variant count: " + variantIdList.Count);
 
                 if (product.IsTopping == false)
                 {

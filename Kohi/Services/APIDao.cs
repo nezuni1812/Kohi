@@ -189,7 +189,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, CategoryModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _categories ?? GetAll();
+                var item = data.FirstOrDefault(c => c.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Products");
@@ -204,6 +209,11 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.Name = info.Name;
+                    item.ImageUrl = info.ImageUrl;
+                    item.Products = info.Products; // Cập nhật navigation property nếu cần
+                    _categories = data;
+                    Debug.WriteLine("Category updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -364,7 +374,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, ProductModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _products ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Category");
                 jsonObject.Remove("ProductVariants");
@@ -380,6 +395,11 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.Name = info.Name;
+                    item.IsActive = info.IsActive;
+                    item.CategoryId = info.CategoryId;
+                    item.ImageUrl = info.ImageUrl;
+                    _products = data;
                     return 1;
                 }
                 else
@@ -540,7 +560,13 @@ namespace Kohi.Services
 
             public int UpdateById(string id, InventoryModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _inventories ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+                Debug.WriteLine("Before serializer");
+                JObject jsonObject = JObject.FromObject(info, serializer);
+                Debug.WriteLine("After serializer");
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Inbound");
@@ -564,6 +590,11 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    item.InboundId = info.InboundId;
+                    item.Quantity = info.Quantity;
+                    item.InboundDate = info.InboundDate;
+                    item.ExpiryDate = info.ExpiryDate;
+                    _inventories = data;
                     Debug.WriteLine("Inventory inserted successfully: " + responseContent);
                     return 1;
                 }
@@ -722,7 +753,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, IngredientModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _ingredients ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 JObject newJsonObject = new JObject();
@@ -736,6 +772,12 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.Name = info.Name;
+                    item.Unit = info.Unit;
+                    //item.CostPerUnit = info.CostPerUnit;
+                    item.Description = info.Description;
+                    _ingredients = data;
+                    Debug.WriteLine("Ingredient updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -892,7 +934,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, SupplierModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _suppliers ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Inbounds");
@@ -907,6 +954,12 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.Name = info.Name;
+                    item.Email = info.Email;
+                    item.Phone = info.Phone;
+                    item.Address = info.Address;
+                    _suppliers = data;
+                    Debug.WriteLine("Supplier updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -1063,10 +1116,16 @@ namespace Kohi.Services
 
             public int UpdateById(string id, InboundModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _inbounds ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Inventories");
+                jsonObject.Remove("Supplier");
                 JObject newJsonObject = new JObject();
                 //keys must match with the columns in the database (lowercase)
                 foreach (var pair in jsonObject.Properties())
@@ -1078,6 +1137,14 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.IngredientId = info.IngredientId;
+                    item.Quantity = info.Quantity;
+                    item.InboundDate = info.InboundDate;
+                    item.ExpiryDate = info.ExpiryDate;
+                    item.SupplierId = info.SupplierId;
+                    item.Notes = info.Notes;
+                    _inbounds = data;
+                    Debug.WriteLine("Inbound updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -1236,7 +1303,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, OutboundModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _outbounds ?? GetAll();
+                var item = data.FirstOrDefault(o => o.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Inventories");
@@ -1251,6 +1323,13 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.InventoryId = info.InventoryId;
+                    item.Quantity = info.Quantity;
+                    item.OutboundDate = info.OutboundDate;
+                    item.Purpose = info.Purpose;
+                    item.Notes = info.Notes;
+                    _outbounds = data;
+                    Debug.WriteLine("Outbound updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -1410,7 +1489,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, CustomerModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _customers ?? GetAll();
+                var item = data.FirstOrDefault(c => c.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Invoices");
@@ -1425,6 +1509,13 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.Name = info.Name;
+                    item.Email = info.Email;
+                    item.Phone = info.Phone;
+                    item.Address = info.Address;
+                    item.Invoices = info.Invoices;
+                    _customers = data;
+                    Debug.WriteLine("Customer updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -1583,7 +1674,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, ExpenseCategoryModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _expenseCategories ?? GetAll();
+                var item = data.FirstOrDefault(c => c.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Expenses");
@@ -1598,6 +1694,11 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.CategoryName = info.CategoryName;
+                    item.Description = info.Description;
+                    item.Expenses = info.Expenses;
+                    _expenseCategories = data;
+                    Debug.WriteLine("Expense category updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -1758,7 +1859,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, CheckInventoryModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _checkInventories ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Inventory");
@@ -1774,6 +1880,13 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.InventoryId = info.InventoryId;
+                    item.ActualQuantity = info.ActualQuantity;
+                    item.CheckDate = info.CheckDate;
+                    item.Notes = info.Notes;
+                    item.Inventory = info.Inventory; // Update navigation property if needed
+                    _checkInventories = data;
+                    Debug.WriteLine("Check inventory updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -1800,6 +1913,7 @@ namespace Kohi.Services
                 {
                     var item = _productVariants.FirstOrDefault(r => r.Id == intId);
                     _productVariants.Remove(item);
+                    Debug.WriteLine("Da xoa " + id);
                     return 1;
                 }
                 else
@@ -1937,7 +2051,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, ProductVariantModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _productVariants ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Product");
@@ -1957,6 +2076,16 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.ProductId = info.ProductId;
+                    item.Size = info.Size;
+                    item.Price = info.Price;
+                    item.Cost = info.Cost;
+                    item.Product = info.Product;
+                    item.InvoiceDetails = info.InvoiceDetails;
+                    item.Toppings = info.Toppings;
+                    item.RecipeDetails = info.RecipeDetails;
+                    _productVariants = data;
+                    Debug.WriteLine("Product variant updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -2115,7 +2244,12 @@ namespace Kohi.Services
             }
             public int UpdateById(string id, ExpenseModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _expenses ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("ExpenseCategory");
@@ -2131,6 +2265,11 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.ExpenseCategoryId = info.ExpenseCategoryId;
+                    item.Amount = info.Amount;
+                    item.ExpenseDate = info.ExpenseDate;
+                    _expenses = data;
+                    Debug.WriteLine("Expense updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -2289,10 +2428,16 @@ namespace Kohi.Services
             }
             public int UpdateById(string id, InvoiceModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _invoices ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Customer");
+                jsonObject.Remove("InvoiceDetails");
 
                 JObject newJsonObject = new JObject();
                 //keys must match with the columns in the database (lowercase)
@@ -2305,6 +2450,12 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.CustomerId = info.CustomerId;
+                    item.InvoiceDate = info.InvoiceDate;
+                    item.TotalAmount = info.TotalAmount;
+                    item.InvoiceDetails = info.InvoiceDetails;
+                    _invoices = data;
+                    Debug.WriteLine("Invoice updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -2417,7 +2568,7 @@ namespace Kohi.Services
 
                 info.Id = _invoiceDetails.Count + 1;
                 _invoiceDetails.Add(info);
-                
+
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
@@ -2466,7 +2617,12 @@ namespace Kohi.Services
 
             public int UpdateById(string id, InvoiceDetailModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _invoiceDetails ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Invoice");
@@ -2484,6 +2640,13 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.InvoiceId = info.InvoiceId;
+                    item.ProductId = info.ProductId;
+                    item.SugarLevel = info.SugarLevel;
+                    item.IceLevel = info.IceLevel;
+                    item.Toppings = info.Toppings;
+                    _invoiceDetails = data;
+                    Debug.WriteLine("Invoice detail updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -2643,7 +2806,12 @@ namespace Kohi.Services
             }
             public int UpdateById(string id, RecipeDetailModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _recipeDetails ?? GetAll();
+                var item = data.FirstOrDefault(r => r.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("ProductVariant");
@@ -2660,6 +2828,12 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.ProductVariantId = info.ProductVariantId;
+                    item.IngredientId = info.IngredientId;
+                    item.Quantity = info.Quantity;
+                    item.Unit = info.Unit;
+                    _recipeDetails = data;
+                    Debug.WriteLine("Recipe detail updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -2774,7 +2948,7 @@ namespace Kohi.Services
 
                 info.Id = _payments.Count + 1;
                 _payments.Add(info);
-                
+
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
@@ -2819,7 +2993,12 @@ namespace Kohi.Services
             }
             public int UpdateById(string id, PaymentModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _payments ?? GetAll();
+                var item = data.FirstOrDefault(p => p.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Invoice");
@@ -2835,6 +3014,12 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.InvoiceId = info.InvoiceId;
+                    item.PaymentDate = info.PaymentDate;
+                    item.Amount = info.Amount;
+                    item.PaymentMethod = info.PaymentMethod;
+                    _payments = data;
+                    Debug.WriteLine("Payment updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -2945,10 +3130,10 @@ namespace Kohi.Services
                 {
                     return 0;
                 }
-                
+
                 info.Id = _orderToppings.Count + 1;
                 _orderToppings.Add(info);
-                
+
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
@@ -2994,7 +3179,12 @@ namespace Kohi.Services
             }
             public int UpdateById(string id, OrderToppingModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _orderToppings ?? GetAll();
+                var item = data.FirstOrDefault(o => o.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("InvoiceDetail");
@@ -3011,6 +3201,10 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.InvoiceDetailId = info.InvoiceDetailId;
+                    item.ProductId = info.ProductId;
+                    _orderToppings = data;
+                    Debug.WriteLine("Order topping updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -3124,7 +3318,7 @@ namespace Kohi.Services
 
                 info.Id = _taxes.Count + 1;
                 _taxes.Add(info);
-                
+
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
@@ -3168,7 +3362,12 @@ namespace Kohi.Services
             }
             public int UpdateById(string id, TaxModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _taxes ?? GetAll();
+                var item = data.FirstOrDefault(t => t.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
 
@@ -3183,6 +3382,11 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.TaxName = info.TaxName;
+                    item.TaxRate = info.TaxRate;
+                    item.InvoiceTaxes = info.InvoiceTaxes;
+                    _taxes = data;
+                    Debug.WriteLine("Tax updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
@@ -3296,7 +3500,7 @@ namespace Kohi.Services
 
                 info.Id = _invoiceTaxes.Count + 1;
                 _invoiceTaxes.Add(info);
-                
+
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
@@ -3342,7 +3546,12 @@ namespace Kohi.Services
             }
             public int UpdateById(string id, InvoiceTaxModel info)
             {
-                JObject jsonObject = JObject.FromObject(info);
+                if (!int.TryParse(id, out int intId) || info == null) return 0;
+                var data = _invoiceTaxes ?? GetAll();
+                var item = data.FirstOrDefault(i => i.Id == intId);
+                if (item == null) return 0;
+
+                JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Invoice");
@@ -3359,6 +3568,10 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    item.InvoiceId = info.InvoiceId;
+                    item.TaxId = info.TaxId;
+                    _invoiceTaxes = data;
+                    Debug.WriteLine("Invoice tax updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
                 else
