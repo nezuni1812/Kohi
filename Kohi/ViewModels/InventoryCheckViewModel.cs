@@ -72,6 +72,12 @@ namespace Kohi.ViewModels
             try
             {
                 int result = _dao.CheckInventories.Insert(checkInventory);
+                var inventory = _dao.Inventories.GetById(checkInventory.InventoryId.ToString());
+                //inventory.Quantity = checkInventory.ActualQuantity;
+
+                _dao.Inventories.UpdateById(checkInventory.InventoryId.ToString(), inventory);
+                checkInventory.Inventory = inventory;
+                checkInventory.Discrepancy = checkInventory.Inventory.Quantity - checkInventory.ActualQuantity;
             }
             catch (Exception ex)
             {

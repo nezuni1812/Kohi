@@ -1075,6 +1075,7 @@ namespace Kohi.Services
                 jsonObject.Remove("Id");
                 jsonObject.Remove("Ingredient");
                 jsonObject.Remove("Supplier");
+                jsonObject.Remove("CostPerUnit");
                 JObject newJsonObject = new JObject();
                 //keys must match with the columns in the database (lowercase)
                 foreach (var pair in jsonObject.Properties())
@@ -1098,6 +1099,7 @@ namespace Kohi.Services
                     Debug.WriteLine("Inbound inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
                     _inbounds[^1].Id = jsonArray[0]["id"].ToObject<int>();
+                    Debug.WriteLine("Added inbound");
                     return 1;
                 }
                 else
@@ -1111,7 +1113,7 @@ namespace Kohi.Services
 
             public int Insert(InboundModel info)
             {
-                throw new NotImplementedException();
+                return Insert("", info);
             }
 
             public int UpdateById(string id, InboundModel info)

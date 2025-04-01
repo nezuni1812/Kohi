@@ -38,7 +38,6 @@
             CloseButtonText="Đóng"
             PrimaryButtonText="Xác nhận"
             PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-            PrimaryButtonClick="OutboundDialog_PrimaryButtonClick"
             CloseButtonClick="OutboundDialog_CloseButtonClick"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
@@ -101,7 +100,6 @@
            CloseButtonText="Đóng"
            PrimaryButtonText="Xác nhận"
            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-           PrimaryButtonClick="CheckDialog_PrimaryButtonClick"
            CloseButtonClick="CheckDialog_CloseButtonClick"
            HorizontalAlignment="Center"
            VerticalAlignment="Center">

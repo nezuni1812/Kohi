@@ -126,8 +126,8 @@ namespace Kohi.Views
             {
                 CheckInventoryModel checkInventory = new CheckInventoryModel
                 {
-                    InventoryId = Convert.ToInt32(CheckBatchCodeTextBox),
-                    ActualQuantity = Convert.ToInt32(InventoryQuantityBox),
+                    InventoryId = Convert.ToInt32(CheckBatchCodeTextBox.Text),
+                    ActualQuantity = Convert.ToInt32(InventoryQuantityBox.Text),
                     CheckDate = InventoryDatePicker.Date?.DateTime ?? DateTime.Now,
                     Notes = ReasonTextBox.Text, 
                 };
