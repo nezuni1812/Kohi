@@ -1,69 +1,91 @@
-﻿using Kohi.Models;
-using Kohi.Services;
-using Kohi.Utils;
+﻿using Kohi.Models.BankingAPI;
+using Newtonsoft.Json;
+using PropertyChanged;
+using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Kohi.Utils;
 
 namespace Kohi.ViewModels
 {
+    [AddINotifyPropertyChangedInterface] 
     public class PaymentViewModel
     {
-        private IDao _dao;
-        public FullObservableCollection<PaymentModel> Payments { get; set; }
-        public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
-        public int TotalItems { get; set; }
-        public int TotalPages => (int)Math.Ceiling((double)TotalItems / PageSize); // Tổng số trang
+        public FullObservableCollection<Datum> Banks { get; set; } = new FullObservableCollection<Datum>();
+        public Datum SelectedBank { get; set; }
+        public string AccountNumber { get; set; }
+        public string AccountName { get; set; }
+        public string Amount { get; set; }
+        public string QRCode { get; set; }
+
         public PaymentViewModel()
         {
-            _dao = Service.GetKeyedSingleton<IDao>();
-            Payments = new FullObservableCollection<PaymentModel>();
-
-            LoadData();
+            LoadBanks();
         }
 
-        public async Task LoadData(int page = 1)
+        public async void LoadBanks()
         {
-            CurrentPage = page;
-            TotalItems = _dao.Payments.GetCount(); // Lấy tổng số khách hàng từ DAO
-            var result = await Task.Run(() => _dao.Payments.GetAll(
-                pageNumber: CurrentPage,
-                pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
-            Payments.Clear();
-            foreach (var customer in result)
+            try
             {
-                Payments.Add(customer);
+                using (WebClient client = new WebClient())
+                {
+                    var json = client.DownloadString("https://api.vietqr.io/v2/banks");
+                    var bankData = JsonConvert.DeserializeObject<BankModel>(json);
+
+                    Banks.Clear();
+                    foreach (var bank in bankData.data)
+                    {
+                        Banks.Add(bank);
+                    }
+
+                    if (Banks.Count > 0)
+                        SelectedBank = Banks[0]; // Chọn ngân hàng mặc định
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi tải ngân hàng: {ex.Message}");
             }
         }
 
-        // Phương thức để chuyển đến trang tiếp theo
-        public async Task NextPage()
+        public async Task GenerateQRCode()
         {
-            if (CurrentPage < TotalPages)
+            try
             {
-                await LoadData(CurrentPage + 1);
-            }
-        }
+                var apiRequest = new ApiBankingRequestModel
+                {
+                    acqId = Convert.ToInt32(SelectedBank.bin),
+                    accountNo = long.Parse(AccountNumber),
+                    accountName = AccountName,
+                    amount = Convert.ToInt32(Amount),
+                    format = "text",
+                    template = "compact"
+                };
 
-        // Phương thức để quay lại trang trước
-        public async Task PreviousPage()
-        {
-            if (CurrentPage > 1)
-            {
-                await LoadData(CurrentPage - 1);
-            }
-        }
+                var jsonRequest = JsonConvert.SerializeObject(apiRequest);
+                var client = new RestClient("https://api.vietqr.io/v2/generate");
+                var request = new RestRequest
+                {
+                    Method = Method.Post
+                };
 
-        // Phương thức để chuyển đến trang cụ thể
-        public async Task GoToPage(int page)
-        {
-            if (page >= 1 && page <= TotalPages)
+                request.AddHeader("Accept", "application/json");
+                request.AddParameter("application/json", jsonRequest, ParameterType.RequestBody);
+
+                var response = await client.ExecuteAsync(request);
+                var content = response.Content;
+                var dataResult = JsonConvert.DeserializeObject<ApiBankingResponseModel>(content);
+
+                QRCode = dataResult.data.qrDataURL; // View sẽ tự cập nhật
+            }
+            catch (Exception ex)
             {
-                await LoadData(page);
+                Console.WriteLine($"Lỗi tạo QR: {ex.Message}");
             }
         }
     }
