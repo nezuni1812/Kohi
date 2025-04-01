@@ -140,12 +140,13 @@
              ShowExportOptions="True"
              HeaderGridLinesVisibility="All"
              GridLinesVisibility="All"
-             SelectionChanged="OnSelectionChanged">
+             SelectionChanged="OnSelectionChanged"
+             IsReadOnly="True">
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
                     <tableView:TableViewTextColumn Header="Tên" Binding="{Binding Name}" />
                     <tableView:TableViewTextColumn Header="Email" Binding="{Binding Email}" />
-                    <tableView:TableViewTextColumn Header="Số điện thoại" Binding="{Binding Phone }" />
+                    <tableView:TableViewTextColumn Header="Số điện thoại" Binding="{Binding Phone}" />
                     <tableView:TableViewTextColumn Header="Địa chỉ" Binding="{Binding Address  }" />
                 </tableView:TableView.Columns>
             </tableView:TableView>
