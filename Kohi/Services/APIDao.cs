@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Kohi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using WinRT.Interop;
 using static Kohi.Services.MockDao;
 
 namespace Kohi.Services
@@ -15,7 +17,7 @@ namespace Kohi.Services
     internal class APIDao : IDao
     {
         private static readonly HttpClient client = new HttpClient();
-        private static String baseURL = "http://localhost:3000";
+        private static string baseURL = "http://localhost:3000";
         private static JsonSerializer serializer = new JsonSerializer
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -44,15 +46,19 @@ namespace Kohi.Services
         public class APICategoryRepository : IRepository<CategoryModel>
         {
             List<CategoryModel> _categories;
+            private static int _nextId;
             public APICategoryRepository() { }
             public APICategoryRepository(List<CategoryModel> list) { _categories = list; }
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/categories?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _categories.FirstOrDefault(r => r.Id == intId);
+                    _categories.Remove(item);
                     return 1;
                 }
                 else
@@ -89,6 +95,10 @@ namespace Kohi.Services
 
             public CategoryModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _categories ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/categories?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -159,6 +169,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Category inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _categories[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -214,10 +226,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/products?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _products.FirstOrDefault(r => r.Id == intId);
+                    _products.Remove(item);
                     return 1;
                 }
                 else
@@ -252,6 +267,10 @@ namespace Kohi.Services
             }
             public ProductModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _products ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/products?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -294,6 +313,7 @@ namespace Kohi.Services
                 Debug.WriteLine("Insertion");
                 if (info == null) return 0;
 
+                info.Id = _products.Count + 1;
                 _products.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -324,6 +344,8 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     product = JsonConvert.DeserializeObject<List<ProductModel>>(responseContent)[0];
                     Debug.WriteLine("Person inserted successfully: " + product.Id);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _products[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -377,10 +399,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/inventories?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _inventories.FirstOrDefault(r => r.Id == intId);
+                    _inventories.Remove(item);
                     return 1;
                 }
                 else
@@ -417,6 +442,10 @@ namespace Kohi.Services
 
             public InventoryModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _inventories ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/inventories?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -463,6 +492,7 @@ namespace Kohi.Services
                     return 0;
                 }
 
+                info.Id = _inventories.Count + 1;
                 _inventories.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -490,6 +520,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Inventory inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _inventories[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -551,10 +583,13 @@ namespace Kohi.Services
             public APIIngredientRepository(List<IngredientModel> list) { _ingredients = list; }
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/ingredients?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _ingredients.FirstOrDefault(r => r.Id == intId);
+                    _ingredients.Remove(item);
                     return 1;
                 }
                 else
@@ -591,6 +626,10 @@ namespace Kohi.Services
 
             public IngredientModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _ingredients ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/ingredients?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -634,6 +673,7 @@ namespace Kohi.Services
                 Debug.WriteLine("Insertion");
                 if (info == null) return 0;
 
+                info.Id = _ingredients.Count + 1;
                 _ingredients.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -662,6 +702,8 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     ingredient = JsonConvert.DeserializeObject<List<IngredientModel>>(responseContent)[0];
                     Debug.WriteLine("Ingredient inserted successfully: " + ingredient.Id);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _ingredients[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return ingredient.Id;
                 }
                 else
@@ -712,10 +754,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/suppliers?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _suppliers.FirstOrDefault(r => r.Id == intId);
+                    _suppliers.Remove(item);
                     return 1;
                 }
                 else
@@ -752,6 +797,10 @@ namespace Kohi.Services
 
             public SupplierModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _suppliers ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/suppliers?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -795,6 +844,7 @@ namespace Kohi.Services
             {
                 if (info == null) return 0;
 
+                info.Id = _suppliers.Count + 1;
                 _suppliers.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -822,6 +872,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Supplier inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _suppliers[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -873,10 +925,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/inbounds?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _inbounds.FirstOrDefault(r => r.Id == intId);
+                    _inbounds.Remove(item);
                     return 1;
                 }
                 else
@@ -913,6 +968,10 @@ namespace Kohi.Services
 
             public InboundModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _inbounds ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/inbounds?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -955,6 +1014,7 @@ namespace Kohi.Services
             {
                 if (info == null) return 0;
 
+                info.Id = _inbounds.Count + 1;
                 _inbounds.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -983,6 +1043,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Inbound inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _inbounds[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -1034,10 +1096,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/outbounds?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _outbounds.FirstOrDefault(r => r.Id == intId);
+                    _outbounds.Remove(item);
                     return 1;
                 }
                 else
@@ -1074,6 +1139,10 @@ namespace Kohi.Services
 
             public OutboundModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _outbounds ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/outbounds?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1119,6 +1188,7 @@ namespace Kohi.Services
                     return 0;
                 }
 
+                info.Id = _outbounds.Count + 1;
                 _outbounds.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -1146,6 +1216,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Outbound inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _outbounds[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -1197,10 +1269,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/customers?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _customers.FirstOrDefault(r => r.Id == intId);
+                    _customers.Remove(item);
                     return 1;
                 }
                 else
@@ -1237,6 +1312,10 @@ namespace Kohi.Services
 
             public CustomerModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _customers ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/customers?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1283,6 +1362,7 @@ namespace Kohi.Services
                     return 0;
                 }
 
+                info.Id = _customers.Count + 1;
                 _customers.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -1310,6 +1390,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Customer inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _customers[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -1361,10 +1443,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/expensecategories?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _expenseCategories.FirstOrDefault(r => r.Id == intId);
+                    _expenseCategories.Remove(item);
                     return 1;
                 }
                 else
@@ -1401,6 +1486,10 @@ namespace Kohi.Services
 
             public ExpenseCategoryModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _expenseCategories ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/expensecategories?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1446,6 +1535,7 @@ namespace Kohi.Services
                     return 0;
                 }
 
+                info.Id = _expenseCategories.Count + 1;
                 _expenseCategories.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -1473,6 +1563,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Expense category inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _expenseCategories[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -1524,10 +1616,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/checkinventories?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _checkInventories.FirstOrDefault(r => r.Id == intId);
+                    _checkInventories.Remove(item);
                     return 1;
                 }
                 else
@@ -1564,6 +1659,11 @@ namespace Kohi.Services
 
             public CheckInventoryModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _checkInventories ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/checkinventories?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1609,6 +1709,7 @@ namespace Kohi.Services
                     return 0;
                 }
 
+                info.Id = _checkInventories.Count + 1;
                 _checkInventories.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -1637,6 +1738,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Check inventory inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _checkInventories[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -1690,10 +1793,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/productvariants?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _productVariants.FirstOrDefault(r => r.Id == intId);
+                    _productVariants.Remove(item);
                     return 1;
                 }
                 else
@@ -1730,6 +1836,10 @@ namespace Kohi.Services
 
             public ProductVariantModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _productVariants ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/productvariants?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1775,6 +1885,7 @@ namespace Kohi.Services
                     return 0;
                 }
 
+                info.Id = _productVariants.Count + 1;
                 _productVariants.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -1806,6 +1917,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Product variant inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _productVariants[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -1863,10 +1976,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/expenses?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _expenses.FirstOrDefault(r => r.Id == intId);
+                    _expenses.Remove(item);
                     return 1;
                 }
                 else
@@ -1903,6 +2019,10 @@ namespace Kohi.Services
 
             public ExpenseModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _expenses ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/expenses?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -1948,6 +2068,7 @@ namespace Kohi.Services
                     return 0;
                 }
 
+                info.Id = _expenses.Count + 1;
                 _expenses.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -1976,6 +2097,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Expense inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _expenses[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -2027,10 +2150,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/invoices?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _invoices.FirstOrDefault(r => r.Id == intId);
+                    _invoices.Remove(item);
                     return 1;
                 }
                 else
@@ -2066,6 +2192,10 @@ namespace Kohi.Services
 
             public InvoiceModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _invoices ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoices?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2111,6 +2241,7 @@ namespace Kohi.Services
                     return 0;
                 }
 
+                info.Id = _invoices.Count + 1;
                 _invoices.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -2140,6 +2271,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Invoice inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _invoices[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -2190,10 +2323,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/invoicedetails?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _invoiceDetails.FirstOrDefault(r => r.Id == intId);
+                    _invoiceDetails.Remove(item);
                     return 1;
                 }
                 else
@@ -2230,6 +2366,10 @@ namespace Kohi.Services
 
             public InvoiceDetailModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _invoiceDetails ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicedetails?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2274,7 +2414,8 @@ namespace Kohi.Services
                 {
                     return 0;
                 }
-                
+
+                info.Id = _invoiceDetails.Count + 1;
                 _invoiceDetails.Add(info);
                 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -2305,6 +2446,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Invoice detail inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _invoiceDetails[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -2360,10 +2503,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/recipedetails?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _recipeDetails.FirstOrDefault(r => r.Id == intId);
+                    _recipeDetails.Remove(item);
                     return 1;
                 }
                 else
@@ -2400,6 +2546,10 @@ namespace Kohi.Services
 
             public RecipeDetailModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _recipeDetails ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/recipedetails?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2444,7 +2594,8 @@ namespace Kohi.Services
                 {
                     return 0;
                 }
-                
+
+                info.Id = _recipeDetails.Count + 1;
                 _recipeDetails.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -2474,6 +2625,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Recipe detail inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _recipeDetails[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -2527,10 +2680,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/payments?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _payments.FirstOrDefault(r => r.Id == intId);
+                    _payments.Remove(item);
                     return 1;
                 }
                 else
@@ -2567,6 +2723,10 @@ namespace Kohi.Services
 
             public PaymentModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _payments ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/payments?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2611,7 +2771,8 @@ namespace Kohi.Services
                 {
                     return 0;
                 }
-                
+
+                info.Id = _payments.Count + 1;
                 _payments.Add(info);
                 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -2640,6 +2801,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Payment inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _payments[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -2691,10 +2854,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/ordertoppings?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _orderToppings.FirstOrDefault(r => r.Id == intId);
+                    _orderToppings.Remove(item);
                     return 1;
                 }
                 else
@@ -2731,6 +2897,10 @@ namespace Kohi.Services
 
             public OrderToppingModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _orderToppings ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/ordertoppings?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2776,6 +2946,7 @@ namespace Kohi.Services
                     return 0;
                 }
                 
+                info.Id = _orderToppings.Count + 1;
                 _orderToppings.Add(info);
                 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -2805,6 +2976,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Order topping inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _orderToppings[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -2857,10 +3030,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/taxes?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _taxes.FirstOrDefault(r => r.Id == intId);
+                    _taxes.Remove(item);
                     return 1;
                 }
                 else
@@ -2897,6 +3073,10 @@ namespace Kohi.Services
 
             public TaxModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _taxes ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/taxes?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2941,7 +3121,8 @@ namespace Kohi.Services
                 {
                     return 0;
                 }
-                
+
+                info.Id = _taxes.Count + 1;
                 _taxes.Add(info);
                 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -2969,6 +3150,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Tax inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _taxes[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -3019,10 +3202,13 @@ namespace Kohi.Services
 
             public int DeleteById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return 0;
                 var reponse = client.DeleteAsync($"{baseURL}/invoicetaxes?id=eq.{id}").Result;
 
                 if (reponse.IsSuccessStatusCode)
                 {
+                    var item = _invoiceTaxes.FirstOrDefault(r => r.Id == intId);
+                    _invoiceTaxes.Remove(item);
                     return 1;
                 }
                 else
@@ -3059,6 +3245,10 @@ namespace Kohi.Services
 
             public InvoiceTaxModel GetById(string id)
             {
+                if (!int.TryParse(id, out int intId)) return null;
+                var data = _invoiceTaxes ?? GetAll();
+                return data.FirstOrDefault(p => p.Id == intId);
+
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicetaxes?id=eq.{id}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -3103,7 +3293,8 @@ namespace Kohi.Services
                 {
                     return 0;
                 }
-                
+
+                info.Id = _invoiceTaxes.Count + 1;
                 _invoiceTaxes.Add(info);
                 
                 JObject jsonObject = JObject.FromObject(info, serializer);
@@ -3133,6 +3324,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Invoice tax inserted successfully: " + responseContent);
+                    JArray jsonArray = JArray.Parse(responseContent);
+                    _invoiceTaxes[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
