@@ -102,5 +102,15 @@ namespace Kohi.ViewModels
 
             }
         }
+
+        public async Task<List<IngredientModel>> GetAll()
+        {
+            TotalItems = _dao.Ingredients.GetCount(); // Lấy tổng số khách hàng từ DAO
+            var result = await Task.Run(() => _dao.Ingredients.GetAll()); // Lấy tất cả dữ liệu mà không phân trang
+
+            // Bạn có thể trả về kết quả ngay lập tức hoặc thêm các thao tác khác ở đây
+            return result.ToList(); // Trả về danh sách các nguyên liệu
+        }
+
     }
 }

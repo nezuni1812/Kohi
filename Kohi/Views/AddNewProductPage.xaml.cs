@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using Kohi.Services;
 using Kohi.Errors;
+using Kohi.Utils;
 
 namespace Kohi.Views
 {
@@ -101,7 +102,7 @@ namespace Kohi.Views
                     Debug.WriteLine($"Đang lưu tệp: {imageFileName} vào {localFolder.Path}");
                     await selectedImageFile.CopyAsync(localFolder, imageFileName, NameCollisionOption.ReplaceExisting);
                     outtext.Text = $"Đã lưu hình ảnh '{imageFileName}' thành công.";
-                    return imageFileName; // Chỉ trả về tên tệp
+                    return imageFileName; // Trả về tên tệp gồm normalizedName + flag + fileExtension
                 }
                 catch (Exception ex)
                 {
@@ -132,6 +133,8 @@ namespace Kohi.Views
                 { "Tên sản phẩm", ProductNameTextBox.Text },
             };
 
+            Debug.WriteLine("hoang" + imgName);
+
             List<string> validationErrors = _errorHandler?.HandleError(fields) ?? new List<string>();
             errors.AddRange(validationErrors);
 
@@ -145,7 +148,7 @@ namespace Kohi.Views
                 var product = new ProductModel
                 {
                     Name = ProductNameTextBox.Text,
-                    ImageUrl = imgName, // Lưu tên tệp vào ImageUrl
+                    ImageUrl = imgName, // Lưu tên tệp vào ImageUrl (bao gồm timestamp)
                     CategoryId = selectedCategory?.Id ?? 0,
                     IsActive = IsActiveCheckBox.IsChecked == true,
                     IsTopping = IsToppingCheckBox.IsChecked == true,

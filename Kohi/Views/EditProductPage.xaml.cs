@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using Kohi.Services;
 using Kohi.Errors;
+using Kohi.Utils;
 
 namespace Kohi.Views
 {
@@ -74,17 +75,24 @@ namespace Kohi.Views
                 if (!string.IsNullOrEmpty(_currentProduct.ImageUrl))
                 {
                     StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                    // Trích xuất tên tệp từ ImageUrl (loại bỏ đường dẫn đầy đủ nếu có)
+                    string imageFileName = Path.GetFileName(_currentProduct.ImageUrl);
                     try
                     {
-                        Debug.WriteLine($"Đang tìm tệp: {_currentProduct.ImageUrl} trong {localFolder.Path}");
-                        StorageFile file = await localFolder.GetFileAsync(_currentProduct.ImageUrl);
+                        Debug.WriteLine($"Đang tìm tệp: {imageFileName} trong {localFolder.Path}");
+                        StorageFile file = await localFolder.GetFileAsync(imageFileName);
                         using (var stream = await file.OpenAsync(FileAccessMode.Read))
                         {
                             var bitmapImage = new BitmapImage();
                             await bitmapImage.SetSourceAsync(stream);
                             mypic.Source = bitmapImage;
                         }
-                        outtext.Text = "Ảnh hiện tại: " + _currentProduct.ImageUrl;
+                        outtext.Text = "Ảnh hiện tại: " + imageFileName;
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        Debug.WriteLine($"Tệp ảnh không tồn tại: {ex.Message}");
+                        outtext.Text = "Ảnh không tồn tại trong thư mục lưu trữ.";
                     }
                     catch (Exception ex)
                     {
@@ -116,7 +124,7 @@ namespace Kohi.Views
                 }
 
                 // Load Ingredients cho RecipeDetails
-                //ViewModel.Ingredients = new ObservableCollection<IngredientModel>(await IngredientViewModel.GetAll());
+                ViewModel.Ingredients = new FullObservableCollection<IngredientModel>(await IngredientViewModel.GetAll());
             }
             else
             {
@@ -183,7 +191,7 @@ namespace Kohi.Views
             }
             else if (!string.IsNullOrEmpty(_currentProduct?.ImageUrl))
             {
-                return _currentProduct.ImageUrl; // Giữ ảnh cũ nếu không chọn ảnh mới
+                return Path.GetFileName(_currentProduct.ImageUrl); // Trả về tên tệp từ ImageUrl cũ
             }
             else
             {
@@ -230,7 +238,6 @@ namespace Kohi.Views
                 _currentProduct.Description = DescriptionTextBox.Text;
                 _currentProduct.Category = selectedCategory;
 
-                // Cập nhật Variants và RecipeDetails
                 _currentProduct.ProductVariants.Clear();
                 foreach (var variantVM in ViewModel.Variants)
                 {
@@ -296,7 +303,6 @@ namespace Kohi.Views
                 await ProductViewModel.Update(_currentProduct.Id.ToString(), _currentProduct);
 
                 outtext.Text = "✅ Đã cập nhật sản phẩm thành công!";
-                Frame.Navigate(typeof(CategoriesPage)); // Hoặc trang danh sách sản phẩm
             }
             catch (Exception ex)
             {
