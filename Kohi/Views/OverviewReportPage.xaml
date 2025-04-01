@@ -11,7 +11,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TextBlock Text="Tổng quan"></TextBlock>
+        <!--TextBlock Text="Tổng quan"></TextBlock>
 
         <chart:SfCircularChart x:Name="Chart" Header="Sales by a Salesperson">
             <chart:SfCircularChart.Legend>
@@ -45,6 +45,6 @@
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                 </chart:PieSeries.DataLabelSettings>
             </chart:PieSeries>
-        </chart:SfCircularChart>
+        </chart:SfCircularChart-->
     </Grid>
 </Page>
