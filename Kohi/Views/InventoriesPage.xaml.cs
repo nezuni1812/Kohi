@@ -16,6 +16,9 @@ using Kohi.Models;
 using Kohi.ViewModels;
 using System.Diagnostics;
 using WinUI.TableView;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static System.Net.Mime.MediaTypeNames;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -31,8 +34,11 @@ namespace Kohi.Views
         public SupplierViewModel SupplierViewModel { get; set; } = new SupplierViewModel();
         public InboundViewModel InboundViewModel { get; set; } = new InboundViewModel();
         public InventoryViewModel InventoryViewModel { get; set; } = new InventoryViewModel();
-        public InventoryModel? SelectedInventory { get; set; }
+        public OutboundViewModel OutboundViewModel { get; set; } = new OutboundViewModel();
+        public InventoryCheckViewModel CheckInventoryViewModel { get; set; } = new InventoryCheckViewModel();
 
+        public InventoryModel? SelectedInventory { get; set; }
+        
         public int SelectedInventoryId = -1;
         public InventoriesPage()
         {
@@ -118,7 +124,15 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                CheckInventoryModel checkInventory = new CheckInventoryModel
+                {
+                    InventoryId = Convert.ToInt32(CheckBatchCodeTextBox),
+                    ActualQuantity = Convert.ToInt32(InventoryQuantityBox),
+                    CheckDate = InventoryDatePicker.Date?.DateTime ?? DateTime.Now,
+                    Notes = ReasonTextBox.Text, 
+                };
 
+                await CheckInventoryViewModel.Add(checkInventory);
             }
         }
 
@@ -143,6 +157,16 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                // OutboundBatchCodeTextBox
+                OutboundModel outbound = new OutboundModel
+                {
+                    InventoryId = Convert.ToInt32(OutboundBatchCodeTextBox.Text),
+                    Quantity = Convert.ToInt32(OutboundQuantityBox.Text),
+                    OutboundDate = OutboundDatePicker.Date?.DateTime ?? DateTime.Now,
+                    Purpose = OutboundReasonTextBox.Text,
+                    Notes = OutboundNotesTextBox.Text,
+                };
+                await OutboundViewModel.Add(outbound); // Sửa từ Add() thành Add(inbound)
 
             }
         }
@@ -154,7 +178,6 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                Debug.WriteLine("Vui lòng .");
                 var selectedIngredient = IngredientComboBox.SelectedItem as IngredientModel;
                 var selectedSupplier = InboudSupplierComboBox.SelectedItem as SupplierModel;
 
