@@ -186,5 +186,18 @@ namespace Kohi.ViewModels
 
             }
         }
+        public async Task<ProductModel> GetById(string id)
+        {
+            try
+            {
+                var product = _dao.Products.GetById(id); // Đồng bộ
+                return product;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

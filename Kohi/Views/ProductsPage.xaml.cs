@@ -123,10 +123,10 @@ namespace Kohi.Views
                 return;
             }
 
-            //if (selectedProduct != null)
-            //{
+            Frame rootFrame = new Frame();
+            this.Content = rootFrame;
 
-            //}
+            rootFrame.Navigate(typeof(EditProductPage), selectedProductId);
         }
 
         public void UpdatePageList()

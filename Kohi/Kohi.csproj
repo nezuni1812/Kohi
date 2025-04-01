@@ -23,6 +23,8 @@
     <None Remove="Views\AddNewInventoryOutboundPage.xaml" />
     <None Remove="Views\AddNewProductPage.xaml" />
     <None Remove="Views\CustomersPage.xaml" />
+    <None Remove="Views\EditCategoryPage.xaml" />
+    <None Remove="Views\EditProductPage.xaml" />
     <None Remove="Views\HomePage.xaml" />
     <None Remove="Views\IncomeExpenseCategoriesPage.xaml" />
     <None Remove="Views\IngredientsPage.xaml" />
@@ -102,6 +104,12 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Views\AddNewInventoryOutboundPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\EditCategoryPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\EditProductPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <None Update="Views\HomePage.xaml">

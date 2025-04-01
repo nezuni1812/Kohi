@@ -128,5 +128,19 @@ namespace Kohi.ViewModels
 
             }
         }
+
+        public async Task<CategoryModel> GetById(string id)
+        {
+            try
+            {
+                var category = _dao.Categories.GetById(id); // Đồng bộ
+                return category;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

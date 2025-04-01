@@ -119,13 +119,10 @@ namespace Kohi.Views
                 
             }
 
-            //Debug.WriteLine("showEditCategoryDialog_Click triggered");
-            //var result = await CheckDialog.ShowAsync();
+            Frame rootFrame = new Frame();
+            this.Content = rootFrame;
 
-            //if (result == ContentDialogResult.Primary)
-            //{
-
-            //}
+            rootFrame.Navigate(typeof(EditCategoryPage), selectedCategoryId);
         }
 
         public void UpdatePageList()
