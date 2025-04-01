@@ -238,7 +238,7 @@ namespace Kohi.Views
                 _currentProduct.Description = DescriptionTextBox.Text;
                 _currentProduct.Category = selectedCategory;
 
-                _currentProduct.ProductVariants.Clear();
+                //_currentProduct.ProductVariants.Clear();
                 foreach (var variantVM in ViewModel.Variants)
                 {
                     var variantFields = new Dictionary<string, string>
