@@ -147,13 +147,13 @@
         </Border>
 
         <StackPanel Grid.Row="4" Orientation="Horizontal">
-            <Button x:Name="editButton" Click="showEditInfoDialog_Click" Style="{StaticResource AccentButtonStyle}">
+            <Button IsEnabled="False" x:Name="editButton" Click="showEditInfoDialog_Click" Style="{StaticResource AccentButtonStyle}">
                 <StackPanel Orientation="Horizontal">
                     <FontIcon Glyph="&#xE70F;" FontSize="14"/>
                     <TextBlock Text="Chỉnh sửa lô hàng" Margin="5,0,0,0"/>
                 </StackPanel>
             </Button>
-            <Button x:Name="deleteButton" Click="showDeleteInfoDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
+            <Button IsEnabled="False" x:Name="deleteButton" Click="showDeleteInfoDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
                 <StackPanel Orientation="Horizontal">
                     <FontIcon Glyph="&#xE74D;" FontSize="14"/>
                     <TextBlock Text="Xóa lô hàng" Margin="5,0,0,0"/>

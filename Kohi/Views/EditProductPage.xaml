@@ -13,9 +13,22 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0" Margin="0,0,0,10" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Chỉnh sửa sản phẩm" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,10"/>
+            <AppBarButton Width="45" Height="45" x:Name="backButton" Click="BackButton_Click" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE72B;" FontSize="14"/>
+                </AppBarButton.Icon>
+            </AppBarButton>
 
+            <TextBlock Grid.Column="1" Text="Chỉnh sửa sản phẩm" Style="{StaticResource SubtitleTextBlockStyle}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+        </Grid>
+        
         <ScrollViewer Grid.Row="1">
             <Grid ColumnSpacing="10">
                 <Grid.ColumnDefinitions>
@@ -72,7 +85,10 @@
 
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                            <TextBlock x:Name="outtext" Text="Ảnh Sản phẩm" Margin="0,0,0,10" />
+                            <TextBlock x:Name="outtext" Margin="0,0,0,10">
+                                <Run Text="Ảnh Sản phẩm"></Run>
+                                <Run Text="*" Foreground="Red"></Run>
+                            </TextBlock>
                             <Image x:Name="mypic" Width="150" Height="150" Margin="0,0,0,0" HorizontalAlignment="Left"/>
                         </StackPanel>
                         <AppBarButton Icon="Camera" Width="100" Label="Thêm ảnh" Click="AddImageButton_Click"/>

@@ -11,6 +11,7 @@ using System.IO;
 using Kohi.Utils;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
 
 namespace Kohi.Views
 {
@@ -174,6 +175,10 @@ namespace Kohi.Views
                 Debug.WriteLine($"Lỗi cập nhật danh mục: {ex.Message}");
                 outtext.Text = $"Lỗi khi lưu danh mục: {ex.Message}";
             }
+        }
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(CategoriesPage));
         }
     }
 }
