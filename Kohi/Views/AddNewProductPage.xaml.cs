@@ -223,17 +223,14 @@ namespace Kohi.Views
 
                 await ProductViewModel.Add(product);
 
-                int productId = Service.GetKeyedSingleton<IDao>().Products.GetCount();
                 foreach (var variant in product.ProductVariants)
                 {
-                    variant.ProductId = productId;
-                    int variantId = Service.GetKeyedSingleton<IDao>().ProductVariants.GetCount() + 1;
+                    variant.ProductId = product.Id;
                     Service.GetKeyedSingleton<IDao>().ProductVariants.Insert(variant);
 
                     foreach (var recipe in variant.RecipeDetails)
                     {
-                        recipe.ProductVariantId = variantId;
-                        int recipeId = Service.GetKeyedSingleton<IDao>().RecipeDetails.GetCount() + 1;
+                        recipe.ProductVariantId = variant.Id;
                         Service.GetKeyedSingleton<IDao>().RecipeDetails.Insert(recipe);
                     }
                 }
