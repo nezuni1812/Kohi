@@ -257,7 +257,7 @@
 
                     <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Inbound.Supplier.Name   }" />
 
-                    <tableView:TableViewNumberColumn Header="Giá nhập mỗi dơn vị" Binding="{Binding Inbound.CostPerUnit, Converter={StaticResource vnmoney}}" />
+                    <tableView:TableViewNumberColumn Header="Giá nhập mỗi đơn vị" Binding="{Binding Inbound.CostPerUnit, Converter={StaticResource vnmoney}}" />
                     <!--tableView:TableViewTemplateColumn Header="Giá nhập mỗi đơn vị">
                         <tableView:TableViewTemplateColumn.CellTemplate>
                             <DataTemplate>

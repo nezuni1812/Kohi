@@ -136,7 +136,8 @@
                  ShowExportOptions="True"
                  HeaderGridLinesVisibility="All"
                  GridLinesVisibility="All"
-                 SelectionChanged="OnSelectionChanged">
+                 SelectionChanged="OnSelectionChanged"
+                 IsReadOnly="True">
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
                     

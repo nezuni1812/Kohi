@@ -82,13 +82,29 @@
                         <FontIcon Glyph="&#xE7B8;" />
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Icon="Shop" Content="Tồn kho" Tag="Kohi.Views.InventoriesPage"/>
-                        <NavigationViewItem Icon="Shop" Content="Nhập kho" Tag="Kohi.Views.InventoryInboundPage"/>
-                        <NavigationViewItem Icon="Shop" Content="Xuất kho" Tag="Kohi.Views.InventoryOutboundPage"/>
-                        <NavigationViewItem Icon="Shop" Content="Kiểm kê kho" Tag="Kohi.Views.InventoryCheckPage"/>
+                        <NavigationViewItem Content="Tồn kho" Tag="Kohi.Views.InventoriesPage">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE7B8;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Nhập kho" Tag="Kohi.Views.InventoryInboundPage">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE7B8;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Xuất kho" Tag="Kohi.Views.InventoryOutboundPage">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE7B8;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Kiểm kê kho" Tag="Kohi.Views.InventoryCheckPage">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE7B8;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Thu chi">
+                <NavigationViewItem Content="Thu chi" IsExpanded="True">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xEC59;" />
                     </NavigationViewItem.Icon>
@@ -105,11 +121,26 @@
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
-                <NavigationViewItem Icon="Page" Content="Báo cáo" IsExpanded="True" >
+                <NavigationViewItem Content="Báo cáo" IsExpanded="True">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xF000;" />
+                    </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Icon="Shop" Content="Báo cáo tổng quan" Tag="Kohi.Views.OverviewReportPage"/>
-                        <NavigationViewItem Icon="Shop" Content="Báo cáo hàng hóa" Tag="Kohi.Views.ProductReportPage"/>
-                        <NavigationViewItem Icon="Shop" Content="Báo cáo hóa đơn" Tag="Kohi.Views.InvoiceReportPage"/>
+                        <NavigationViewItem  Content="Báo cáo tổng quan" Tag="Kohi.Views.OverviewReportPage">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE9F9;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Báo cáo hàng hóa" Tag="Kohi.Views.ProductReportPage">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEC32;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Báo cáo hóa đơn" Tag="Kohi.Views.InvoiceReportPage">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEC5B;" />
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
