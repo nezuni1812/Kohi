@@ -135,5 +135,10 @@ namespace Kohi.Views
                 outtext.Text = $"Lỗi khi thêm danh mục: {ex.Message}";
             }
         }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(CategoriesPage)); 
+        }
     }
 }

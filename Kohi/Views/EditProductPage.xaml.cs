@@ -428,5 +428,9 @@ namespace Kohi.Views
         {
             AddVariantButton.IsEnabled = true;
         }
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(ProductsPage));
+        }
     }
 }
