@@ -147,7 +147,7 @@
 
                     <tableView:TableViewNumberColumn Header="Tổng giá nhập" Binding="{Binding TotalCost, Converter={StaticResource vnmoney}}" />
 
-                    <tableView:TableViewNumberColumn Header="Giá mỗi đơn vị" Binding="{Binding UnitPerCost, Converter={StaticResource vnmoney}}" />
+                    <tableView:TableViewNumberColumn Header="Giá mỗi đơn vị" Binding="{Binding CostPerUnit, Converter={StaticResource vnmoney}}" />
 
                     <tableView:TableViewDateColumn Header="Ngày nhập" Binding="{Binding InboundDate}" />
                     
