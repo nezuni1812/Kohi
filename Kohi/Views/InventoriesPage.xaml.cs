@@ -154,10 +154,44 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                Debug.WriteLine("Vui lòng .");
+                var selectedIngredient = IngredientComboBox.SelectedItem as IngredientModel;
+                var selectedSupplier = InboudSupplierComboBox.SelectedItem as SupplierModel;
 
+                if (selectedIngredient == null || selectedSupplier == null)
+                {
+                    // Thông báo lỗi nếu không chọn Ingredient hoặc Supplier
+                    // Có thể hiển thị thông báo qua UI (TextBlock hoặc ContentDialog khác)
+                    Debug.WriteLine("Vui lòng chọn nguyên vật liệu và nhà cung cấp.");
+                    return;
+                }
+
+                InboundModel inbound = new InboundModel
+                {
+                    IngredientId = selectedIngredient.Id, // Lấy ID từ Ingredient đã chọn
+                    SupplierId = selectedSupplier.Id,     // Lấy ID từ Supplier đã chọn
+                    Quantity = Convert.ToInt32(InboundQuantityNumberBox.Value), // Sử dụng Value thay vì Text
+                    TotalCost = Convert.ToInt32(InboundTotalValueNumberBox.Value), // Sử dụng Value thay vì Text
+                    InboundDate = InboundDateCalendarDatePicker.Date?.DateTime ?? DateTime.Now, // Default nếu không chọn
+                    ExpiryDate = InboundExpiryDateCalendarDatePicker.Date?.DateTime ?? DateTime.MaxValue // Default nếu không chọn
+                };
+
+                // Gọi phương thức Add từ InboundViewModel (sửa lại để truyền inbound)
+                await InboundViewModel.Add(inbound); // Sửa từ Add() thành Add(inbound)
+
+                InventoryModel inventory = new InventoryModel
+                {
+                    InboundId = inbound.Id,
+                    Quantity = inbound.Quantity,
+                    InboundDate = inbound.InboundDate,
+                    ExpiryDate = inbound.ExpiryDate,
+                };
+                await InventoryViewModel.Add(inventory);
+                Debug.WriteLine("Thêm thành công InventoryModel và Inbound");
             }
             else
             {
+                Debug.WriteLine("Thêm ko thành công InventoryModel và Inbound");
 
             }
         }

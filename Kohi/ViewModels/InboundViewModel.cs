@@ -67,5 +67,41 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+        public async Task Add(InboundModel inbound)
+        {
+            try
+            {
+                int result = _dao.Inbounds.Insert(inbound);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.Inbounds.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, InboundModel inbound)
+        {
+            try
+            {
+                int result = _dao.Inbounds.UpdateById(id, inbound);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }

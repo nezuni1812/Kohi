@@ -157,7 +157,6 @@
        CloseButtonText="Đóng"
        PrimaryButtonText="Xác nhận"
        PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-       PrimaryButtonClick="InboundDialog_PrimaryButtonClick"
        CloseButtonClick="InboundDialog_CloseButtonClick"
        HorizontalAlignment="Center"
        VerticalAlignment="Center">
@@ -199,7 +198,7 @@
                 <Run Text="Tổng giá trị lô hàng"/>
                 <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <NumberBox Minimum="0" SpinButtonPlacementMode="Compact"/>
+                    <NumberBox x:Name="InboundTotalValueNumberBox" Minimum="0" SpinButtonPlacementMode="Compact"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Left" Margin="0,0,0,10">
@@ -207,22 +206,22 @@
                 <Run Text="Số lượng nhập"/>
                 <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <NumberBox Minimum="0" SpinButtonPlacementMode="Compact"/>
+                    <NumberBox x:Name="InboundQuantityNumberBox" Minimum="0" SpinButtonPlacementMode="Compact"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Text="Ngày nhập hàng" Margin="0,0,0,5"/>
-                    <CalendarDatePicker PlaceholderText="Chọn ngày"/>
+                    <CalendarDatePicker x:Name="InboundDateCalendarDatePicker" PlaceholderText="Chọn ngày"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,10">
                     <TextBlock Text="Ngày hết hạn" Margin="0,0,0,5"/>
-                    <CalendarDatePicker PlaceholderText="Chọn ngày"/>
+                    <CalendarDatePicker x:Name="InboundExpiryDateCalendarDatePicker" PlaceholderText="Chọn ngày"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Margin="0,0,0,10">
                     <TextBlock Text="Nhà cung cấp" Margin="0,0,0,5"/>
-                    <ComboBox ItemsSource="{Binding SupplierViewModel.Suppliers}" DisplayMemberPath="Name" PlaceholderText="-- Chọn nhà cung cấp --"/>
+                    <ComboBox x:Name="InboudSupplierComboBox" ItemsSource="{Binding SupplierViewModel.Suppliers}" DisplayMemberPath="Name" PlaceholderText="-- Chọn nhà cung cấp --"/>
                 </StackPanel>
             </Grid>
         </ContentDialog>
