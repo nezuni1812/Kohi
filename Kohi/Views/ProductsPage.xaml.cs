@@ -49,7 +49,7 @@ namespace Kohi.Views
             if (sender is TableView tableView && tableView.SelectedItem is ProductModel selectedProduct)
             {
                 selectedProductId = selectedProduct.Id;
-                Debug.WriteLine($"Selected Inbound ID: {selectedProductId}");
+                Debug.WriteLine($"Selected Product ID: {selectedProductId}");
             }
             else
             {
@@ -98,6 +98,7 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                ProductViewModel.Delete(selectedProductId.ToString());
                 Debug.WriteLine($"Đã xóa sản phẩm ID: {selectedProductId}");
             }
             else
