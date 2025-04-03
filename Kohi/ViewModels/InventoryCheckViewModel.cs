@@ -37,6 +37,7 @@ namespace Kohi.ViewModels
             CheckInventories.Clear();
             foreach (var item in result)
             {
+                item.Inventory = _dao.Inventories.GetById(item.InventoryId.ToString());
                 CheckInventories.Add(item);
             }
         }
