@@ -74,6 +74,32 @@ namespace Kohi.ViewModels
             try
             {
                 int result = _dao.Customers.Insert(customer);
+                Customers.Add(customer);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.Customers.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, CustomerModel customer)
+        {
+            try
+            {
+                int result = _dao.Customers.UpdateById(id, customer);
             }
             catch (Exception ex)
             {

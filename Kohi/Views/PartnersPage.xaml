@@ -27,7 +27,6 @@
             CloseButtonText="Đóng"
             PrimaryButtonText="Xác nhận"
             PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-            PrimaryButtonClick="SupplierDialog_PrimaryButtonClick"
             CloseButtonClick="SupplierDialog_CloseButtonClick"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
@@ -43,7 +42,7 @@
                         <Run Text="Tên"/>
                         <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <TextBox x:Name="supplierName" PlaceholderText="Nhập họ và tên"/>
+                    <TextBox x:Name="SupplierNameTextBox" PlaceholderText="Nhập họ và tên"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
@@ -51,7 +50,7 @@
                         <Run Text="Số điện thoại"/>
                         <!--Run Text="*" Foreground="Red"/-->
                     </TextBlock>
-                    <TextBox x:Name="supplierPhone" PlaceholderText="Nhập số điện thoại"/>
+                    <TextBox x:Name="SupplierPhoneNumberTextBox" PlaceholderText="Nhập số điện thoại"/>
                 </StackPanel>
                 
                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
@@ -59,14 +58,14 @@
                         <Run Text="Email"/>
                         <!--Run Text="*" Foreground="Red"/-->
                     </TextBlock>
-                    <TextBox x:Name="supplierEmail" PlaceholderText="Nhập email"/>
+                    <TextBox x:Name="SupplierEmailTextBox" PlaceholderText="Nhập email"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
                         <Run Text="Địa chỉ"/>
                     </TextBlock>
-                    <TextBox x:Name="supplierAddress" PlaceholderText="Nhập địa chỉ"/>
+                    <TextBox x:Name="SupplierAddressTextBox" PlaceholderText="Nhập địa chỉ"/>
                 </StackPanel>
             </Grid>
         </ContentDialog>
@@ -76,7 +75,6 @@
             CloseButtonText="Đóng"
             PrimaryButtonText="Xác nhận"
             PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-            PrimaryButtonClick="CustomerDialog_PrimaryButtonClick"
             CloseButtonClick="CustomerDialog_CloseButtonClick"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
@@ -92,7 +90,7 @@
                 <Run Text="Họ và tên"/>
                 <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <TextBox x:Name="customerName" PlaceholderText="Nhập họ và tên"/>
+                    <TextBox x:Name="CustomerNameTextBox" PlaceholderText="Nhập họ và tên"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
@@ -100,7 +98,7 @@
                         <Run Text="Số điện thoại"/>
                         <!--Run Text="*" Foreground="Red"/-->
                     </TextBlock>
-                    <TextBox x:Name="customerPhone" PlaceholderText="Nhập số điện thoại"/>
+                    <TextBox x:Name="CustomerPhoneNumberTextBox" PlaceholderText="Nhập số điện thoại"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
@@ -108,18 +106,114 @@
                 <Run Text="Email"/>
                     <!--Run Text="*" Foreground="Red"/-->
                     </TextBlock>
-                    <TextBox x:Name="customerEmail" PlaceholderText="Nhập email"/>
+                    <TextBox x:Name="CustomerEmailTextBox" PlaceholderText="Nhập email"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
                 <Run Text="Địa chỉ"/>
                     </TextBlock>
-                    <TextBox x:Name="customerAddress" PlaceholderText="Nhập địa chỉ"/>
+                    <TextBox x:Name="CustomerAddressTextBox" PlaceholderText="Nhập địa chỉ"/>
                 </StackPanel>
             </Grid>
         </ContentDialog>
-        
+
+        <ContentDialog x:Name="SupplierEditDialog"
+        Title="Chỉnh sửa cung cấp"
+        CloseButtonText="Đóng"
+        PrimaryButtonText="Xác nhận"
+        PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+        CloseButtonClick="SupplierDialog_CloseButtonClick"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center">
+            <Grid Grid.Row="1" ColumnSpacing="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Tên"/>
+                <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox x:Name="EditSupplierNameTextBox" PlaceholderText="Nhập họ và tên"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Số điện thoại"/>
+                <!--Run Text="*" Foreground="Red"/-->
+                    </TextBlock>
+                    <TextBox x:Name="EditSupplierPhoneNumberTextBox" PlaceholderText="Nhập số điện thoại"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Email"/>
+                <!--Run Text="*" Foreground="Red"/-->
+                    </TextBlock>
+                    <TextBox x:Name="EditSupplierEmailTextBox" PlaceholderText="Nhập email"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Địa chỉ"/>
+                    </TextBlock>
+                    <TextBox x:Name="EditSupplierAddressTextBox" PlaceholderText="Nhập địa chỉ"/>
+                </StackPanel>
+            </Grid>
+        </ContentDialog>
+
+        <ContentDialog x:Name="CustomerEditDialog"
+        Title="Chỉnh sửa khách hàng"
+        CloseButtonText="Đóng"
+        PrimaryButtonText="Xác nhận"
+        PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+        CloseButtonClick="CustomerDialog_CloseButtonClick"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center">
+            <Grid Grid.Row="1" ColumnSpacing="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+        <Run Text="Họ và tên"/>
+        <Run Text="*" Foreground="Red"/>
+                    </TextBlock>
+                    <TextBox x:Name="EditCustomerNameTextBox" PlaceholderText="Nhập họ và tên"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+                <Run Text="Số điện thoại"/>
+                <!--Run Text="*" Foreground="Red"/-->
+                    </TextBlock>
+                    <TextBox x:Name="EditCustomerPhoneNumberTextBox" PlaceholderText="Nhập số điện thoại"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+        <Run Text="Email"/>
+            <!--Run Text="*" Foreground="Red"/-->
+                    </TextBlock>
+                    <TextBox x:Name="EditCustomerEmailTextBox" PlaceholderText="Nhập email"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
+                    <TextBlock Margin="0,0,0,5">
+        <Run Text="Địa chỉ"/>
+                    </TextBlock>
+                    <TextBox x:Name="EditCustomerAddressTextBox" PlaceholderText="Nhập địa chỉ"/>
+                </StackPanel>
+            </Grid>
+        </ContentDialog>
+
         <TextBlock Grid.Row="0" Text="Danh sách đối tác" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
 
         <SelectorBar Grid.Row="1" Grid.Column="0" x:Name="SelectorBar" SelectionChanged="SelectorBar_SelectionChanged" >

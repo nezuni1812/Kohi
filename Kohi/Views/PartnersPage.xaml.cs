@@ -12,11 +12,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using WinUI.TableView;
+using static System.Net.Mime.MediaTypeNames;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -30,11 +32,15 @@ namespace Kohi.Views
     {
         public CustomerViewModel CustomerViewModel { get; set; } = new CustomerViewModel();
         public SupplierViewModel SupplierViewModel { get; set; } = new SupplierViewModel();
+        private SupplierModel selectedSupplier;
+        private CustomerModel selectedCustomer;
+
         public PartnersPage()
         {
             this.InitializeComponent();
             MyTableView.ItemsSource = CustomerViewModel.Customers;
             addButtonTextBlock.Text = "Thêm khách hàng";
+            editButton.Click += EditButton_Click; // Thêm sự kiện cho nút chỉnh sửa
         }
         private void SelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
         {
@@ -50,6 +56,7 @@ namespace Kohi.Views
                 deleteButton.Click += ShowDeleteCustomerDialog;
 
                 editButtonTextBlock.Text = "Chỉnh sửa khách hàng";
+                selectedSupplier = null;
             }
             else if (sender.SelectedItem == SupplierSelectorBar)
             {
@@ -63,16 +70,80 @@ namespace Kohi.Views
                 deleteButton.Click += ShowDeleteSupplierDialog;
 
                 editButtonTextBlock.Text = "Chỉnh sửa nhà cung cấp";
+                selectedCustomer = null;
+            }
+        }
 
+        private async void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectorBar.SelectedItem == CustomerSelectorBar && selectedCustomer != null)
+            {
+                EditCustomerNameTextBox.Text = selectedCustomer.Name;
+                EditCustomerAddressTextBox.Text = selectedCustomer.Phone;
+                EditCustomerPhoneNumberTextBox.Text = selectedCustomer.Email;
+                EditCustomerEmailTextBox.Text = selectedCustomer.Address;
+                var result = await CustomerEditDialog.ShowAsync();
+                // Điền dữ liệu vào CustomerEditDialog
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    // Cập nhật dữ liệu sau khi chỉnh sửa
+                    selectedCustomer.Name = EditCustomerNameTextBox.Text;
+                    selectedCustomer.Phone = EditCustomerAddressTextBox.Text;
+                    selectedCustomer.Email = EditCustomerPhoneNumberTextBox.Text;
+                    selectedCustomer.Address = EditCustomerEmailTextBox.Text;
+
+                    await CustomerViewModel.Update(selectedCustomer.Id.ToString(), selectedCustomer);
+                }
+            }
+            else if (SelectorBar.SelectedItem == SupplierSelectorBar && selectedSupplier != null)
+            {
+                // Điền dữ liệu vào SupplierEditDialog
+                EditSupplierNameTextBox.Text = selectedSupplier.Name;
+                EditSupplierPhoneNumberTextBox.Text = selectedSupplier.Phone;
+                EditSupplierEmailTextBox.Text = selectedSupplier.Email;
+                EditSupplierAddressTextBox.Text = selectedSupplier.Address;
+
+                var result = await SupplierEditDialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    // Cập nhật dữ liệu sau khi chỉnh sửa
+                    selectedSupplier.Name = EditSupplierNameTextBox.Text;
+                    selectedSupplier.Phone = EditSupplierPhoneNumberTextBox.Text;
+                    selectedSupplier.Email = EditSupplierEmailTextBox.Text;
+                    selectedSupplier.Address = EditSupplierAddressTextBox.Text;
+
+                    await SupplierViewModel.Update(selectedSupplier.Id.ToString(), selectedSupplier);
+                }
+            }
+            else
+            {
+                // Hiển thị thông báo nếu chưa chọn mục nào
+                var warningDialog = new ContentDialog
+                {
+                    Title = "Cảnh báo",
+                    Content = "Vui lòng chọn một mục để chỉnh sửa.",
+                    CloseButtonText = "Đóng",
+                    XamlRoot = this.XamlRoot
+                };
+                await warningDialog.ShowAsync();
             }
         }
 
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is SupplierModel selectedSupplier)
+            if (sender is TableView tableView && tableView.SelectedItem != null)
             {
-                int id = selectedSupplier.Id;
-                Debug.WriteLine($"Selected ID: {id}");
+                if (SelectorBar.SelectedItem == CustomerSelectorBar && tableView.SelectedItem is CustomerModel customer)
+                {
+                    selectedCustomer = customer;
+                    Debug.WriteLine($"Selected Customer ID: {selectedCustomer.Id}");
+                }
+                else if (SelectorBar.SelectedItem == SupplierSelectorBar && tableView.SelectedItem is SupplierModel supplier)
+                {
+                    selectedSupplier = supplier;
+                    Debug.WriteLine($"Selected Supplier ID: {selectedSupplier.Id}");
+                }
             }
         }
 
@@ -103,11 +174,22 @@ namespace Kohi.Views
         public async void showAddSupplierDialog_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("showAddSupplierDialog_Click triggered");
+            SupplierNameTextBox.Text = "";
+            SupplierAddressTextBox.Text = "";
+            SupplierPhoneNumberTextBox.Text = "";
+            SupplierEmailTextBox.Text = "";
             var result = await SupplierDialog.ShowAsync();
 
             if (result == ContentDialogResult.Primary)
             {
-
+                var newSupplier = new SupplierModel
+                {
+                    Name = SupplierNameTextBox.Text,
+                    Address = SupplierAddressTextBox.Text,
+                    Phone = SupplierPhoneNumberTextBox.Text,
+                    Email = SupplierEmailTextBox.Text,
+                };
+                await SupplierViewModel.Add(newSupplier);
             }
             else
             {
@@ -118,12 +200,24 @@ namespace Kohi.Views
         public async void showAddCustomerDialog_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("showAddCustomerDialog_Click triggered");
+            CustomerNameTextBox.Text = "";
+            CustomerAddressTextBox.Text = "";
+            CustomerPhoneNumberTextBox.Text = "";
+            CustomerEmailTextBox.Text = "";
             var result = await CustomerDialog.ShowAsync();
 
             if (result == ContentDialogResult.Primary)
             {
-
+                var newCustomer = new CustomerModel
+                {
+                    Name = CustomerNameTextBox.Text,
+                    Address = CustomerAddressTextBox.Text,
+                    Phone = CustomerPhoneNumberTextBox.Text,
+                    Email = CustomerEmailTextBox.Text,
+                };
+                await CustomerViewModel.Add(newCustomer);
             }
+
             else
             {
 
@@ -132,49 +226,84 @@ namespace Kohi.Views
 
         public async void ShowDeleteSupplierDialog(object sender, RoutedEventArgs e)
         {
-            var deleteDialog = new ContentDialog
+            
+            if (SelectorBar.SelectedItem == SupplierSelectorBar && selectedSupplier != null)
             {
-                Title = "Xác nhận xóa",
-                Content = "Bạn có chắc chắn muốn xóa nhà cung cấp này không? Lưu ý hành động này không thể hoàn tác.",
-                PrimaryButtonText = "Xóa",
-                CloseButtonText = "Hủy",
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.XamlRoot
-            };
+                var deleteDialog = new ContentDialog
+                {
+                    Title = "Xác nhận xóa",
+                    Content = "Bạn có chắc chắn muốn xóa nhà cung cấp này không? Lưu ý hành động này không thể hoàn tác.",
+                    PrimaryButtonText = "Xóa",
+                    CloseButtonText = "Hủy",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = this.XamlRoot
+                };
 
-            var result = await deleteDialog.ShowAsync();
+                var result = await deleteDialog.ShowAsync();
 
-            if (result == ContentDialogResult.Primary)
-            {
-                Debug.WriteLine("Đã xóa nhà cung cấp");
+                if (result == ContentDialogResult.Primary)
+                {
+                    await SupplierViewModel.Delete(selectedSupplier.Id.ToString());
+                    selectedSupplier = null;
+                    Debug.WriteLine("Đã xóa nhà cung cấp");
+                }
+                else
+                {
+                    Debug.WriteLine("Hủy xóa nhà cung cấp");
+                }
             }
             else
             {
-                Debug.WriteLine("Hủy xóa nhà cung cấp");
+                // Hiển thị thông báo nếu chưa chọn mục nào
+                var warningDialog = new ContentDialog
+                {
+                    Title = "Cảnh báo",
+                    Content = "Vui lòng chọn một mục để xóa.",
+                    CloseButtonText = "Đóng",
+                    XamlRoot = this.XamlRoot
+                };
+                await warningDialog.ShowAsync();
             }
         }
 
         public async void ShowDeleteCustomerDialog(object sender, RoutedEventArgs e)
         {
-            var deleteDialog = new ContentDialog
+            if (SelectorBar.SelectedItem == CustomerSelectorBar && selectedCustomer != null)
             {
-                Title = "Xác nhận xóa",
-                Content = "Bạn có chắc chắn muốn xóa khách hàng này không? Lưu ý hành động này không thể hoàn tác.",
-                PrimaryButtonText = "Xóa",
-                CloseButtonText = "Hủy",
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.XamlRoot
-            };
+                var deleteDialog = new ContentDialog
+                {
+                    Title = "Xác nhận xóa",
+                    Content = "Bạn có chắc chắn muốn xóa nhà khách hàng này không? Lưu ý hành động này không thể hoàn tác.",
+                    PrimaryButtonText = "Xóa",
+                    CloseButtonText = "Hủy",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = this.XamlRoot
+                };
 
-            var result = await deleteDialog.ShowAsync();
+                var result = await deleteDialog.ShowAsync();
 
-            if (result == ContentDialogResult.Primary)
-            {
-                Debug.WriteLine("Đã xóa khách hàng");
+                if (result == ContentDialogResult.Primary)
+                {
+                    await CustomerViewModel.Delete(selectedCustomer.Id.ToString());
+                    selectedCustomer = null;
+                    Debug.WriteLine("Đã xóa khách hàng cung cấp");
+                }
+                else
+                {
+                    Debug.WriteLine("Hủy xóa khách hàng cung cấp");
+                }
             }
             else
             {
-                Debug.WriteLine("Hủy xóa khách hàng");
+                // Hiển thị thông báo nếu chưa chọn mục nào
+                var warningDialog = new ContentDialog
+                {
+                    Title = "Cảnh báo",
+                    Content = "Vui lòng chọn một mục để xóa.",
+                    CloseButtonText = "Đóng",
+                    XamlRoot = this.XamlRoot
+                };
+                await warningDialog.ShowAsync();
             }
         }
     }
