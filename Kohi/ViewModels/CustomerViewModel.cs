@@ -5,6 +5,7 @@ using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,6 @@ namespace Kohi.ViewModels
         {
             _dao = Service.GetKeyedSingleton<IDao>();
             Customers = new FullObservableCollection<CustomerModel>();
-
             LoadData();
         }
 
@@ -74,7 +74,7 @@ namespace Kohi.ViewModels
             try
             {
                 int result = _dao.Customers.Insert(customer);
-                Customers.Add(customer);
+                await LoadData(CurrentPage);
             }
             catch (Exception ex)
             {

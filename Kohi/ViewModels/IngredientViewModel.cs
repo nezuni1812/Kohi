@@ -71,6 +71,7 @@ namespace Kohi.ViewModels
             try
             {
                 int result = _dao.Ingredients.Insert(ingredient);
+                await LoadData(CurrentPage);
             }
             catch (Exception ex)
             {

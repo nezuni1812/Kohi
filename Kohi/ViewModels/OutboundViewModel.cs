@@ -75,6 +75,7 @@ namespace Kohi.ViewModels
                 var inventory = _dao.Inventories.GetById(outbound.InventoryId.ToString());
                 inventory.Quantity -= outbound.Quantity;
                 _dao.Inventories.UpdateById(outbound.InventoryId.ToString(), inventory);
+                await LoadData(CurrentPage);
             }
             catch (Exception ex)
             {

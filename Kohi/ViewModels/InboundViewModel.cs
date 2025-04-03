@@ -72,6 +72,7 @@ namespace Kohi.ViewModels
             try
             {
                 int result = _dao.Inbounds.Insert(inbound);
+                await LoadData(CurrentPage);
             }
             catch (Exception ex)
             {

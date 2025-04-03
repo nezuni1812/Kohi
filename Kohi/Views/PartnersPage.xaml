@@ -245,6 +245,17 @@
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
+        <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
+    CornerRadius="{ThemeResource ControlCornerRadius}">
+            <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+        </Border>
+        
         <StackPanel Grid.Row="4" Orientation="Horizontal" Width="Auto">
             <Button x:Name="editButton" Style="{ThemeResource AccentButtonStyle}">
                 <StackPanel Orientation="Horizontal">

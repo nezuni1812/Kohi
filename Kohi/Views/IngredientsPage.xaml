@@ -39,7 +39,6 @@
             CloseButtonText="Đóng"
             PrimaryButtonText="Xác nhận"
             PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-            PrimaryButtonClick="AddIngredientDialog_PrimaryButtonClick"
             CloseButtonClick="AddIngredientDialog_CloseButtonClick"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
@@ -59,7 +58,7 @@
                         <Run Text="Tên sản phẩm"/>
                         <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <TextBox PlaceholderText="Nhập tên nguyên vật liệu"/>
+                    <TextBox x:Name="IngredientNameTextBox" PlaceholderText="Nhập tên nguyên vật liệu"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
@@ -67,12 +66,13 @@
                         <Run Text="Đơn vị"/>
                         <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <TextBox PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
+                    <TextBox x:Name="UnitTextBox" PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
                     <TextBlock Text="Mô tả" Margin="0,0,0,5"/>
                     <TextBox
+                            x:Name="DescriptionTextBox"
                             AcceptsReturn="True" 
                             Height="50" 
                             TextWrapping="Wrap" 
@@ -82,11 +82,10 @@
         </ContentDialog>
 
         <ContentDialog x:Name="EditIngredientDialog"
-            Title="Thêm nguyên vật liệu"
+            Title="Chỉnh sửa nguyên vật liệu"
             CloseButtonText="Đóng"
             PrimaryButtonText="Xác nhận"
             PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-            PrimaryButtonClick="EditIngredientDialog_PrimaryButtonClick"
             CloseButtonClick="EditIngredientDialog_CloseButtonClick"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
@@ -105,7 +104,7 @@
                         <Run Text="Tên sản phẩm"/>
                         <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <TextBox PlaceholderText="Nhập tên nguyên vật liệu"/>
+                    <TextBox x:Name="EditIngredientNameTextBox" PlaceholderText="Nhập tên nguyên vật liệu"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
@@ -113,12 +112,13 @@
                         <Run Text="Đơn vị"/>
                         <Run Text="*" Foreground="Red"/>
                     </TextBlock>
-                    <TextBox PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
+                    <TextBox x:Name="EditUnitTextBox" PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
                 </StackPanel>
                 
                 <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
                     <TextBlock Text="Mô tả" Margin="0,0,0,5"/>
                     <TextBox
+                        x:Name="EditDescriptionTextBox"
                             AcceptsReturn="True" 
                             Height="50" 
                             TextWrapping="Wrap" 

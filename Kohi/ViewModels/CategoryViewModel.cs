@@ -97,6 +97,7 @@ namespace Kohi.ViewModels
             try
             {
                 int result = _dao.Categories.Insert(category);
+                await LoadData(CurrentPage);
             }
             catch (Exception ex)
             {

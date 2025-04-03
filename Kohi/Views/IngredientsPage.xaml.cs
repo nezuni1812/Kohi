@@ -35,6 +35,8 @@ namespace Kohi.Views
         public IngredientsPage()
         {
             this.InitializeComponent();
+            selectedIngredientId = -1;
+            selectedIngredient = null;
             Loaded += IngredientsPage_Loaded;
         }
 
@@ -45,9 +47,10 @@ namespace Kohi.Views
         }
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is IngredientModel selectedIngredient)
+            if (sender is TableView tableView && tableView.SelectedItem is IngredientModel ingredientModel)
             {
-                selectedIngredientId = selectedIngredient.Id;
+                selectedIngredient = ingredientModel;
+                selectedIngredientId = ingredientModel.Id;
                 Debug.WriteLine($"Selected Ingredient ID: {selectedIngredientId}");
             }
             else
@@ -84,7 +87,17 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                var newIngredient = new IngredientModel
+                {
+                    Name = IngredientNameTextBox.Text,
+                    Unit = UnitTextBox.Text,
+                    Description = DescriptionTextBox.Text,
+                };
 
+                await IngredientViewModel.Add(newIngredient);
+                IngredientNameTextBox.Text = "";
+                UnitTextBox.Text = "";
+                DescriptionTextBox.Text = "";
             }
             else
             {
@@ -105,34 +118,34 @@ namespace Kohi.Views
 
         public async void showEditIngredientDialog_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedIngredientId == -1)
+            if (selectedIngredient == null)
             {
-                var noSelectionDialog = new ContentDialog
+                ContentDialog noSelectionDialog = new ContentDialog
                 {
                     Title = "Lỗi",
                     Content = "Không có nguyên vật liệu nào được chọn",
                     CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = base.XamlRoot
                 };
-
                 await noSelectionDialog.ShowAsync();
                 return;
             }
 
-            //if (SelectedCheckInventory != null)
-            //{
-            //    CheckBatchCodeTextBox.Text = SelectedCheckInventory.InventoryId.ToString();
-            //    InventoryQuantityBox.Value = SelectedCheckInventory.ActualQuantity;
-            //    InventoryDatePicker.Date = SelectedCheckInventory.CheckDate;
-            //    ReasonTextBox.Text = SelectedCheckInventory.Notes ?? string.Empty;
-            //}
-
             Debug.WriteLine("showEditInfoDialog_Click triggered");
-            var result = await EditIngredientDialog.ShowAsync();
+            EditIngredientNameTextBox.Text = selectedIngredient.Name;
+            EditUnitTextBox.Text = selectedIngredient.Unit;
+            EditDescriptionTextBox.Text = selectedIngredient.Description;
 
-            if (result == ContentDialogResult.Primary)
+            if (await EditIngredientDialog.ShowAsync() == ContentDialogResult.Primary)
             {
-
+                IngredientModel editedIngredient = new IngredientModel
+                {
+                    Id = selectedIngredient.Id, // Giữ nguyên Id của mục đang chỉnh sửa
+                    Name = EditIngredientNameTextBox.Text,
+                    Unit = EditUnitTextBox.Text,
+                    Description = EditDescriptionTextBox.Text
+                };
+                await IngredientViewModel.Update(selectedIngredient.Id.ToString(), editedIngredient);
             }
         }
         private void EditIngredientDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -177,7 +190,7 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                IngredientViewModel.Delete(selectedIngredientId.ToString());
+                await IngredientViewModel.Delete(selectedIngredientId.ToString());
                 Debug.WriteLine($"Đã xóa nguyên vật liệu ID: {selectedIngredientId}");
             }
             else

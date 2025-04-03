@@ -38,14 +38,55 @@ namespace Kohi.Views
         public PartnersPage()
         {
             this.InitializeComponent();
-            MyTableView.ItemsSource = CustomerViewModel.Customers;
+            //MyTableView.ItemsSource = CustomerViewModel.Customers;
             addButtonTextBlock.Text = "Thêm khách hàng";
             editButton.Click += EditButton_Click; // Thêm sự kiện cho nút chỉnh sửa
+            Loaded += PartnersPage_Loaded; // Thêm sự kiện Loaded
         }
-        private void SelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
+        private async void PartnersPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            await CustomerViewModel.LoadData(); // Tải trang đầu tiên cho Customers
+            MyTableView.ItemsSource = CustomerViewModel.Customers;
+            addButtonTextBlock.Text = "Thêm khách hàng";
+            UpdatePageList(); // Cập nhật phân trang ban đầu
+        }
+        private void UpdatePageList()
+        {
+            if (SelectorBar.SelectedItem == CustomerSelectorBar)
+            {
+                pageList.ItemsSource = Enumerable.Range(1, CustomerViewModel.TotalPages);
+                pageList.SelectedItem = CustomerViewModel.CurrentPage;
+            }
+            else if (SelectorBar.SelectedItem == SupplierSelectorBar)
+            {
+                pageList.ItemsSource = Enumerable.Range(1, SupplierViewModel.TotalPages);
+                pageList.SelectedItem = SupplierViewModel.CurrentPage;
+            }
+        }
+
+        private async void OnPageSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (pageList.SelectedItem == null) return;
+
+            var selectedPage = (int)pageList.SelectedItem;
+            if (SelectorBar.SelectedItem == CustomerSelectorBar && selectedPage != CustomerViewModel.CurrentPage)
+            {
+                await CustomerViewModel.LoadData(selectedPage);
+                MyTableView.ItemsSource = CustomerViewModel.Customers;
+                UpdatePageList();
+            }
+            else if (SelectorBar.SelectedItem == SupplierSelectorBar && selectedPage != SupplierViewModel.CurrentPage)
+            {
+                await SupplierViewModel.LoadData(selectedPage);
+                MyTableView.ItemsSource = SupplierViewModel.Suppliers;
+                UpdatePageList();
+            }
+        }
+        private async void SelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
         {
             if (sender.SelectedItem == CustomerSelectorBar)
             {
+                await CustomerViewModel.LoadData(); // Tải trang đầu tiên khi chuyển tab
                 MyTableView.ItemsSource = CustomerViewModel.Customers;
                 addButtonTextBlock.Text = "Thêm khách hàng";
                 addButton.Click -= showAddSupplierDialog_Click;
@@ -57,9 +98,11 @@ namespace Kohi.Views
 
                 editButtonTextBlock.Text = "Chỉnh sửa khách hàng";
                 selectedSupplier = null;
+                UpdatePageList();
             }
             else if (sender.SelectedItem == SupplierSelectorBar)
             {
+                await SupplierViewModel.LoadData(); // Tải trang đầu tiên khi chuyển tab
                 MyTableView.ItemsSource = SupplierViewModel.Suppliers;
                 addButtonTextBlock.Text = "Thêm nhà cung cấp";
                 addButton.Click -= showAddCustomerDialog_Click;
@@ -71,6 +114,7 @@ namespace Kohi.Views
 
                 editButtonTextBlock.Text = "Chỉnh sửa nhà cung cấp";
                 selectedCustomer = null;
+                UpdatePageList();
             }
         }
 

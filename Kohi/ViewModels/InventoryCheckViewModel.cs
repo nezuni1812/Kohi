@@ -78,6 +78,7 @@ namespace Kohi.ViewModels
                 _dao.Inventories.UpdateById(checkInventory.InventoryId.ToString(), inventory);
                 checkInventory.Inventory = inventory;
                 checkInventory.Discrepancy = checkInventory.Inventory.Quantity - checkInventory.ActualQuantity;
+                await LoadData(CurrentPage);
             }
             catch (Exception ex)
             {

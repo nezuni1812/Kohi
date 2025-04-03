@@ -71,7 +71,7 @@ namespace Kohi.ViewModels
             try
             {
                 int result = _dao.Suppliers.Insert(supplier);
-                Suppliers.Add(supplier);
+                await LoadData(CurrentPage);
             }
             catch (Exception ex)
             {
