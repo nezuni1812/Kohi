@@ -29,10 +29,13 @@ namespace Kohi.Views
     public sealed partial class IncomeExpenseCategoriesPage : Page
     {
         public ExpenseCategoryViewModel ExpenseCategoryViewModel { get; set; } = new ExpenseCategoryViewModel();
+        public ExpenseCategoryModel? SelectedExpenseCategory { get; set; }
         public IncomeExpenseCategoriesPage()
         {
             this.InitializeComponent();
             this.DataContext = this;
+            SelectedExpenseCategory = null;
+            Loaded += ExpenseCategoriesPage_Loaded;
         }
 
         public async void ExpenseCategoriesPage_Loaded(object sender, RoutedEventArgs e)
@@ -43,10 +46,10 @@ namespace Kohi.Views
 
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is ExpenseCategoryModel selectedExpenseCategory)
+            if (sender is TableView tableView && tableView.SelectedItem is ExpenseCategoryModel expenseCategory)
             {
-                int id = selectedExpenseCategory.Id;
-                Debug.WriteLine($"Selected Customer ID: {id}");
+                SelectedExpenseCategory = expenseCategory;
+                Debug.WriteLine($"Selected Customer ID: {SelectedExpenseCategory.Id}");
             }
         }
         public void UpdatePageList()
@@ -81,6 +84,18 @@ namespace Kohi.Views
 
         public async void showDeleteExpenseCategoryDialog_Click(object sender, RoutedEventArgs e)
         {
+            if (SelectedExpenseCategory == null)
+            {
+                var noSelectionDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = "Không có danh mục nào được chọn",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await noSelectionDialog.ShowAsync();
+                return;
+            }
             var deleteDialog = new ContentDialog
             {
                 Title = "Xác nhận xóa",
@@ -95,6 +110,7 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                await ExpenseCategoryViewModel.Delete(SelectedExpenseCategory.Id.ToString());
                 Debug.WriteLine("Đã xóa danh mục");
             }
             else
@@ -105,7 +121,7 @@ namespace Kohi.Views
 
         public async void showEditExpenseCategoryDialog_Click(object sender, RoutedEventArgs e)
         {
-            if (false)
+            if (SelectedExpenseCategory == null)
             {
                 var noSelectionDialog = new ContentDialog
                 {
@@ -120,17 +136,65 @@ namespace Kohi.Views
             }
 
             Debug.WriteLine("showEditExpenseCategoryDialog_Click triggered");
-            var result = await ExpenseCategoryDialog.ShowAsync();
-
+            EditExpenseCategoryName.Text = SelectedExpenseCategory.CategoryName;
+            EditExpenseCategoryNote.Text = SelectedExpenseCategory.Description;
+            var result = await EditExpenseCategoryDialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
-
+                SelectedExpenseCategory.CategoryName = EditExpenseCategoryName.Text;
+                SelectedExpenseCategory.Description = EditExpenseCategoryNote.Text;
+                await ExpenseCategoryViewModel.Update(SelectedExpenseCategory.Id.ToString(), SelectedExpenseCategory);
             }
         }
 
+        private void AddExpenseCategoryDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            // Simply close the dialog
+        }
+        private void EditExpenseCategoryDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            // Simply close the dialog without saving changes
+        }
         public async void showAddExpenseCategoryDialog_Click(object sender, RoutedEventArgs e)
         {
+            // Clear any existing values in the dialog fields
+            expenseCategoryName.Text = string.Empty;
+            expenseCategoryNote.Text = string.Empty;
 
+            // Show the dialog
+            var result = await AddExpenseCategoryDialog.ShowAsync();
+
+            // Process the result if Primary button was clicked (Confirm)
+            if (result == ContentDialogResult.Primary)
+            {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(expenseCategoryName.Text))
+                {
+                    var validationDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = "Tên danh mục không được để trống",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await validationDialog.ShowAsync();
+                    return;
+                }
+
+                // Create new expense category
+                var newCategory = new ExpenseCategoryModel
+                {
+                    CategoryName = expenseCategoryName.Text,
+                    Description = expenseCategoryNote.Text
+                };
+
+                // Add to database
+                await ExpenseCategoryViewModel.Add(newCategory);
+
+                // Refresh data
+                await ExpenseCategoryViewModel.LoadData();
+                UpdatePageList();
+            }
         }
     }
 }

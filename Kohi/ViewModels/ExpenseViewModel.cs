@@ -29,14 +29,15 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Expenses.GetCount(); // Lấy tổng số khách hàng từ DAO
+            TotalItems = _dao.Expenses.GetCount(); 
             var result = await Task.Run(() => _dao.Expenses.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            )); 
             ExpenseReceipts.Clear();
             foreach (var item in result)
             {
+                item.ExpenseCategory = _dao.ExpenseCategories.GetById(item.ExpenseCategoryId.ToString());
                 ExpenseReceipts.Add(item);
             }
         }
@@ -65,6 +66,43 @@ namespace Kohi.ViewModels
             if (page >= 1 && page <= TotalPages)
             {
                 await LoadData(page);
+            }
+        }
+        public async Task Add(ExpenseModel expensey)
+        {
+            try
+            {
+                int result = _dao.Expenses.Insert(expensey);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.Expenses.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, ExpenseModel expensey)
+        {
+            try
+            {
+                int result = _dao.Expenses.UpdateById(id, expensey);
+            }
+            catch (Exception ex)
+            {
+
             }
         }
     }

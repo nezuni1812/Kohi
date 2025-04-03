@@ -31,6 +31,7 @@ namespace Kohi.Views
         public IncomeViewModel IncomeViewModel { get; set; } = new IncomeViewModel();
         public ExpenseViewModel ExpenseViewModel { get; set; } = new ExpenseViewModel();
         public ExpenseCategoryViewModel ExpenseCategoryViewModel { get; set; } = new ExpenseCategoryViewModel();
+        public ExpenseModel SelectedExpense { get; set; }
 
         public IncomeExpensePage()
         {
@@ -51,8 +52,8 @@ namespace Kohi.Views
         {
             if (sender is TableView tableView && tableView.SelectedItem is ExpenseModel selectedExpense)
             {
-                int id = selectedExpense.Id;
-                Debug.WriteLine($"Selected Customer ID: {id}");
+                SelectedExpense = selectedExpense;
+                Debug.WriteLine($"Selected Expense ID: {SelectedExpense.Id}");
             }
         }
 
@@ -100,20 +101,31 @@ namespace Kohi.Views
             //    //GridContent.DataContext = ExpenseViewModel;
             //}
         }
-
-        private void ExpenseReceiptDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void AddExpenseReceiptDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            args.Cancel = true;
-
+            // Simply close the dialog without saving
         }
-
-        private void ExpenseReceiptDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void EditExpenseReceiptDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-
+            // Simply close the dialog without saving
         }
 
         public async void showDeleteExpenseReceiptDialog_Click(object sender, RoutedEventArgs e)
         {
+            if (SelectedExpense == null)
+            {
+                var noSelectionDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = "Không có phiếu nào được chọn",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await noSelectionDialog.ShowAsync();
+                return;
+            }
+
             var deleteDialog = new ContentDialog
             {
                 Title = "Xác nhận xóa",
@@ -128,7 +140,9 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                Debug.WriteLine("Đã xóa phiếu");
+                // Actually delete the expense receipt
+                await ExpenseViewModel.Delete(SelectedExpense.Id.ToString());
+                Debug.WriteLine($"Đã xóa phiếu chi ID: {SelectedExpense.Id}");
             }
             else
             {
@@ -138,7 +152,7 @@ namespace Kohi.Views
 
         public async void showEditExpenseReceiptDialog_Click(object sender, RoutedEventArgs e)
         {
-            if (false)
+            if (SelectedExpense == null)
             {
                 var noSelectionDialog = new ContentDialog
                 {
@@ -152,18 +166,137 @@ namespace Kohi.Views
                 return;
             }
 
-            Debug.WriteLine("showEditInfoDialog_Click triggered");
-            var result = await ExpenseReceiptDialog.ShowAsync();
+            var selectedExpenseCategory = EditExpenseReceiptCategoryComboBox.SelectedItem as ExpenseCategoryModel;
+
+            Debug.WriteLine($"Editing expense receipt ID: {SelectedExpense.Id}");
+            EditExpenseReceiptCategoryComboBox.SelectedItem = selectedExpenseCategory;
+            EditExpenseReceiptAmount.Text = SelectedExpense.Amount.ToString();
+            EditExpenseReceiptDate.Date = SelectedExpense.ExpenseDate;
+            EditExpenseReceiptNote.Text = SelectedExpense.Note;
+            var result = await EditExpenseReceiptDialog.ShowAsync();
 
             if (result == ContentDialogResult.Primary)
             {
+                // Validate input
+                if (EditExpenseReceiptCategoryComboBox.SelectedItem == null)
+                {
+                    var validationDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = "Vui lòng chọn loại phiếu chi",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await validationDialog.ShowAsync();
+                    return;
+                }
 
+                if (string.IsNullOrWhiteSpace(EditExpenseReceiptAmount.Text) ||
+                    !decimal.TryParse(EditExpenseReceiptAmount.Text, out decimal amount))
+                {
+                    var validationDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = "Vui lòng nhập số tiền hợp lệ",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await validationDialog.ShowAsync();
+                    return;
+                }
+
+                if (EditExpenseReceiptDate.Date == null)
+                {
+                    var validationDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = "Vui lòng chọn ngày",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await validationDialog.ShowAsync();
+                    return;
+                }
+                selectedExpenseCategory = EditExpenseReceiptCategoryComboBox.SelectedItem as ExpenseCategoryModel;
+                // Update the expense model
+                SelectedExpense.ExpenseCategoryId = selectedExpenseCategory.Id;
+                SelectedExpense.Amount = float.Parse(EditExpenseReceiptAmount.Text);
+                SelectedExpense.ExpenseDate = EditExpenseReceiptDate.Date.Value.DateTime;
+                SelectedExpense.Note = EditExpenseReceiptNote.Text;
+                // Save changes
+                await ExpenseViewModel.Update(SelectedExpense.Id.ToString(), SelectedExpense);
+                // Refresh data
+                await ExpenseViewModel.LoadData();
+                UpdatePageList();
             }
         }
 
         public async void showAddExpenseReceiptDialog_Click(object sender, RoutedEventArgs e)
         {
 
+            // Clear form fields
+            AddExpenseReceiptCategoryComboBox.SelectedItem = null;
+            AddExpenseReceiptAmount.Text = string.Empty;
+            AddExpenseReceiptDate.Date = DateTime.Today; // Set to current date
+            AddExpenseReceiptNote.Text = string.Empty;
+
+            var result = await AddExpenseReceiptDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                // Validate input
+                if (AddExpenseReceiptCategoryComboBox.SelectedItem == null)
+                {
+                    var validationDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = "Vui lòng chọn loại phiếu chi",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await validationDialog.ShowAsync();
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(AddExpenseReceiptAmount.Text) ||
+                    !decimal.TryParse(AddExpenseReceiptAmount.Text, out decimal amount))
+                {
+                    var validationDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = "Vui lòng nhập số tiền hợp lệ",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await validationDialog.ShowAsync();
+                    return;
+                }
+
+                if (AddExpenseReceiptDate.Date == null)
+                {
+                    var validationDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = "Vui lòng chọn ngày",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await validationDialog.ShowAsync();
+                    return;
+                }
+                var selectedExpenseCategory = AddExpenseReceiptCategoryComboBox.SelectedItem as ExpenseCategoryModel;
+                // Create new expense
+                var newExpense = new ExpenseModel
+                {
+                    ExpenseCategoryId = selectedExpenseCategory.Id,
+                    Amount = float.Parse(AddExpenseReceiptAmount.Text),
+                    ExpenseDate = AddExpenseReceiptDate.Date.Value.DateTime,
+                    Note = AddExpenseReceiptNote.Text
+                };
+
+                // Add to database
+                await ExpenseViewModel.Add(newExpense);
+            }
         }
     }
 }

@@ -37,6 +37,7 @@ namespace Kohi.ViewModels
             ExpenseCategories.Clear();
             foreach (var expenseCategory in result)
             {
+                expenseCategory.Expenses = _dao.Expenses.GetAll().Where(e => e.ExpenseCategoryId == expenseCategory.Id).ToList();
                 ExpenseCategories.Add(expenseCategory);
             }
         }
@@ -62,6 +63,43 @@ namespace Kohi.ViewModels
             if (page >= 1 && page <= TotalPages)
             {
                 await LoadData(page);
+            }
+        }
+        public async Task Add(ExpenseCategoryModel expenseCategory)
+        {
+            try
+            {
+                int result = _dao.ExpenseCategories.Insert(expenseCategory);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                int result = _dao.ExpenseCategories.DeleteById(id);
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task Update(string id, ExpenseCategoryModel expenseCategory)
+        {
+            try
+            {
+                int result = _dao.ExpenseCategories.UpdateById(id, expenseCategory);
+            }
+            catch (Exception ex)
+            {
+
             }
         }
     }
