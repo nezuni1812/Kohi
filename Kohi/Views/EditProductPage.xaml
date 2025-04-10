@@ -206,8 +206,11 @@
                                 <TextBlock Text="Thêm kích cỡ sản phẩm"/>
                             </StackPanel>
                         </Button>
+                        
                     </StackPanel>
+                    <Button Content="Refresh ComboBox" Click="RefreshButton_Click"/>
                 </StackPanel>
+                
             </Grid>
         </ScrollViewer>
     </Grid>

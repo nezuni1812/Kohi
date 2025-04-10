@@ -32,6 +32,7 @@ namespace Kohi.Views
         public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
         public IngredientViewModel IngredientViewModel { get; set; } = new IngredientViewModel();
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
+        public ProductVariantViewModel ProductVariantViewModel { get; set; } = new ProductVariantViewModel();
         public RecipeDetailViewModel RecipeDetailViewModel { get; set; } = new RecipeDetailViewModel();
         public AddNewProductViewModel ViewModel { get; set; } = new AddNewProductViewModel();
 
@@ -104,7 +105,8 @@ namespace Kohi.Views
                 }
 
                 ViewModel.Variants.Clear();
-                Debug.WriteLine($"Số ProductVariants: {_currentProduct.ProductVariants.Count}");
+                ViewModel.Ingredients = new FullObservableCollection<IngredientModel>(await IngredientViewModel.GetAll());
+
                 foreach (var variant in _currentProduct.ProductVariants)
                 {
                     var variantVM = new AddNewProductViewModel.ProductVariantViewModel
@@ -114,30 +116,33 @@ namespace Kohi.Views
                         Cost = variant.Cost
                     };
                     variant.RecipeDetails = await RecipeDetailViewModel.GetByProductVariantId(variant.Id);
-                    Debug.WriteLine($"Variant {variant.Size} có {variant.RecipeDetails.Count} RecipeDetails");
                     foreach (var recipe in variant.RecipeDetails)
                     {
-                        if (recipe.Ingredient == null || recipe.Ingredient.Name == null)
+                        var matchingIngredient = ViewModel.Ingredients.FirstOrDefault(i => i.Id == recipe.IngredientId);
+                        if (matchingIngredient != null)
                         {
-                            Debug.WriteLine($"Bug: Ingredient null hoặc Name null cho RecipeDetail (IngredientId = {recipe.IngredientId})");
+                            variantVM.RecipeDetails.Add(new AddNewProductViewModel.RecipeDetailViewModel
+                            {
+                                Ingredient = matchingIngredient, 
+                                Quantity = recipe.Quantity,
+                                Unit = recipe.Unit
+                            });
+                            Debug.WriteLine($"Đã gán Ingredient: {matchingIngredient.Name}");
                         }
                         else
                         {
-                            Debug.WriteLine($"RecipeDetail: Ingredient = {recipe.Ingredient.Name}, Quantity = {recipe.Quantity}, Unit = {recipe.Unit}");
+                            Debug.WriteLine($"Không tìm thấy Ingredient ID {recipe.IngredientId} trong ViewModel.Ingredients");
+                            variantVM.RecipeDetails.Add(new AddNewProductViewModel.RecipeDetailViewModel
+                            {
+                                Ingredient = recipe.Ingredient,
+                                Quantity = recipe.Quantity,
+                                Unit = recipe.Unit
+                            });
                         }
-
-                        variantVM.RecipeDetails.Add(new AddNewProductViewModel.RecipeDetailViewModel
-                        {
-                            Ingredient = recipe.Ingredient,
-                            Quantity = recipe.Quantity,
-                            Unit = recipe.Unit
-                        });
                     }
                     ViewModel.Variants.Add(variantVM);
                 }
 
-                ViewModel.Ingredients = new FullObservableCollection<IngredientModel>(await IngredientViewModel.GetAll());
-                Debug.WriteLine($"Số Ingredients trong ViewModel: {ViewModel.Ingredients.Count}");
                 VariantsListView.DataContext = ViewModel;
             }
             else
@@ -228,11 +233,11 @@ namespace Kohi.Views
             string categoryName = selectedCategory?.Name ?? "";
 
             var fields = new Dictionary<string, string>
-            {
-                { "Tên danh mục", categoryName },
-                { "Hình sản phẩm", imgName },
-                { "Tên sản phẩm", ProductNameTextBox.Text },
-            };
+    {
+        { "Tên danh mục", categoryName },
+        { "Hình sản phẩm", imgName },
+        { "Tên sản phẩm", ProductNameTextBox.Text },
+    };
 
             List<string> validationErrors = _errorHandler?.HandleError(fields) ?? new List<string>();
             errors.AddRange(validationErrors);
@@ -252,15 +257,18 @@ namespace Kohi.Views
                 _currentProduct.Description = DescriptionTextBox.Text;
                 _currentProduct.Category = selectedCategory;
 
-                //_currentProduct.ProductVariants.Clear();
+                var existingVariants = _currentProduct.ProductVariants.ToList();
+
+                var updatedVariants = new List<ProductVariantModel>();
+
                 foreach (var variantVM in ViewModel.Variants)
                 {
                     var variantFields = new Dictionary<string, string>
-                    {
-                        { "Size", variantVM.Size ?? "" },
-                        { "Price", variantVM.Price.ToString() },
-                        { "Cost", variantVM.Cost.ToString() }
-                    };
+            {
+                { "Size", variantVM.Size ?? "" },
+                { "Price", variantVM.Price.ToString() },
+                { "Cost", variantVM.Cost.ToString() }
+            };
 
                     List<string> variantErrors = _errorHandler?.HandleError(variantFields) ?? new List<string>();
                     errors.AddRange(variantErrors);
@@ -270,19 +278,34 @@ namespace Kohi.Views
                         return;
                     }
 
-                    var variant = new ProductVariantModel
+                    var existingVariant = existingVariants.FirstOrDefault(v => v.Size == variantVM.Size && v.Id > 0);
+                    ProductVariantModel variant;
+
+                    if (existingVariant != null)
                     {
-                        Size = variantVM.Size,
-                        Price = variantVM.Price,
-                        Cost = variantVM.Cost,
-                        Product = _currentProduct,
-                        RecipeDetails = new List<RecipeDetailModel>(),
-                        InvoiceDetails = new List<InvoiceDetailModel>(),
-                        Toppings = new List<OrderToppingModel>()
-                    };
+                        variant = existingVariant;
+                        variant.Price = variantVM.Price;
+                        variant.Cost = variantVM.Cost;
+                    }
+                    else
+                    {
+                        variant = new ProductVariantModel
+                        {
+                            Size = variantVM.Size,
+                            Price = variantVM.Price,
+                            Cost = variantVM.Cost,
+                            Product = _currentProduct,
+                            RecipeDetails = new List<RecipeDetailModel>(),
+                            InvoiceDetails = new List<InvoiceDetailModel>(),
+                            Toppings = new List<OrderToppingModel>()
+                        };
+                    }
 
                     if (variantVM.RecipeDetails.Any())
                     {
+                        var existingRecipes = variant.RecipeDetails.ToList();
+                        var updatedRecipes = new List<RecipeDetailModel>();
+
                         foreach (var recipeVM in variantVM.RecipeDetails)
                         {
                             var recipeFields = new Dictionary<string, string>
@@ -299,20 +322,59 @@ namespace Kohi.Views
                                 return;
                             }
 
-                            var recipe = new RecipeDetailModel
+                            var existingRecipe = existingRecipes.FirstOrDefault(r => r.IngredientId == recipeVM.Ingredient?.Id);
+                            RecipeDetailModel recipe;
+
+                            if (existingRecipe != null)
                             {
-                                IngredientId = recipeVM.Ingredient?.Id ?? 0,
-                                Quantity = recipeVM.Quantity,
-                                Unit = recipeVM.Unit,
-                                ProductVariant = variant,
-                                Ingredient = recipeVM.Ingredient
-                            };
-                            variant.RecipeDetails.Add(recipe);
+                                recipe = existingRecipe;
+                                recipe.Quantity = recipeVM.Quantity;
+                                recipe.Unit = recipeVM.Unit;
+                            }
+                            else
+                            {
+                                recipe = new RecipeDetailModel
+                                {
+                                    IngredientId = recipeVM.Ingredient?.Id ?? 0,
+                                    Quantity = recipeVM.Quantity,
+                                    Unit = recipeVM.Unit,
+                                    ProductVariant = variant,
+                                    Ingredient = recipeVM.Ingredient
+                                };
+                            }
+
+                            updatedRecipes.Add(recipe);
+                        }
+
+                        var recipesToRemove = existingRecipes.Where(r => !updatedRecipes.Any(ur => ur.IngredientId == r.IngredientId)).ToList();
+                        foreach (var recipe in recipesToRemove)
+                        {
+                            variant.RecipeDetails.Remove(recipe);
+                            await RecipeDetailViewModel.Delete(recipe.Id.ToString()); 
+                        }
+                        variant.RecipeDetails.Clear();
+                        variant.RecipeDetails.AddRange(updatedRecipes);
+                    }
+                    else
+                    {
+                        foreach (var recipe in variant.RecipeDetails.ToList())
+                        {
+                            variant.RecipeDetails.Remove(recipe);
+                            await RecipeDetailViewModel.Delete(recipe.Id.ToString());
                         }
                     }
 
-                    _currentProduct.ProductVariants.Add(variant);
+                    updatedVariants.Add(variant);
                 }
+
+                var variantsToRemove = existingVariants.Where(ev => !updatedVariants.Any(uv => uv.Size == ev.Size && ev.Id > 0)).ToList();
+                foreach (var variant in variantsToRemove)
+                {
+                    _currentProduct.ProductVariants.Remove(variant);
+                }
+
+                _currentProduct.ProductVariants.Clear();
+                _currentProduct.ProductVariants.AddRange(updatedVariants);
 
                 await ProductViewModel.Update(_currentProduct.Id.ToString(), _currentProduct);
 
@@ -362,6 +424,12 @@ namespace Kohi.Views
             {
                 ViewModel.Variants.RemoveAt(index);
             }
+        }
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            VariantsListView.ItemsSource = null;
+            VariantsListView.ItemsSource = ViewModel.Variants;
+            Debug.WriteLine("Đã làm mới ItemsSource của VariantsListView");
         }
 
         private void AddRecipeDetailButton_Click(object sender, RoutedEventArgs e)
