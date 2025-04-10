@@ -2009,10 +2009,18 @@ namespace Kohi.Services
 
             public int UpdateById(string id, ProductVariantModel info)
             {
-                if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _productVariants ?? GetAll();
+                if (!int.TryParse(id, out int intId) || info == null)
+                {
+                    Debug.WriteLine($"Thất bại: Id không hợp lệ hoặc info null: Id = {id}");
+                    return 0;
+                }
+                var data = GetAll();
                 var item = data.FirstOrDefault(p => p.Id == intId);
-                if (item == null) return 0;
+                if (item == null)
+                {
+                    Debug.WriteLine($"Thất bại: Không tìm thấy ProductVariant với Id = {id} trong danh sách _productVariants");
+                    return 0;
+                }
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
