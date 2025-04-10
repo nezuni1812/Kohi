@@ -166,7 +166,7 @@ namespace Kohi.Views
                 return;
             }
 
-            var selectedExpenseCategory = EditExpenseReceiptCategoryComboBox.SelectedItem as ExpenseCategoryModel;
+            var selectedExpenseCategory = SelectedExpense.ExpenseCategory;
 
             Debug.WriteLine($"Editing expense receipt ID: {SelectedExpense.Id}");
             EditExpenseReceiptCategoryComboBox.SelectedItem = selectedExpenseCategory;

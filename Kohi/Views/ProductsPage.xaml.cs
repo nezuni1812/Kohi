@@ -17,6 +17,7 @@ using Kohi.ViewModels;
 using System.Diagnostics;
 using WinUI.TableView;
 using Microsoft.UI.Xaml.Media.Animation;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,6 +33,7 @@ namespace Kohi.Views
 
         public int selectedProductId = -1;
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
+        public ProductVariantViewModel ProductVariantViewModel { get; set; } = new ProductVariantViewModel();
         public ProductsPage()
         {
             this.InitializeComponent();
@@ -87,7 +89,7 @@ namespace Kohi.Views
             var deleteDialog = new ContentDialog
             {
                 Title = "Xác nhận xóa",
-                Content = $"Bạn có chắc chắn muốn xóa sản phẩm có ID là {selectedProductId} không? Lưu ý hành động này không thể hoàn tác.",
+                Content = $"Bạn có chắc chắn muốn xóa sản phẩm có ID là {selectedProductId} không? Tất cả các biến thể sản phẩm liên quan cũng sẽ bị xóa. Hành động này không thể hoàn tác.",
                 PrimaryButtonText = "Xóa",
                 CloseButtonText = "Hủy",
                 DefaultButton = ContentDialogButton.Primary,
@@ -98,8 +100,40 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                ProductViewModel.Delete(selectedProductId.ToString());
-                Debug.WriteLine($"Đã xóa sản phẩm ID: {selectedProductId}");
+                try
+                {
+                    // 1. Lấy danh sách tất cả ProductVariants liên quan đến selectedProductId
+                    var variants = await Task.Run(() => ProductVariantViewModel.Variants
+                        .Where(v => v.ProductId == selectedProductId)
+                        .ToList());
+
+                    // 2. Xóa từng ProductVariant
+                    foreach (var variant in variants)
+                    {
+                        await ProductVariantViewModel.Delete(variant.Id.ToString());
+                        Debug.WriteLine($"Đã xóa ProductVariant ID: {variant.Id}");
+                    }
+
+                    // 3. Xóa Product sau khi đã xóa hết ProductVariants
+                    await ProductViewModel.Delete(selectedProductId.ToString());
+                    Debug.WriteLine($"Đã xóa sản phẩm ID: {selectedProductId}");
+
+                    // 4. Cập nhật lại danh sách sản phẩm
+                    await ProductViewModel.LoadData(ProductViewModel.CurrentPage);
+                    UpdatePageList();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}");
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = $"Không thể xóa sản phẩm: {ex.Message}",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                }
             }
             else
             {

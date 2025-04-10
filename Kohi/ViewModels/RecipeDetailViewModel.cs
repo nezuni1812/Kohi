@@ -3,6 +3,7 @@ using Kohi.Services;
 using Kohi.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -102,6 +103,34 @@ namespace Kohi.ViewModels
             {
 
             }
+        }
+
+        public async Task<RecipeDetailModel> GetById(string id)
+        {
+            try
+            {
+                var result = await Task.Run(() => _dao.RecipeDetails.GetById(id));
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public async Task<List<RecipeDetailModel>> GetByProductVariantId(int productVariantId)
+        {
+            var recipeDetails = _dao.RecipeDetails.GetAll(1, int.MaxValue)
+                .Where(rd => rd.ProductVariantId == productVariantId)
+                .ToList();
+            foreach (var recipe in recipeDetails)
+            {
+                recipe.Ingredient = _dao.Ingredients.GetById(recipe.IngredientId.ToString());
+                if (recipe.Ingredient == null)
+                {
+                    Debug.WriteLine($"Warning: Không tìm thấy Ingredient với IngredientId = {recipe.IngredientId}");
+                }
+            }
+            return recipeDetails;
         }
     }
 }
