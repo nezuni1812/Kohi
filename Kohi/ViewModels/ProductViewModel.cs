@@ -110,6 +110,7 @@ namespace Kohi.ViewModels
                             Debug.WriteLine("Safely skip: " + e.StackTrace);
                         }
                     }
+                    item.Category = _dao.Categories.GetById(item.CategoryId.ToString());
                 }
                 Products.Add(item);
             }

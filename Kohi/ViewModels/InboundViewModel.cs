@@ -38,6 +38,7 @@ namespace Kohi.ViewModels
             foreach (var item in result)
             {
                 item.Ingredient =  _dao.Ingredients.GetById(item.IngredientId.ToString());
+                item.Supplier = _dao.Suppliers.GetById(item.SupplierId.ToString());
                 Inbounds.Add(item);
             }
         }
