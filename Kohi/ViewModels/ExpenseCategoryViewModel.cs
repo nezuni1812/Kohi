@@ -4,6 +4,7 @@ using Kohi.Utils;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,10 +35,18 @@ namespace Kohi.ViewModels
                 pageNumber: CurrentPage,
                 pageSize: PageSize
             ));
+
+            // Lấy tất cả chi phí một lần
+            var allExpenses = await Task.Run(() => _dao.Expenses.GetAll(
+                pageNumber: 1,
+                pageSize: 1000 // Giả sử lấy số lượng lớn để bao quát
+            ));
+
             ExpenseCategories.Clear();
             foreach (var expenseCategory in result)
             {
-                expenseCategory.Expenses = _dao.Expenses.GetAll().Where(e => e.ExpenseCategoryId == expenseCategory.Id).ToList();
+                expenseCategory.Expenses = allExpenses.Where(e => e.ExpenseCategoryId == expenseCategory.Id).ToList();
+                Debug.WriteLine($"ExpenseCategory {expenseCategory.Id} has {expenseCategory.Expenses.Count} expenses");
                 ExpenseCategories.Add(expenseCategory);
             }
         }

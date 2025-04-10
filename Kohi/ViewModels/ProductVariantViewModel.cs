@@ -3,6 +3,7 @@ using Kohi.Services;
 using Kohi.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,14 +29,56 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.ProductVariants.GetCount(); // Lấy tổng số khách hàng từ DAO
+            TotalItems = _dao.ProductVariants.GetCount();
             var result = await Task.Run(() => _dao.ProductVariants.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            ));
+
+            // Lấy tất cả dữ liệu từ API
+            var allInvoiceDetails = await Task.Run(() => _dao.InvoiceDetails.GetAll(
+                pageNumber: 1,
+                pageSize: 1000 // Giả sử lấy số lượng lớn để bao quát
+            ));
+            var allToppings = await Task.Run(() => _dao.OrderToppings.GetAll(
+                pageNumber: 1,
+                pageSize: 1000
+            ));
+            var allRecipeDetails = await Task.Run(() => _dao.RecipeDetails.GetAll(
+                pageNumber: 1,
+                pageSize: 1000
+            ));
+
             Variants.Clear();
             foreach (var item in result)
             {
+                // Nối InvoiceDetails
+                var invoiceDetailsForVariant = allInvoiceDetails.Where(d => d.ProductId == item.Id).ToList();
+                item.InvoiceDetails.Clear();
+                foreach (var detail in invoiceDetailsForVariant)
+                {
+                    item.InvoiceDetails.Add(detail);
+                }
+                Debug.WriteLine($"Variant {item.Id} has {item.InvoiceDetails.Count} invoice details");
+
+                // Nối Toppings
+                var toppingsForVariant = allToppings.Where(t => t.ProductId == item.Id).ToList();
+                item.Toppings.Clear();
+                foreach (var topping in toppingsForVariant)
+                {
+                    item.Toppings.Add(topping);
+                }
+                Debug.WriteLine($"Variant {item.Id} has {item.Toppings.Count} toppings");
+
+                // Nối RecipeDetails
+                var recipeDetailsForVariant = allRecipeDetails.Where(r => r.ProductVariantId == item.Id).ToList();
+                item.RecipeDetails.Clear();
+                foreach (var recipeDetail in recipeDetailsForVariant)
+                {
+                    item.RecipeDetails.Add(recipeDetail);
+                }
+                Debug.WriteLine($"Variant {item.Id} has {item.RecipeDetails.Count} recipe details");
+
                 Variants.Add(item);
             }
         }

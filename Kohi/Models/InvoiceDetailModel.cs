@@ -15,6 +15,7 @@ namespace Kohi.Models
         public int ProductId { get; set; }
         public int? SugarLevel { get; set; }
         public int? IceLevel { get; set; }
+        public int Quantity { get; set; } // Số lượng sản phẩm, mặc định là 1
 
         // Navigation Properties
         public InvoiceModel Invoice { get; set; } // Liên kết ngược lại Invoice

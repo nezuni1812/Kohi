@@ -43,6 +43,7 @@ CREATE TABLE Inventories (
 CREATE TABLE CheckInventories (
     Id SERIAL PRIMARY KEY,
     InventoryId INT NOT NULL,
+    TheoryQuantity REAL NOT NULL,
     ActualQuantity REAL NOT NULL,
     CheckDate TIMESTAMP NOT NULL,
     Notes TEXT,
@@ -129,6 +130,7 @@ CREATE TABLE InvoiceDetails (
     ProductId INT NOT NULL,
     SugarLevel INT,
     IceLevel INT,
+    Quantity INT,
     CONSTRAINT fk_invoice FOREIGN KEY (InvoiceId) REFERENCES Invoices(Id),
     CONSTRAINT fk_product_variant FOREIGN KEY (ProductId) REFERENCES ProductVariants(Id)
 );
@@ -138,6 +140,7 @@ CREATE TABLE OrderToppings (
     Id SERIAL PRIMARY KEY,
     InvoiceDetailId INT NOT NULL,
     ProductId INT NOT NULL,
+	Quantity INT,
     CONSTRAINT fk_invoice_detail FOREIGN KEY (InvoiceDetailId) REFERENCES InvoiceDetails(Id),
     CONSTRAINT fk_product_variant FOREIGN KEY (ProductId) REFERENCES ProductVariants(Id)
 );

@@ -3,6 +3,7 @@ using Kohi.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,14 +29,30 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Suppliers.GetCount(); // Lấy tổng số khách hàng từ DAO
+            TotalItems = _dao.Suppliers.GetCount();
             var result = await Task.Run(() => _dao.Suppliers.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            ));
+
+            // Lấy tất cả inbound từ API
+            var allInbounds = await Task.Run(() => _dao.Inbounds.GetAll(
+                pageNumber: 1,
+                pageSize: 1000 // Giả sử lấy số lượng lớn để bao quát
+            ));
+
             Suppliers.Clear();
             foreach (var supplier in result)
             {
+                // Lọc inbound theo SupplierId và gán vào Inbounds
+                var inboundsForSupplier = allInbounds.Where(i => i.SupplierId == supplier.Id).ToList();
+                supplier.Inbounds.Clear(); // Xóa danh sách cũ (nếu có)
+                foreach (var inbound in inboundsForSupplier)
+                {
+                    supplier.Inbounds.Add(inbound);
+                }
+                Debug.WriteLine($"Supplier {supplier.Id} has {supplier.Inbounds.Count} inbounds");
+
                 Suppliers.Add(supplier);
             }
         }

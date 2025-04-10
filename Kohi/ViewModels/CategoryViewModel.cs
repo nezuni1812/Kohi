@@ -34,22 +34,26 @@ namespace Kohi.ViewModels
         {
             CurrentPage = page;
             TotalItems = _dao.Categories.GetCount();
-            var result = await Task.Run(() => _dao.Categories.GetAll(
+            var categoriesResult = await Task.Run(() => _dao.Categories.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
             ));
 
+            // Lấy tất cả sản phẩm từ API
+            var allProducts = await Task.Run(() => _dao.Products.GetAll(
+                pageNumber: 1, // Lấy trang đầu tiên
+                pageSize: 1000 // Giả sử lấy số lượng lớn để bao quát, tùy chỉnh theo nhu cầu
+            ));
+
             Categories.Clear();
 
-            foreach (var item in result)
+            foreach (var item in categoriesResult)
             {
-                // Kiểm tra xem danh mục đã tồn tại trong danh sách chưa
                 if (!Categories.Any(c => c.Id == item.Id))
                 {
-                    // Đường dẫn đầy đủ tới hình ảnh trong LocalFolder
+                    // Xử lý ImageUrl cho danh mục
                     if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
-                        // Tạo đường dẫn đầy đủ
                         try
                         {
                             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
@@ -60,6 +64,15 @@ namespace Kohi.ViewModels
                             Debug.WriteLine("Safely skip: " + e.StackTrace);
                         }
                     }
+
+                    // Lọc sản phẩm theo CategoryId và gán vào danh mục
+                    var productsForCategory = allProducts.Where(p => p.CategoryId == item.Id).ToList();
+                    item.Products.Clear(); // Xóa danh sách cũ (nếu có)
+                    foreach (var product in productsForCategory)
+                    {
+                        item.Products.Add(product);
+                    }
+                    Debug.WriteLine($"Category {item.Id} has {item.Products.Count} products");
                 }
                 Categories.Add(item);
             }

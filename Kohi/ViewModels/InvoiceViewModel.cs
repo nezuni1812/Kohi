@@ -3,6 +3,7 @@ using Kohi.Services;
 using Kohi.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,14 +29,30 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Invoices.GetCount(); // Lấy tổng số khách hàng từ DAO
+            TotalItems = _dao.Invoices.GetCount();
             var result = await Task.Run(() => _dao.Invoices.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            ));
+
+            // Lấy tất cả chi tiết hóa đơn từ API
+            var allInvoiceDetails = await Task.Run(() => _dao.InvoiceDetails.GetAll(
+                pageNumber: 1,
+                pageSize: 1000 // Giả sử lấy số lượng lớn để bao quát
+            ));
+
             Invoices.Clear();
             foreach (var item in result)
             {
+                // Lọc chi tiết hóa đơn theo InvoiceId và gán vào InvoiceDetails
+                var detailsForInvoice = allInvoiceDetails.Where(d => d.InvoiceId == item.Id).ToList();
+                item.InvoiceDetails.Clear(); // Xóa danh sách cũ (nếu có)
+                foreach (var detail in detailsForInvoice)
+                {
+                    item.InvoiceDetails.Add(detail);
+                }
+                Debug.WriteLine($"Invoice {item.Id} has {item.InvoiceDetails.Count} details");
+
                 Invoices.Add(item);
             }
         }

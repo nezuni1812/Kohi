@@ -4,6 +4,7 @@ using Kohi.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,15 +30,25 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Inventories.GetCount(); // Lấy tổng số khách hàng từ DAO
+            TotalItems = _dao.Inventories.GetCount();
             var result = await Task.Run(() => _dao.Inventories.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            ));
+
+            var allInbounds = await Task.Run(() => _dao.Inbounds.GetAll(1, 1000));
+            var allIngredients = await Task.Run(() => _dao.Ingredients.GetAll(1, 1000));
+            var allSuppliers = await Task.Run(() => _dao.Suppliers.GetAll(1, 1000));
+
             Inventories.Clear();
             foreach (var item in result)
             {
-                item.Inbound = _dao.Inbounds.GetById(item.InboundId.ToString());
+                item.Inbound = allInbounds.FirstOrDefault(i => i.Id == item.InboundId);
+                if (item.Inbound != null)
+                {
+                    item.Inbound.Ingredient = allIngredients.FirstOrDefault(i => i.Id == item.Inbound.IngredientId);
+                    item.Inbound.Supplier = allSuppliers.FirstOrDefault(s => s.Id == item.Inbound.SupplierId);
+                }
                 Inventories.Add(item);
             }
         }

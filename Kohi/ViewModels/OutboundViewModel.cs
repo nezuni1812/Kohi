@@ -4,6 +4,7 @@ using Kohi.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,15 +30,43 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Outbounds.GetCount(); // Lấy tổng số khách hàng từ DAO
+            TotalItems = _dao.Outbounds.GetCount();
             var result = await Task.Run(() => _dao.Outbounds.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            ));
+
+            // Lấy tất cả dữ liệu một lần
+            var allInventories = await Task.Run(() => _dao.Inventories.GetAll(1, 1000));
+            var allInbounds = await Task.Run(() => _dao.Inbounds.GetAll(1, 1000));
+            var allIngredients = await Task.Run(() => _dao.Ingredients.GetAll(1, 1000));
+            var allSuppliers = await Task.Run(() => _dao.Suppliers.GetAll(1, 1000));
+
             Outbounds.Clear();
             foreach (var item in result)
             {
-                item.Inventory = _dao.Inventories.GetById(item.InventoryId.ToString());
+                // Nối Inventory
+                item.Inventory = allInventories.FirstOrDefault(i => i.Id == item.InventoryId);
+                if (item.Inventory != null)
+                {
+                    // Nối Inbound vào Inventory
+                    item.Inventory.Inbound = allInbounds.FirstOrDefault(i => i.Id == item.Inventory.InboundId);
+                    if (item.Inventory.Inbound != null)
+                    {
+                        // Nối Ingredient và Supplier vào Inbound
+                        item.Inventory.Inbound.Ingredient = allIngredients.FirstOrDefault(i => i.Id == item.Inventory.Inbound.IngredientId);
+                        item.Inventory.Inbound.Supplier = allSuppliers.FirstOrDefault(s => s.Id == item.Inventory.Inbound.SupplierId);
+                        Debug.WriteLine($"Outbound {item.Id}: Inventory = {item.Inventory.Id}, Inbound = {item.Inventory.Inbound.Id}, Ingredient = {(item.Inventory.Inbound.Ingredient != null ? item.Inventory.Inbound.Ingredient.Name : "null")}, Supplier = {(item.Inventory.Inbound.Supplier != null ? item.Inventory.Inbound.Supplier.Name : "null")}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Outbound {item.Id}: Inventory = {item.Inventory.Id}, Inbound = null");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine($"Outbound {item.Id}: Inventory = null");
+                }
                 Outbounds.Add(item);
             }
         }

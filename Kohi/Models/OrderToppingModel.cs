@@ -12,6 +12,7 @@ namespace Kohi.Models
         public int Id { get; set; }
         public int InvoiceDetailId { get; set; }
         public int ProductId { get; set; }
+        public int Quantity { get; set; } // Số lượng topping, mặc định là 1
 
         // Navigation Properties
         public InvoiceDetailModel InvoiceDetail { get; set; } // Liên kết ngược lại InvoiceDetail

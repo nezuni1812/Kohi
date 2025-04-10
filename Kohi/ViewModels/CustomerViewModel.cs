@@ -31,14 +31,31 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Customers.GetCount(); // Lấy tổng số khách hàng từ DAO
-            var result = await Task.Run(() => _dao.Customers.GetAll(
+            TotalItems = _dao.Customers.GetCount();
+            var customersResult = await Task.Run(() => _dao.Customers.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            ));
+
+            // Lấy tất cả hóa đơn từ API
+            var allInvoices = await Task.Run(() => _dao.Invoices.GetAll(
+                pageNumber: 1,
+                pageSize: 1000 // Giả sử lấy số lượng lớn để bao quát
+            ));
+
             Customers.Clear();
-            foreach (var customer in result)
+
+            foreach (var customer in customersResult)
             {
+                // Lọc hóa đơn theo CustomerId và gán vào khách hàng
+                var invoicesForCustomer = allInvoices.Where(i => i.CustomerId == customer.Id).ToList();
+                customer.Invoices.Clear(); // Xóa danh sách cũ (nếu có)
+                foreach (var invoice in invoicesForCustomer)
+                {
+                    customer.Invoices.Add(invoice);
+                }
+                Debug.WriteLine($"Customer {customer.Id} has {customer.Invoices.Count} invoices");
+
                 Customers.Add(customer);
             }
         }

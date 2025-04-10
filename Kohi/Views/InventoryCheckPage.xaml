@@ -117,7 +117,7 @@
                     
                     <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding  Inventory.Inbound.Ingredient.Unit}" />
 
-                    <tableView:TableViewNumberColumn Header="SL lí thuyết" Binding="{Binding Inventory.Quantity }" />
+                    <tableView:TableViewNumberColumn Header="SL lí thuyết" Binding="{Binding TheoryQuantity }" />
 
                     <tableView:TableViewNumberColumn Header="SL thực tế" Binding="{Binding ActualQuantity }"/>
 

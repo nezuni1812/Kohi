@@ -4,6 +4,7 @@ using Kohi.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,15 +30,27 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.CheckInventories.GetCount(); // Lấy tổng số khách hàng từ DAO
+            TotalItems = _dao.CheckInventories.GetCount();
             var result = await Task.Run(() => _dao.CheckInventories.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            ));
             CheckInventories.Clear();
             foreach (var item in result)
             {
                 item.Inventory = _dao.Inventories.GetById(item.InventoryId.ToString());
+                if (item.Inventory != null)
+                {
+                    // Sử dụng item.Inventory.Quantity
+                    Debug.WriteLine($"CheckInventory {item.Id}: Inventory Quantity = {item.Inventory.Quantity}");
+                    // Ví dụ: Gán TheoryQuantity từ Inventory.Quantity nếu cần
+                    item.TheoryQuantity = item.Inventory.Quantity; // Tùy thuộc vào logic của bạn
+                }
+                else
+                {
+                    Debug.WriteLine($"CheckInventory {item.Id}: Inventory = null, cannot access Quantity");
+                }
+                item.Discrepancy = item.TheoryQuantity - item.ActualQuantity;
                 CheckInventories.Add(item);
             }
         }
@@ -72,18 +85,34 @@ namespace Kohi.ViewModels
         {
             try
             {
-                int result = _dao.CheckInventories.Insert(checkInventory);
+                // 1. Nối Inventory trước
                 var inventory = _dao.Inventories.GetById(checkInventory.InventoryId.ToString());
-                //inventory.Quantity = checkInventory.ActualQuantity;
+                if (inventory == null)
+                {
+                    Debug.WriteLine($"Cannot add CheckInventory: Inventory with ID {checkInventory.InventoryId} not found");
+                    return;
+                }
 
-                _dao.Inventories.UpdateById(checkInventory.InventoryId.ToString(), inventory);
+                // 2. Gán Inventory vào CheckInventory
                 checkInventory.Inventory = inventory;
-                checkInventory.Discrepancy = checkInventory.Inventory.Quantity - checkInventory.ActualQuantity;
+
+                // 3. Tính toán TheoryQuantity và Discrepancy trước khi Insert
+                checkInventory.TheoryQuantity = inventory.Quantity; // TheoryQuantity lấy từ Inventory hiện tại
+                checkInventory.Discrepancy = checkInventory.TheoryQuantity - checkInventory.ActualQuantity;
+
+                // 4. (Tùy chọn) Cập nhật Inventory.Quantity nếu cần
+                inventory.Quantity = checkInventory.ActualQuantity; // Nếu bạn muốn cập nhật số lượng thực tế
+                _dao.Inventories.UpdateById(checkInventory.InventoryId.ToString(), inventory);
+
+                // 5. Thực hiện Insert sau khi đã nối và tính toán đầy đủ
+                int result = _dao.CheckInventories.Insert(checkInventory);
+
+                // 6. Tải lại dữ liệu để phản ánh thay đổi
                 await LoadData(CurrentPage);
             }
             catch (Exception ex)
             {
-
+                Debug.WriteLine($"Error adding CheckInventory: {ex.Message}");
             }
         }
 

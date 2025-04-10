@@ -85,21 +85,26 @@ namespace Kohi.ViewModels
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
-            TotalItems = _dao.Products.GetCount(); // Lấy tổng số khách hàng từ DAO
+            TotalItems = _dao.Products.GetCount();
             var result = await Task.Run(() => _dao.Products.GetAll(
                 pageNumber: CurrentPage,
                 pageSize: PageSize
-            )); // Lấy danh sách khách hàng phân trang
+            ));
+
+            // Lấy tất cả biến thể sản phẩm từ API
+            var allVariants = await Task.Run(() => _dao.ProductVariants.GetAll(
+                pageNumber: 1,
+                pageSize: 1000 // Giả sử lấy số lượng lớn để bao quát
+            ));
+
             Products.Clear();
             foreach (var item in result)
             {
-                // Kiểm tra xem danh mục đã tồn tại trong danh sách chưa
                 if (!Products.Any(c => c.Id == item.Id))
                 {
-                    // Đường dẫn đầy đủ tới hình ảnh trong LocalFolder
+                    // Xử lý ImageUrl
                     if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
-                        // Tạo đường dẫn đầy đủ
                         try
                         {
                             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
@@ -110,7 +115,26 @@ namespace Kohi.ViewModels
                             Debug.WriteLine("Safely skip: " + e.StackTrace);
                         }
                     }
-                    item.Category = _dao.Categories.GetById(item.CategoryId.ToString());
+
+                    // Gán Category
+                    CategoryModel category = _dao.Categories.GetById(item.CategoryId.ToString());
+                    if (category != null)
+                    {
+                        item.Category = category;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Không tìm thấy danh mục với ID: " + item.CategoryId);
+                    }
+
+                    // Lọc và gán ProductVariants
+                    var variantsForProduct = allVariants.Where(v => v.ProductId == item.Id).ToList();
+                    item.ProductVariants.Clear(); // Xóa danh sách cũ (nếu có)
+                    foreach (var variant in variantsForProduct)
+                    {
+                        item.ProductVariants.Add(variant);
+                    }
+                    Debug.WriteLine($"Product {item.Id} has {item.ProductVariants.Count} variants");
                 }
                 Products.Add(item);
             }
