@@ -44,7 +44,6 @@ namespace Kohi.ViewModels
                     // Sử dụng item.Inventory.Quantity
                     Debug.WriteLine($"CheckInventory {item.Id}: Inventory Quantity = {item.Inventory.Quantity}");
                     // Ví dụ: Gán TheoryQuantity từ Inventory.Quantity nếu cần
-                    item.TheoryQuantity = item.Inventory.Quantity; // Tùy thuộc vào logic của bạn
                 }
                 else
                 {
