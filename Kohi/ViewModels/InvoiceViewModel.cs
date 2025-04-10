@@ -57,6 +57,41 @@ namespace Kohi.ViewModels
             }
         }
 
+        public async Task Add(InvoiceModel invoice)
+        {
+            try
+            {
+                int invoiceResult = _dao.Invoices.Insert(invoice);
+
+                if (invoiceResult == 1)
+                {
+                    foreach (var detail in invoice.InvoiceDetails)
+                    {
+                        detail.InvoiceId = invoice.Id;
+                        int detailResult = _dao.InvoiceDetails.Insert(detail);
+
+                        if (detailResult != 1)
+                        {
+                            Debug.WriteLine($"Failed to insert InvoiceDetail for ProductId: {detail.ProductId}");
+                            throw new Exception("Có lỗi khi lưu chi tiết hóa đơn.");
+                        }
+                    }
+
+                    await LoadData(CurrentPage);
+                }
+                else
+                {
+                    Debug.WriteLine("Failed to insert Invoice.");
+                    throw new Exception("Có lỗi khi tạo hóa đơn.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error adding invoice: {ex.Message}");
+                throw;
+            }
+        }
+
         // Phương thức để chuyển đến trang tiếp theo
         public async Task NextPage()
         {

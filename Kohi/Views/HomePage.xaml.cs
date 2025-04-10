@@ -40,7 +40,7 @@ namespace Kohi.Views
         }
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            this.DataContext = ViewModel;
+            this.DataContext = this;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -77,10 +77,18 @@ namespace Kohi.Views
                 XamlRoot = this.XamlRoot
             };
 
+            ScrollViewer scrollViewer = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                Padding = new Thickness(0, 0, 15, 0)
+            };
+
             Grid dialogContent = new Grid { Width = 300, ColumnSpacing = 10 };
             dialogContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.5, GridUnitType.Star) });
             dialogContent.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.5, GridUnitType.Star) });
             dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Product Variant
+            dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Số lượng sản phẩm
             dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Đường và Đá
             dialogContent.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); // Topping
             dialogContent.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -94,38 +102,113 @@ namespace Kohi.Views
             Grid.SetColumnSpan(variantPanel, 2);
             dialogContent.Children.Add(variantPanel);
 
+            StackPanel quantityPanel = new StackPanel { Margin = new Thickness(0, 0, 0, 10) };
+            quantityPanel.Children.Add(new TextBlock { Text = "Số lượng:" });
+            NumberBox productQuantityBox = new NumberBox
+            {
+                Value = 1,
+                Minimum = 1,
+                Maximum = 100,
+                SmallChange = 1,
+                LargeChange = 10,
+                Width = 100,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+            quantityPanel.Children.Add(productQuantityBox);
+            Grid.SetRow(quantityPanel, 1);
+            Grid.SetColumnSpan(quantityPanel, 2);
+            dialogContent.Children.Add(quantityPanel);
+
             RadioButtons sugarOptions = new RadioButtons { Header = "Đường:", SelectedIndex = 0 };
             sugarOptions.ItemTemplate = (DataTemplate)Resources["RadioButtonTemplate"];
             sugarOptions.ItemsSource = new List<string> { "100%", "75%", "50%", "25%", "0%" };
-            Grid.SetRow(sugarOptions, 1);
+            Grid.SetRow(sugarOptions, 2);
             Grid.SetColumn(sugarOptions, 0);
             dialogContent.Children.Add(sugarOptions);
 
             RadioButtons iceOptions = new RadioButtons { Header = "Đá:", SelectedIndex = 0 };
             iceOptions.ItemTemplate = (DataTemplate)Resources["RadioButtonTemplate"];
             iceOptions.ItemsSource = new List<string> { "100%", "75%", "50%", "25%", "0%" };
-            Grid.SetRow(iceOptions, 1);
+            Grid.SetRow(iceOptions, 2);
             Grid.SetColumn(iceOptions, 1);
             dialogContent.Children.Add(iceOptions);
 
+            // Topping
             StackPanel toppingPanel = new StackPanel { Margin = new Thickness(0, 10, 0, 0) };
             toppingPanel.Children.Add(new TextBlock { Text = "Topping:", Margin = new Thickness(0, 0, 0, 5) });
             var toppingList = ViewModel.ToppingProducts;
             ItemsControl toppings = new ItemsControl { ItemsSource = toppingList };
             toppings.ItemTemplate = (DataTemplate)Resources["ToppingTemplate"];
             toppingPanel.Children.Add(toppings);
-            Grid.SetRow(toppingPanel, 2);
+            Grid.SetRow(toppingPanel, 3);
             Grid.SetColumnSpan(toppingPanel, 2);
             dialogContent.Children.Add(toppingPanel);
 
-            productDialog.Content = dialogContent;
+            // Dictionary để lưu NumberBox cho từng topping
+            Dictionary<ProductModel, NumberBox> toppingQuantities = new Dictionary<ProductModel, NumberBox>();
+
+            // Xử lý sự kiện khi ItemsControl render các item
+            toppings.Loaded += (s, args) =>
+            {
+                foreach (var topping in toppingList)
+                {
+                    var container = toppings.ContainerFromItem(topping) as ContentPresenter;
+                    if (container != null)
+                    {
+                        var checkBox = FindVisualChild<CheckBox>(container);
+                        if (checkBox != null)
+                        {
+                            checkBox.Checked += (s2, e2) =>
+                            {
+                                if (!toppingQuantities.ContainsKey(topping))
+                                {
+                                    NumberBox quantityBox = new NumberBox
+                                    {
+                                        Value = 1,
+                                        Minimum = 1,
+                                        Maximum = 100,
+                                        SmallChange = 1,
+                                        LargeChange = 10,
+                                        Width = 100,
+                                        Margin = new Thickness(20, 0, 0, 0)
+                                    };
+                                    toppingQuantities[topping] = quantityBox;
+                                    var toppingGrid = FindVisualChild<Grid>(checkBox);
+                                    if (toppingGrid != null)
+                                    {
+                                        Grid.SetColumn(quantityBox, 2);
+                                        toppingGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                                        toppingGrid.Children.Add(quantityBox);
+                                    }
+                                }
+                            };
+                            checkBox.Unchecked += (s2, e2) =>
+                            {
+                                if (toppingQuantities.ContainsKey(topping))
+                                {
+                                    var quantityBox = toppingQuantities[topping];
+                                    var toppingGrid = FindVisualChild<Grid>(checkBox);
+                                    if (toppingGrid != null)
+                                    {
+                                        toppingGrid.Children.Remove(quantityBox);
+                                        toppingGrid.ColumnDefinitions.RemoveAt(toppingGrid.ColumnDefinitions.Count - 1);
+                                    }
+                                    toppingQuantities.Remove(topping);
+                                }
+                            };
+                        }
+                    }
+                }
+            };
+
+            scrollViewer.Content = dialogContent;
+            productDialog.Content = scrollViewer;
 
             productDialog.PrimaryButtonClick += async (s, args) =>
             {
                 string selectedSugar = sugarOptions.SelectedItem?.ToString();
                 string selectedIce = iceOptions.SelectedItem?.ToString();
 
-                // Kiểm tra nếu Sugar hoặc Ice không được chọn
                 if (selectedSugar == null || selectedIce == null)
                 {
                     args.Cancel = true;
@@ -165,6 +248,7 @@ namespace Kohi.Views
                     ProductVariant = selectedVariant,
                     SugarLevel = int.Parse(selectedSugar.Replace("%", "")),
                     IceLevel = int.Parse(selectedIce.Replace("%", "")),
+                    Quantity = (int)productQuantityBox.Value,
                     Toppings = new List<OrderToppingModel>()
                 };
 
@@ -176,23 +260,36 @@ namespace Kohi.Views
                         var checkBox = FindVisualChild<CheckBox>(container);
                         if (checkBox != null && checkBox.IsChecked == true)
                         {
+                            int toppingQuantity = toppingQuantities.ContainsKey(topping) ? (int)toppingQuantities[topping].Value : 1;
                             newItem.Toppings.Add(new OrderToppingModel
                             {
                                 ProductId = topping.Id,
-                                ProductVariant = topping.ProductVariants[0] 
+                                ProductVariant = topping.ProductVariants[0],
+                                Quantity = toppingQuantity
                             });
                         }
                     }
                 }
 
+                ViewModel.MapProductToVariants(newItem);
+
                 ViewModel.OrderItems.Add(newItem);
                 TotalItemsTextBlock.Text = ViewModel.TotalItems.ToString();
                 TotalPriceTextBlock.Text = ConvertMoney(ViewModel.TotalPrice);
 
+                float deliveryFee = 0f;
+                if (DeliveryFee.IsEnabled)
+                {
+                    deliveryFee = (float)DeliveryFee.Value;
+                }
+                UpdateTotalAmount(ViewModel.TotalPrice, deliveryFee);
                 Debug.WriteLine($"TotalItems: {ViewModel.TotalItems}, TotalPrice: {ViewModel.TotalPrice}");
-
                 string variantInfo = selectedVariant != null ? $"{selectedVariant.Size} - {selectedVariant.Price}" : "Không chọn";
-                Debug.WriteLine($"Product: {product.Name}, Variant: {variantInfo}, Sugar: {selectedSugar}, Ice: {selectedIce}, Toppings: {newItem.Toppings.Count}");
+                Debug.WriteLine($"Product: {product.Name}, Variant: {variantInfo}, Quantity: {newItem.Quantity}, Sugar: {selectedSugar}, Ice: {selectedIce}, Toppings: {newItem.Toppings.Count}");
+                foreach (var topping in newItem.Toppings)
+                {
+                    Debug.WriteLine($"Topping: {topping.ProductVariant.Product?.Name}, Quantity: {topping.Quantity}");
+                }
             };
 
             await productDialog.ShowAsync();
@@ -225,9 +322,119 @@ namespace Kohi.Views
             return null;
         }
 
-        private void ProductDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void CustomerSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                var suggestions = ViewModel.CustomerViewModel.SearchCustomers(sender.Text);
+                sender.ItemsSource = suggestions;
+            }
+        }
+
+        private void CustomerSearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (args.ChosenSuggestion != null)
+            {
+                var selectedCustomer = args.ChosenSuggestion as CustomerModel;
+                ViewModel.CustomerViewModel.SelectedCustomer = selectedCustomer;
+                sender.Text = $"{selectedCustomer.Name} - {selectedCustomer.Phone}";
+            }
+            else
+            {
+                var suggestions = ViewModel.CustomerViewModel.SearchCustomers(args.QueryText);
+                if (suggestions.Any())
+                {
+                    var firstMatch = suggestions.First();
+                    ViewModel.CustomerViewModel.SelectedCustomer = firstMatch;
+                    sender.Text = $"{firstMatch.Name} - {firstMatch.Phone}";
+                }
+                else
+                {
+                    ViewModel.CustomerViewModel.SelectedCustomer = null;
+                    sender.Text = string.Empty;
+                }
+            }
+        }
+
+        private void CustomerSearch_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        {
+            var selectedCustomer = args.SelectedItem as CustomerModel;
+            ViewModel.CustomerViewModel.SelectedCustomer = selectedCustomer;
+            sender.Text = $"{selectedCustomer.Name} - {selectedCustomer.Phone}";
+        }
+        private async void CheckoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.OrderItems == null || ViewModel.OrderItems.Count == 0)
+            {
+                await ShowErrorContentDialog(this.XamlRoot, "Không có sản phẩm nào để thanh toán.");
+                return;
+            }
+
+            try
+            {
+                float deliveryFee = 0f;
+                if (DeliveryFee.IsEnabled)
+                {
+                    deliveryFee = (float)DeliveryFee.Value;
+                }
+
+                var newInvoice = new InvoiceModel
+                {
+                    CustomerId = ViewModel.CustomerViewModel.SelectedCustomer?.Id,
+                    InvoiceDate = DateTime.Now,
+                    TotalAmount = ViewModel.TotalPrice + deliveryFee,
+                    DeliveryFee = deliveryFee,
+                    OrderType = DeliveryFee.IsEnabled ? "Delivery" : "InStore",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    InvoiceDetails = new List<InvoiceDetailModel>()
+                };
+
+                foreach (var orderItem in ViewModel.OrderItems)
+                {
+                    newInvoice.InvoiceDetails.Add(new InvoiceDetailModel
+                    {
+                        ProductId = orderItem.ProductId,
+                        SugarLevel = orderItem.SugarLevel,
+                        IceLevel = orderItem.IceLevel,
+                        Quantity = orderItem.Quantity,
+                        ProductVariant = orderItem.ProductVariant,
+                        Toppings = orderItem.Toppings
+                    });
+                }
+
+                await ViewModel.InvoiceViewModel.Add(newInvoice);
+
+                ViewModel.OrderItems.Clear();
+
+                TotalItemsTextBlock.Text = ViewModel.TotalItems.ToString();
+                TotalPriceTextBlock.Text = ConvertMoney(ViewModel.TotalPrice);
+
+                checkBoxDelivery.IsChecked = false;
+                ResetDeliveryState();
+
+                CustomerSearchBox.Text = string.Empty;
+                ViewModel.CustomerViewModel.SelectedCustomer = null;
+
+                await ShowSuccessContentDialog(this.XamlRoot, "Thanh toán thành công! Hóa đơn đã được tạo.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error during checkout: {ex.Message}");
+                await ShowErrorContentDialog(this.XamlRoot, "Đã xảy ra lỗi trong quá trình thanh toán: " + ex.Message);
+            }
+        }
+
+        private async Task ShowSuccessContentDialog(XamlRoot xamlRoot, string message)
+        {
+            ContentDialog successDialog = new ContentDialog
+            {
+                Title = "Thành công",
+                Content = message,
+                CloseButtonText = "Đóng",
+                XamlRoot = xamlRoot
+            };
+            await successDialog.ShowAsync();
         }
 
         private async Task ShowErrorContentDialog(XamlRoot xamlRoot, string errorMessage)
@@ -243,16 +450,6 @@ namespace Kohi.Views
             await errorDialog.ShowAsync();
         }
 
-        private void ProductDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
-        {
-            
-        }
-
-        private void ProductDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
-        {
-            // Xử lý khi người dùng nhấn Hủy
-        }
-
         private string ConvertMoney(float value)
         {
             var converter = new MoneyFormatConverter();
@@ -260,50 +457,81 @@ namespace Kohi.Views
             return formattedPrice;
         }
 
-        private void Control2_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private async void DeliveryCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-            {
-                var suggestions = GetSuggestions(sender.Text);
-                sender.ItemsSource = suggestions;
-            }
-        }
+            var checkBox = sender as CheckBox;
+            if (checkBox == null) return;
 
-        private void Control2_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
-        {
-            if (args.ChosenSuggestion != null)
+            if (ViewModel.CustomerViewModel.SelectedCustomer == null)
             {
-                sender.Text = args.ChosenSuggestion.ToString();
+                await ShowErrorContentDialog(this.XamlRoot, "Vui lòng chọn một khách hàng trước khi chọn giao hàng.");
+                checkBox.IsChecked = false;
+                return;
             }
-            else
-            {
-                Debug.WriteLine($"Query submitted: {args.QueryText}");
-            }
-        }
 
-        private void Control2_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
-        {
-            sender.Text = args.SelectedItem.ToString();
-        }
-
-        private List<string> GetSuggestions(string text)
-        {
-            var allSuggestions = new List<string> { "Button", "TextBox", "CheckBox", "RadioButton" };
-            return allSuggestions.Where(s => s.Contains(text, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
-        private void DeliveryCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
             if (DeliveryFee != null)
             {
                 DeliveryFee.IsEnabled = true;
             }
+
+            if (CustomerAddressTextBlock != null)
+            {
+                if (ViewModel.CustomerViewModel.SelectedCustomer != null &&
+                    !string.IsNullOrWhiteSpace(ViewModel.CustomerViewModel.SelectedCustomer.Address))
+                {
+                    CustomerAddressTextBlock.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    CustomerAddressTextBlock.Visibility = Visibility.Collapsed;
+                    Debug.WriteLine("No address available for the selected customer.");
+                }
+            }
+
+            float deliveryFee = 0f;
+            if (DeliveryFee.IsEnabled)
+            {
+                deliveryFee = (float)DeliveryFee.Value;
+            }
+            UpdateTotalAmount(ViewModel.TotalPrice, deliveryFee);
         }
+
         private void DeliveryCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ResetDeliveryState();
+        }
+
+        private void ResetDeliveryState()
         {
             if (DeliveryFee != null)
             {
                 DeliveryFee.IsEnabled = false;
-                DeliveryFee.Text = string.Empty;
+                DeliveryFee.Value = 0;
+            }
+
+            if (CustomerAddressTextBlock != null)
+            {
+                CustomerAddressTextBlock.Visibility = Visibility.Collapsed;
+            }
+
+            UpdateTotalAmount(ViewModel.TotalPrice, 0f);
+        }
+
+        private void DeliveryFee_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+        {
+            float deliveryFee = (float)args.NewValue;
+            UpdateTotalAmount(ViewModel.TotalPrice, deliveryFee);
+        }
+
+        private void UpdateTotalAmount(float totalPrice, float deliveryFee)
+        {
+            if (totalAmount != null)
+            {
+                totalAmount.Text = ConvertMoney(totalPrice + deliveryFee);
+            }
+            else
+            {
+                Debug.WriteLine("Error: totalAmount TextBlock is null.");
             }
         }
     }

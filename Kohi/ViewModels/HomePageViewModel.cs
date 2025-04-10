@@ -19,7 +19,6 @@ namespace Kohi.ViewModels
         public InvoiceDetailViewModel InvoiceDetailViewModel { get; set; }
         public CustomerViewModel CustomerViewModel { get; set; }
         public PaymentViewModel PaymentViewModel { get; set; }
-
         public InvoiceViewModel InvoiceViewModel { get; set; }
         public InvoiceTaxViewModel InvoiceTaxViewModel { get; set; }
 
@@ -31,9 +30,10 @@ namespace Kohi.ViewModels
 
         public FullObservableCollection<InvoiceDetailModel> OrderItems = new FullObservableCollection<InvoiceDetailModel>();
 
-        public float TotalPrice => OrderItems?.Sum(item => item.ProductVariant.Price + (item.Toppings?.Sum(t => t.ProductVariant.Price) ?? 0)) ?? 0;
-
-        public int TotalItems => OrderItems?.Count ?? 0;
+        public float TotalPrice => OrderItems?.Sum(item =>
+        item.ProductVariant.Price * item.Quantity +
+        (item.Toppings?.Sum(t => t.ProductVariant.Price * t.Quantity) ?? 0)) ?? 0;
+        public int TotalItems => OrderItems?.Sum(item => item.Quantity) ?? 0;
 
         public FullObservableCollection<InvoiceModel> Invoice = new FullObservableCollection<InvoiceModel>();
 
@@ -48,6 +48,21 @@ namespace Kohi.ViewModels
             PaymentViewModel = new PaymentViewModel();
             InvoiceViewModel = new InvoiceViewModel();
             InvoiceTaxViewModel = new InvoiceTaxViewModel();
+        }
+        public void MapProductToVariants(InvoiceDetailModel item)
+        {
+            if (item.ProductVariant != null)
+            {
+                item.ProductVariant.Product = ProductViewModel.Products.FirstOrDefault(p => p.Id == item.ProductVariant.ProductId);
+            }
+
+            foreach (var topping in item.Toppings)
+            {
+                if (topping.ProductVariant != null)
+                {
+                    topping.ProductVariant.Product = ProductViewModel.Products.FirstOrDefault(p => p.Id == topping.ProductVariant.ProductId);
+                }
+            }
         }
     }
 }
