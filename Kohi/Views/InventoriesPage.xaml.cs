@@ -196,7 +196,7 @@ namespace Kohi.Views
                     Quantity = Convert.ToInt32(InboundQuantityNumberBox.Value), // Sử dụng Value thay vì Text
                     TotalCost = Convert.ToInt32(InboundTotalValueNumberBox.Value), // Sử dụng Value thay vì Text
                     InboundDate = InboundDateCalendarDatePicker.Date?.DateTime ?? DateTime.Now, // Default nếu không chọn
-                    ExpiryDate = InboundExpiryDateCalendarDatePicker.Date?.DateTime ?? DateTime.MaxValue // Default nếu không chọn
+                    ExpiryDate = InboundExpiryDateCalendarDatePicker.Date?.DateTime ?? DateTime.Now // Default nếu không chọn
                 };
 
                 // Gọi phương thức Add từ InboundViewModel (sửa lại để truyền inbound)
