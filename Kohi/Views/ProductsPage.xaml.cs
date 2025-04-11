@@ -29,9 +29,7 @@ namespace Kohi.Views
     /// </summary>
     public sealed partial class ProductsPage : Page
     {
-        //public ProductModel? selectedProduct { get; set; }
-
-        public int selectedProductId = -1;
+        public ProductModel? SelectedProduct { get; set; }
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
         public ProductVariantViewModel ProductVariantViewModel { get; set; } = new ProductVariantViewModel();
         public ProductsPage()
@@ -48,16 +46,13 @@ namespace Kohi.Views
 
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TableView tableView && tableView.SelectedItem is ProductModel selectedProduct)
+            if (sender is TableView tableView && tableView.SelectedItem is ProductModel selected)
             {
-                selectedProductId = selectedProduct.Id;
-                Debug.WriteLine($"Selected Product ID: {selectedProductId}");
+                SelectedProduct = selected;
             }
             else
             {
-                selectedProduct = null;
-                selectedProductId = -1;
-                Debug.WriteLine("Không có sản phẩm nào được chọn!");
+                SelectedProduct = null;
             }
         }
 
@@ -72,7 +67,7 @@ namespace Kohi.Views
 
         public async void showDeleteProductDialog_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedProductId == -1)
+            if (SelectedProduct == null)
             {
                 var noSelectionDialog = new ContentDialog
                 {
@@ -89,7 +84,7 @@ namespace Kohi.Views
             var deleteDialog = new ContentDialog
             {
                 Title = "Xác nhận xóa",
-                Content = $"Bạn có chắc chắn muốn xóa sản phẩm có ID là {selectedProductId} không? Tất cả các biến thể sản phẩm liên quan cũng sẽ bị xóa. Hành động này không thể hoàn tác.",
+                Content = $"Bạn có chắc chắn muốn xóa sản phẩm '{SelectedProduct.Name}' (ID: {SelectedProduct.Id}) không? Tất cả các biến thể sản phẩm liên quan cũng sẽ bị xóa. Hành động này không thể hoàn tác.",
                 PrimaryButtonText = "Xóa",
                 CloseButtonText = "Hủy",
                 DefaultButton = ContentDialogButton.Primary,
@@ -102,24 +97,23 @@ namespace Kohi.Views
             {
                 try
                 {
-                    // 1. Lấy danh sách tất cả ProductVariants liên quan đến selectedProductId
-                    var variants = await Task.Run(() => ProductVariantViewModel.Variants
-                        .Where(v => v.ProductId == selectedProductId)
-                        .ToList());
+                    // 1. Lấy tất cả ProductVariants liên quan đến SelectedProduct.Id
+                    var allVariants = await ProductVariantViewModel.GetByProductId(SelectedProduct.Id);
 
                     // 2. Xóa từng ProductVariant
-                    foreach (var variant in variants)
+                    foreach (var variant in allVariants)
                     {
                         await ProductVariantViewModel.Delete(variant.Id.ToString());
                         Debug.WriteLine($"Đã xóa ProductVariant ID: {variant.Id}");
                     }
 
                     // 3. Xóa Product sau khi đã xóa hết ProductVariants
-                    await ProductViewModel.Delete(selectedProductId.ToString());
-                    Debug.WriteLine($"Đã xóa sản phẩm ID: {selectedProductId}");
+                    await ProductViewModel.Delete(SelectedProduct.Id.ToString());
+                    Debug.WriteLine($"Đã xóa sản phẩm ID: {SelectedProduct.Id}");
 
-                    // 4. Cập nhật lại danh sách sản phẩm
+                    // 4. Cập nhật lại danh sách sản phẩm và đặt lại SelectedProduct
                     await ProductViewModel.LoadData(ProductViewModel.CurrentPage);
+                    SelectedProduct = null; 
                     UpdatePageList();
                 }
                 catch (Exception ex)
@@ -143,7 +137,7 @@ namespace Kohi.Views
 
         public async void showEditProduct_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedProductId == -1)
+            if (SelectedProduct == null)
             {
                 var noSelectionDialog = new ContentDialog
                 {
@@ -159,8 +153,7 @@ namespace Kohi.Views
 
             Frame rootFrame = new Frame();
             this.Content = rootFrame;
-
-            rootFrame.Navigate(typeof(EditProductPage), selectedProductId);
+            rootFrame.Navigate(typeof(EditProductPage), SelectedProduct);
         }
 
         public void UpdatePageList()

@@ -142,6 +142,7 @@ namespace Kohi.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error adding product variant: {ex.Message}");
+                throw;
             }
         }
 
@@ -168,6 +169,22 @@ namespace Kohi.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error updating product variant: {ex.Message}");
+            }
+        }
+        public async Task<List<ProductVariantModel>> GetByProductId(int productId)
+        {
+            try
+            {
+                var variants = await Task.Run(() => _dao.ProductVariants.GetAll(1, int.MaxValue)
+                    .Where(v => v.ProductId == productId)
+                    .ToList());
+                Debug.WriteLine($"Loaded {variants.Count} ProductVariants for ProductId = {productId}");
+                return variants;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading ProductVariants for ProductId = {productId}: {ex.Message}");
+                throw;
             }
         }
     }

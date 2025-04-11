@@ -67,16 +67,19 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
-        public async Task Add(RecipeDetailModel recipeDetail)
+        public async Task<int> Add(RecipeDetailModel recipeDetail)
         {
             try
             {
-                int result = _dao.RecipeDetails.Insert(recipeDetail);
+                int newId = _dao.RecipeDetails.Insert(recipeDetail);
+                recipeDetail.Id = newId; 
                 await LoadData(CurrentPage);
+                return newId;
             }
             catch (Exception ex)
             {
-
+                Debug.WriteLine($"Lỗi khi thêm RecipeDetail: ProductVariantId = {recipeDetail.ProductVariantId}, Unit = {recipeDetail.Unit}, Error = {ex.Message}");
+                throw; 
             }
         }
 
