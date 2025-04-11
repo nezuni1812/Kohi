@@ -13,8 +13,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 using System.Diagnostics;
-
-//using Kohi.ViewModels;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -50,16 +48,24 @@ namespace Kohi.Views
 
         private void onCategorySelectionChanged(object sender, ItemsViewSelectionChangedEventArgs e)
         {
-            var selectedItem = categoriesList.SelectedItem;
+            var selectedItem = categoriesList.SelectedItem as CategoryModel;
 
             if (selectedItem != null)
             {
-                var id = selectedItem.GetType().GetProperty("Id")?.GetValue(selectedItem, null)?.ToString();
-                if (id != null)
-                {
-                    Debug.WriteLine(id);
-                }
+                int? categoryId = selectedItem.Id;
+                Debug.WriteLine($"Selected category: {selectedItem.Name}, ID: {categoryId}");
+                ViewModel.FilterProductsByCategory(categoryId);
             }
+            else
+            {
+                ViewModel.FilterProductsByCategory(null);
+            }
+        }
+
+        private void ShowAllProducts_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.FilterProductsByCategory(null);
+            categoriesList.DeselectAll();
         }
 
         private async void ShowProductDialog_Click(object sender, RoutedEventArgs e)
@@ -208,6 +214,15 @@ namespace Kohi.Views
             {
                 string selectedSugar = sugarOptions.SelectedItem?.ToString();
                 string selectedIce = iceOptions.SelectedItem?.ToString();
+
+                if (double.IsNaN(productQuantityBox.Value) || productQuantityBox.Value <= 0)
+                {
+                    args.Cancel = true;
+                    productDialog.Hide();
+                    await ShowErrorContentDialog(productDialog.XamlRoot, "Số lượng sản phẩm không được để trống.");
+                    await productDialog.ShowAsync();
+                    return;
+                }
 
                 if (selectedSugar == null || selectedIce == null)
                 {
@@ -474,16 +489,16 @@ namespace Kohi.Views
                 DeliveryFee.IsEnabled = true;
             }
 
-            if (CustomerAddressTextBlock != null)
+            if (AddressDisplay != null)
             {
                 if (ViewModel.CustomerViewModel.SelectedCustomer != null &&
                     !string.IsNullOrWhiteSpace(ViewModel.CustomerViewModel.SelectedCustomer.Address))
                 {
-                    CustomerAddressTextBlock.Visibility = Visibility.Visible;
+                    AddressDisplay.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    CustomerAddressTextBlock.Visibility = Visibility.Collapsed;
+                    AddressDisplay.Visibility = Visibility.Collapsed;
                     Debug.WriteLine("No address available for the selected customer.");
                 }
             }
@@ -509,9 +524,9 @@ namespace Kohi.Views
                 DeliveryFee.Value = 0;
             }
 
-            if (CustomerAddressTextBlock != null)
+            if (AddressDisplay != null)
             {
-                CustomerAddressTextBlock.Visibility = Visibility.Collapsed;
+                AddressDisplay.Visibility = Visibility.Collapsed;
             }
 
             UpdateTotalAmount(ViewModel.TotalPrice, 0f);

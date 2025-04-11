@@ -202,21 +202,29 @@
 
             <TextBlock Grid.Row="1" Text="Danh mục" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
-            <ItemsView Grid.Row="2" Width="1000" HorizontalAlignment="Left" x:Name="categoriesList"
-                ItemsSource="{x:Bind ViewModel.CategoryViewModel.Categories}" 
-                ItemTemplate="{StaticResource ItemsViewTemplate}"
-                SelectionMode="Single"
-                SelectionChanged="onCategorySelectionChanged">
-                <ItemsView.Layout >
-                    <LinedFlowLayout ItemsStretch="None" LineSpacing="5" LineHeight="38" MinItemSpacing="10" />
-                </ItemsView.Layout>
-            </ItemsView>
+            <Grid Grid.Row="2" HorizontalAlignment="Left" Padding="0,0,50,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
+                <ItemsView Grid.Column="0" x:Name="categoriesList" 
+                   ItemsSource="{x:Bind ViewModel.CategoryViewModel.Categories}" 
+                   ItemTemplate="{StaticResource ItemsViewTemplate}"
+                   SelectionMode="Single"
+                   SelectionChanged="onCategorySelectionChanged">
+                    <ItemsView.Layout>
+                        <LinedFlowLayout ItemsStretch="None" LineSpacing="5" LineHeight="38" MinItemSpacing="10"/>
+                    </ItemsView.Layout>
+                </ItemsView>
+
+                <Button Grid.Column="1" Content="Hiển thị tất cả" Click="ShowAllProducts_Click" Margin="10,0,0,0"/>
+            </Grid>
             <TextBlock Grid.Row="3" Text="Mặt hàng" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
             <ScrollView Grid.Row="4">
                 <GridView x:Name="productsList"
-                    ItemsSource="{x:Bind ViewModel.Products}" 
+                    ItemsSource="{x:Bind ViewModel.FilteredProducts}"
                     ItemTemplate="{StaticResource GridViewTemplate}"
                     SelectionMode="None"
                     IsItemClickEnabled="True">
@@ -318,10 +326,16 @@
                        SpinButtonPlacementMode="Hidden"/>
             </Grid>
 
-            <Grid Grid.Row="4" Padding="10,0,10,0">
-                <TextBlock x:Name="CustomerAddressTextBlock"
-                     Text="{Binding ViewModel.CustomerViewModel.SelectedCustomer.Address}"
-                     Visibility="Collapsed"/>
+            <Grid x:Name="AddressDisplay" Grid.Row="4" Padding="10,0,10,0" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Địa chỉ:" Margin="0,0,2,0"/>
+                <TextBlock Grid.Column="1" x:Name="CustomerAddressTextBlock"
+                     Text="{Binding ViewModel.CustomerViewModel.SelectedCustomer.Address}"/>
+                <TextBlock Grid.Column="2" x:Name="DeliveryDistance" Text="0 km"/>
             </Grid>
 
             <Grid Grid.Row="5" Padding="10">
