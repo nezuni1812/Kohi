@@ -45,10 +45,9 @@ namespace Kohi.Services
 
         public class APICategoryRepository : IRepository<CategoryModel>
         {
-            List<CategoryModel> _categories;
             private static int _nextId;
             public APICategoryRepository() { }
-            public APICategoryRepository(List<CategoryModel> list) { _categories = list; }
+            public APICategoryRepository(List<CategoryModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -57,8 +56,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _categories.FirstOrDefault(r => r.Id == intId);
-                    _categories.Remove(item);
                     return 1;
                 }
                 else
@@ -78,8 +75,6 @@ namespace Kohi.Services
 
                     List<CategoryModel> categories = JsonConvert.DeserializeObject<List<CategoryModel>>(jsonResponse);
 
-                    _categories = categories;
-
                     return categories;
                 }
                 else
@@ -92,7 +87,7 @@ namespace Kohi.Services
             public CategoryModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _categories ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/categories?id=eq.{id}").Result;
@@ -138,7 +133,6 @@ namespace Kohi.Services
             {
                 if (info == null) return 0;
 
-                _categories.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -166,14 +160,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Category inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _categories[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _categories.RemoveAt(_categories.Count - 1);
                     return 0;
                 }
             }
@@ -186,7 +178,7 @@ namespace Kohi.Services
             public int UpdateById(string id, CategoryModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _categories ?? GetAll();
+                var data = GetAll();
                 var item = data.FirstOrDefault(c => c.Id == intId);
                 if (item == null) return 0;
 
@@ -208,7 +200,6 @@ namespace Kohi.Services
                     item.Name = info.Name;
                     item.ImageUrl = info.ImageUrl;
                     item.Products = info.Products; // Cập nhật navigation property nếu cần
-                    _categories = data;
                     Debug.WriteLine("Category updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -222,12 +213,10 @@ namespace Kohi.Services
 
         public class APIProductRepository : IRepository<ProductModel>
         {
-            private List<ProductModel> _products;
 
             public APIProductRepository() { }
             public APIProductRepository(List<ProductModel> products)
             {
-                _products = products;
             }
 
             public int DeleteById(string id)
@@ -237,8 +226,7 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _products.FirstOrDefault(r => r.Id == intId);
-                    _products.Remove(item);
+                    Debug.WriteLine("Success deletion product");
                     return 1;
                 }
                 else
@@ -257,8 +245,6 @@ namespace Kohi.Services
 
                     List<ProductModel> products = JsonConvert.DeserializeObject<List<ProductModel>>(jsonResponse);
 
-                    _products = products;
-
                     return products;
                 }
                 else
@@ -270,7 +256,7 @@ namespace Kohi.Services
             public ProductModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _products ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/products?id=eq.{id}").Result;
@@ -315,8 +301,6 @@ namespace Kohi.Services
                 Debug.WriteLine("Insertion");
                 if (info == null) return 0;
 
-                info.Id = _products.Count + 1;
-                _products.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -347,7 +331,6 @@ namespace Kohi.Services
                     product = JsonConvert.DeserializeObject<List<ProductModel>>(responseContent)[0];
                     Debug.WriteLine("Person inserted successfully: " + product.Id);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _products[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
@@ -355,7 +338,6 @@ namespace Kohi.Services
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
                 }
-                _products.RemoveAt(_products.Count - 1);
                 return 0;
             }
 
@@ -367,7 +349,7 @@ namespace Kohi.Services
             public int UpdateById(string id, ProductModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _products ?? GetAll();
+                var data = GetAll();
                 var item = data.FirstOrDefault(p => p.Id == intId);
                 if (item == null) return 0;
 
@@ -391,7 +373,6 @@ namespace Kohi.Services
                     item.IsActive = info.IsActive;
                     item.CategoryId = info.CategoryId;
                     item.ImageUrl = info.ImageUrl;
-                    _products = data;
                     return 1;
                 }
                 else
@@ -404,10 +385,9 @@ namespace Kohi.Services
 
         public class APIInventoryRepository : IRepository<InventoryModel>
         {
-            private List<InventoryModel> _inventories;
 
             public APIInventoryRepository() { }
-            public APIInventoryRepository(List<InventoryModel> list) { _inventories = list; }
+            public APIInventoryRepository(List<InventoryModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -416,8 +396,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _inventories.FirstOrDefault(r => r.Id == intId);
-                    _inventories.Remove(item);
                     return 1;
                 }
                 else
@@ -437,8 +415,6 @@ namespace Kohi.Services
 
                     List<InventoryModel> inventories = JsonConvert.DeserializeObject<List<InventoryModel>>(jsonResponse);
 
-                    _inventories = inventories;
-
                     return inventories;
                 }
                 else
@@ -451,7 +427,7 @@ namespace Kohi.Services
             public InventoryModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _inventories ?? GetAll();
+                var data = GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/inventories?id=eq.{id}").Result;
@@ -500,9 +476,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _inventories.Count + 1;
-                _inventories.Add(info);
-
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
@@ -529,14 +502,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Inventory inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _inventories[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _inventories.RemoveAt(_inventories.Count - 1);
                     return 0;
                 }
             }
@@ -549,7 +520,7 @@ namespace Kohi.Services
             public int UpdateById(string id, InventoryModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _inventories ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(i => i.Id == intId);
                 if (item == null) return 0;
                 Debug.WriteLine("Before serializer");
@@ -582,7 +553,6 @@ namespace Kohi.Services
                     item.Quantity = info.Quantity;
                     item.InboundDate = info.InboundDate;
                     item.ExpiryDate = info.ExpiryDate;
-                    _inventories = data;
                     Debug.WriteLine("Inventory inserted successfully: " + responseContent);
                     return 1;
                 }
@@ -597,9 +567,8 @@ namespace Kohi.Services
 
         public class APIIngredientRepository : IRepository<IngredientModel>
         {
-            private List<IngredientModel> _ingredients;
             public APIIngredientRepository() { }
-            public APIIngredientRepository(List<IngredientModel> list) { _ingredients = list; }
+            public APIIngredientRepository(List<IngredientModel> list) { }
             public int DeleteById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return 0;
@@ -607,8 +576,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _ingredients.FirstOrDefault(r => r.Id == intId);
-                    _ingredients.Remove(item);
                     return 1;
                 }
                 else
@@ -628,8 +595,6 @@ namespace Kohi.Services
 
                     List<IngredientModel> ingredients = JsonConvert.DeserializeObject<List<IngredientModel>>(jsonResponse);
 
-                    _ingredients = ingredients;
-
                     return ingredients;
                 }
                 else
@@ -642,7 +607,7 @@ namespace Kohi.Services
             public IngredientModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _ingredients ?? GetAll();
+                var data = GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/ingredients?id=eq.{id}").Result;
@@ -688,9 +653,6 @@ namespace Kohi.Services
                 Debug.WriteLine("Insertion");
                 if (info == null) return 0;
 
-                info.Id = _ingredients.Count + 1;
-                _ingredients.Add(info);
-
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
@@ -718,14 +680,12 @@ namespace Kohi.Services
                     ingredient = JsonConvert.DeserializeObject<List<IngredientModel>>(responseContent)[0];
                     Debug.WriteLine("Ingredient inserted successfully: " + ingredient.Id);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _ingredients[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return ingredient.Id;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _ingredients.RemoveAt(_ingredients.Count - 1);
                 }
                 return 0;
             }
@@ -738,7 +698,7 @@ namespace Kohi.Services
             public int UpdateById(string id, IngredientModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _ingredients ?? GetAll();
+                var data = GetAll();
                 var item = data.FirstOrDefault(i => i.Id == intId);
                 if (item == null) return 0;
 
@@ -760,7 +720,6 @@ namespace Kohi.Services
                     item.Unit = info.Unit;
                     //item.CostPerUnit = info.CostPerUnit;
                     item.Description = info.Description;
-                    _ingredients = data;
                     Debug.WriteLine("Ingredient updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -774,9 +733,8 @@ namespace Kohi.Services
 
         public class APISupplierRepository : IRepository<SupplierModel>
         {
-            private List<SupplierModel> _suppliers;
             public APISupplierRepository() { }
-            public APISupplierRepository(List<SupplierModel> list) { _suppliers = list; }
+            public APISupplierRepository(List<SupplierModel> list) { }
 
             public int DeleteById(string id)
             {
@@ -785,8 +743,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _suppliers.FirstOrDefault(r => r.Id == intId);
-                    _suppliers.Remove(item);
                     return 1;
                 }
                 else
@@ -806,8 +762,6 @@ namespace Kohi.Services
 
                     List<SupplierModel> suppliers = JsonConvert.DeserializeObject<List<SupplierModel>>(jsonResponse);
 
-                    _suppliers = suppliers;
-
                     return suppliers;
                 }
                 else
@@ -820,7 +774,7 @@ namespace Kohi.Services
             public SupplierModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _suppliers ?? GetAll();
+                var data = GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/suppliers?id=eq.{id}").Result;
@@ -866,8 +820,6 @@ namespace Kohi.Services
             {
                 if (info == null) return 0;
 
-                info.Id = _suppliers.Count + 1;
-                _suppliers.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -895,14 +847,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Supplier inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _suppliers[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _suppliers.RemoveAt(_suppliers.Count - 1);
                     return 0;
                 }
             }
@@ -915,7 +865,7 @@ namespace Kohi.Services
             public int UpdateById(string id, SupplierModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _suppliers ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(i => i.Id == intId);
                 if (item == null) return 0;
 
@@ -938,7 +888,6 @@ namespace Kohi.Services
                     item.Email = info.Email;
                     item.Phone = info.Phone;
                     item.Address = info.Address;
-                    _suppliers = data;
                     Debug.WriteLine("Supplier updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -952,9 +901,8 @@ namespace Kohi.Services
 
         public class APIInboundRepository : IRepository<InboundModel>
         {
-            private List<InboundModel> _inbounds;
             public APIInboundRepository() { }
-            public APIInboundRepository(List<InboundModel> list) { _inbounds = list; }
+            public APIInboundRepository(List<InboundModel> list) { }
 
             public int DeleteById(string id)
             {
@@ -963,8 +911,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _inbounds.FirstOrDefault(r => r.Id == intId);
-                    _inbounds.Remove(item);
                     return 1;
                 }
                 else
@@ -984,8 +930,6 @@ namespace Kohi.Services
 
                     List<InboundModel> inbounds = JsonConvert.DeserializeObject<List<InboundModel>>(jsonResponse);
 
-                    _inbounds = inbounds;
-
                     return inbounds;
                 }
                 else
@@ -998,7 +942,7 @@ namespace Kohi.Services
             public InboundModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _inbounds ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/inbounds?id=eq.{id}").Result;
@@ -1043,9 +987,6 @@ namespace Kohi.Services
             {
                 if (info == null) return 0;
 
-                info.Id = _inbounds.Count + 1;
-                _inbounds.Add(info);
-
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
@@ -1074,7 +1015,6 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Inbound inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _inbounds[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     Debug.WriteLine("Added inbound");
                     return 1;
                 }
@@ -1082,7 +1022,6 @@ namespace Kohi.Services
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _inbounds.RemoveAt(_inbounds.Count - 1);
                     return 0;
                 }
             }
@@ -1095,7 +1034,7 @@ namespace Kohi.Services
             public int UpdateById(string id, InboundModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _inbounds ?? GetAll();
+                var data = GetAll();
                 var item = data.FirstOrDefault(i => i.Id == intId);
                 if (item == null) return 0;
 
@@ -1121,7 +1060,6 @@ namespace Kohi.Services
                     item.ExpiryDate = info.ExpiryDate;
                     item.SupplierId = info.SupplierId;
                     item.Notes = info.Notes;
-                    _inbounds = data;
                     Debug.WriteLine("Inbound updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -1135,9 +1073,8 @@ namespace Kohi.Services
 
         public class APIOutboundRepository : IRepository<OutboundModel>
         {
-            private List<OutboundModel> _outbounds;
             public APIOutboundRepository() { }
-            public APIOutboundRepository(List<OutboundModel> list) { _outbounds = list; }
+            public APIOutboundRepository(List<OutboundModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -1146,8 +1083,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _outbounds.FirstOrDefault(r => r.Id == intId);
-                    _outbounds.Remove(item);
                     return 1;
                 }
                 else
@@ -1167,8 +1102,6 @@ namespace Kohi.Services
 
                     List<OutboundModel> outbounds = JsonConvert.DeserializeObject<List<OutboundModel>>(jsonResponse);
 
-                    _outbounds = outbounds;
-
                     return outbounds;
                 }
                 else
@@ -1181,7 +1114,7 @@ namespace Kohi.Services
             public OutboundModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _outbounds ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/outbounds?id=eq.{id}").Result;
@@ -1229,9 +1162,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _outbounds.Count + 1;
-                _outbounds.Add(info);
-
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
                 jsonObject.Remove("Id");
@@ -1258,14 +1188,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Outbound inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _outbounds[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _outbounds.RemoveAt(_outbounds.Count - 1);
                     return 0;
                 }
             }
@@ -1278,7 +1206,7 @@ namespace Kohi.Services
             public int UpdateById(string id, OutboundModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _outbounds ?? GetAll();
+                var data = GetAll();
                 var item = data.FirstOrDefault(o => o.Id == intId);
                 if (item == null) return 0;
 
@@ -1302,7 +1230,6 @@ namespace Kohi.Services
                     item.OutboundDate = info.OutboundDate;
                     item.Purpose = info.Purpose;
                     item.Notes = info.Notes;
-                    _outbounds = data;
                     Debug.WriteLine("Outbound updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -1316,9 +1243,8 @@ namespace Kohi.Services
 
         public class APICustomerRepository : IRepository<CustomerModel>
         {
-            private List<CustomerModel> _customers;
             public APICustomerRepository() { }
-            public APICustomerRepository(List<CustomerModel> list) { _customers = list; }
+            public APICustomerRepository(List<CustomerModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -1327,8 +1253,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _customers.FirstOrDefault(r => r.Id == intId);
-                    _customers.Remove(item);
                     return 1;
                 }
                 else
@@ -1348,8 +1272,6 @@ namespace Kohi.Services
 
                     List<CustomerModel> customers = JsonConvert.DeserializeObject<List<CustomerModel>>(jsonResponse);
 
-                    _customers = customers;
-
                     return customers;
                 }
                 else
@@ -1362,7 +1284,7 @@ namespace Kohi.Services
             public CustomerModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _customers ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/customers?id=eq.{id}").Result;
@@ -1411,8 +1333,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _customers.Count + 1;
-                _customers.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -1440,14 +1360,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Customer inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _customers[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _customers.RemoveAt(_customers.Count - 1);
                     return 0;
                 }
             }
@@ -1460,7 +1378,7 @@ namespace Kohi.Services
             public int UpdateById(string id, CustomerModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _customers ?? GetAll();
+                var data = GetAll();
                 var item = data.FirstOrDefault(c => c.Id == intId);
                 if (item == null) return 0;
 
@@ -1484,7 +1402,6 @@ namespace Kohi.Services
                     item.Phone = info.Phone;
                     item.Address = info.Address;
                     item.Invoices = info.Invoices;
-                    _customers = data;
                     Debug.WriteLine("Customer updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -1498,9 +1415,8 @@ namespace Kohi.Services
 
         public class APIExpenseCategoryRepository : IRepository<ExpenseCategoryModel>
         {
-            private List<ExpenseCategoryModel> _expenseCategories;
             public APIExpenseCategoryRepository() { }
-            public APIExpenseCategoryRepository(List<ExpenseCategoryModel> list) { _expenseCategories = list; }
+            public APIExpenseCategoryRepository(List<ExpenseCategoryModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -1509,8 +1425,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _expenseCategories.FirstOrDefault(r => r.Id == intId);
-                    _expenseCategories.Remove(item);
                     return 1;
                 }
                 else
@@ -1530,8 +1444,6 @@ namespace Kohi.Services
 
                     List<ExpenseCategoryModel> expenseCategories = JsonConvert.DeserializeObject<List<ExpenseCategoryModel>>(jsonResponse);
 
-                    _expenseCategories = expenseCategories;
-
                     return expenseCategories;
                 }
                 else
@@ -1544,7 +1456,7 @@ namespace Kohi.Services
             public ExpenseCategoryModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _expenseCategories ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/expensecategories?id=eq.{id}").Result;
@@ -1592,8 +1504,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _expenseCategories.Count + 1;
-                _expenseCategories.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -1621,14 +1531,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Expense category inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _expenseCategories[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _expenseCategories.RemoveAt(_expenseCategories.Count - 1);
                     return 0;
                 }
             }
@@ -1641,7 +1549,7 @@ namespace Kohi.Services
             public int UpdateById(string id, ExpenseCategoryModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _expenseCategories ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(c => c.Id == intId);
                 if (item == null) return 0;
 
@@ -1663,7 +1571,6 @@ namespace Kohi.Services
                     item.CategoryName = info.CategoryName;
                     item.Description = info.Description;
                     item.Expenses = info.Expenses;
-                    _expenseCategories = data;
                     Debug.WriteLine("Expense category updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -1677,9 +1584,8 @@ namespace Kohi.Services
 
         public class APICheckInventoryRepository : IRepository<CheckInventoryModel>
         {
-            private List<CheckInventoryModel> _checkInventories;
             public APICheckInventoryRepository() { }
-            public APICheckInventoryRepository(List<CheckInventoryModel> list) { _checkInventories = list; }
+            public APICheckInventoryRepository(List<CheckInventoryModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -1688,8 +1594,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _checkInventories.FirstOrDefault(r => r.Id == intId);
-                    _checkInventories.Remove(item);
                     return 1;
                 }
                 else
@@ -1709,8 +1613,6 @@ namespace Kohi.Services
 
                     List<CheckInventoryModel> checkInventories = JsonConvert.DeserializeObject<List<CheckInventoryModel>>(jsonResponse);
 
-                    _checkInventories = checkInventories;
-
                     return checkInventories;
                 }
                 else
@@ -1723,7 +1625,7 @@ namespace Kohi.Services
             public CheckInventoryModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _checkInventories ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
 
@@ -1772,8 +1674,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _checkInventories.Count + 1;
-                _checkInventories.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -1802,14 +1702,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Check inventory inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _checkInventories[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _checkInventories.RemoveAt(_checkInventories.Count - 1);
                     return 0;
                 }
             }
@@ -1822,7 +1720,7 @@ namespace Kohi.Services
             public int UpdateById(string id, CheckInventoryModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _checkInventories ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(i => i.Id == intId);
                 if (item == null) return 0;
 
@@ -1847,7 +1745,6 @@ namespace Kohi.Services
                     item.CheckDate = info.CheckDate;
                     item.Notes = info.Notes;
                     item.Inventory = info.Inventory; // Update navigation property if needed
-                    _checkInventories = data;
                     Debug.WriteLine("Check inventory updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -1862,9 +1759,8 @@ namespace Kohi.Services
 
         public class APIProductVariantRepository : IRepository<ProductVariantModel>
         {
-            private List<ProductVariantModel> _productVariants;
             public APIProductVariantRepository() { }
-            public APIProductVariantRepository(List<ProductVariantModel> list) { _productVariants = list; }
+            public APIProductVariantRepository(List<ProductVariantModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -1873,9 +1769,8 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _productVariants.FirstOrDefault(r => r.Id == intId);
-                    _productVariants.Remove(item);
-                    Debug.WriteLine("Da xoa " + id);
+                    Debug.WriteLine("Success deletion productvariant");
+
                     return 1;
                 }
                 else
@@ -1895,8 +1790,6 @@ namespace Kohi.Services
 
                     List<ProductVariantModel> productVariants = JsonConvert.DeserializeObject<List<ProductVariantModel>>(jsonResponse);
 
-                    _productVariants = productVariants;
-
                     return productVariants;
                 }
                 else
@@ -1909,7 +1802,7 @@ namespace Kohi.Services
             public ProductVariantModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _productVariants ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/productvariants?id=eq.{id}").Result;
@@ -1957,8 +1850,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _productVariants.Count + 1;
-                _productVariants.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -1990,14 +1881,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Product variant inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _productVariants[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _productVariants.RemoveAt(_productVariants.Count - 1);
                     return 0;
                 }
             }
@@ -2050,7 +1939,6 @@ namespace Kohi.Services
                     item.InvoiceDetails = info.InvoiceDetails;
                     item.Toppings = info.Toppings;
                     item.RecipeDetails = info.RecipeDetails;
-                    _productVariants = data;
                     Debug.WriteLine("Product variant updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -2065,9 +1953,8 @@ namespace Kohi.Services
 
         public class APIExpenseRepository : IRepository<ExpenseModel>
         {
-            private List<ExpenseModel> _expenses;
             public APIExpenseRepository() { }
-            public APIExpenseRepository(List<ExpenseModel> list) { _expenses = list; }
+            public APIExpenseRepository(List<ExpenseModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -2076,8 +1963,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _expenses.FirstOrDefault(r => r.Id == intId);
-                    _expenses.Remove(item);
                     return 1;
                 }
                 else
@@ -2097,8 +1982,6 @@ namespace Kohi.Services
 
                     List<ExpenseModel> expenses = JsonConvert.DeserializeObject<List<ExpenseModel>>(jsonResponse);
 
-                    _expenses = expenses;
-
                     return expenses;
                 }
                 else
@@ -2111,7 +1994,7 @@ namespace Kohi.Services
             public ExpenseModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _expenses ?? GetAll();
+                var data = GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/expenses?id=eq.{id}").Result;
@@ -2159,8 +2042,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _expenses.Count + 1;
-                _expenses.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -2189,14 +2070,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Expense inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _expenses[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _expenses.RemoveAt(_expenses.Count - 1);
                     return 0;
                 }
             }
@@ -2207,7 +2086,7 @@ namespace Kohi.Services
             public int UpdateById(string id, ExpenseModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _expenses ?? GetAll();
+                var data = GetAll();
                 var item = data.FirstOrDefault(p => p.Id == intId);
                 if (item == null) return 0;
 
@@ -2230,7 +2109,6 @@ namespace Kohi.Services
                     item.ExpenseCategoryId = info.ExpenseCategoryId;
                     item.Amount = info.Amount;
                     item.ExpenseDate = info.ExpenseDate;
-                    _expenses = data;
                     Debug.WriteLine("Expense updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -2245,9 +2123,8 @@ namespace Kohi.Services
 
         public class APIInvoiceRepository : IRepository<InvoiceModel>
         {
-            private List<InvoiceModel> _invoices;
             public APIInvoiceRepository() { }
-            public APIInvoiceRepository(List<InvoiceModel> list) { _invoices = list; }
+            public APIInvoiceRepository(List<InvoiceModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -2256,8 +2133,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _invoices.FirstOrDefault(r => r.Id == intId);
-                    _invoices.Remove(item);
                     return 1;
                 }
                 else
@@ -2277,7 +2152,6 @@ namespace Kohi.Services
 
                     List<InvoiceModel> invoices = JsonConvert.DeserializeObject<List<InvoiceModel>>(jsonResponse);
 
-                    _invoices = invoices;
                     return invoices;
                 }
                 else
@@ -2290,7 +2164,7 @@ namespace Kohi.Services
             public InvoiceModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _invoices ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoices?id=eq.{id}").Result;
@@ -2338,8 +2212,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _invoices.Count + 1;
-                _invoices.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -2369,14 +2241,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Invoice inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _invoices[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _invoices.RemoveAt(_invoices.Count - 1);
                     return 0;
                 }
             }
@@ -2387,7 +2257,7 @@ namespace Kohi.Services
             public int UpdateById(string id, InvoiceModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _invoices ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(i => i.Id == intId);
                 if (item == null) return 0;
 
@@ -2412,7 +2282,6 @@ namespace Kohi.Services
                     item.InvoiceDate = info.InvoiceDate;
                     item.TotalAmount = info.TotalAmount;
                     item.InvoiceDetails = info.InvoiceDetails;
-                    _invoices = data;
                     Debug.WriteLine("Invoice updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -2426,9 +2295,8 @@ namespace Kohi.Services
 
         public class APIInvoiceDetailRepository : IRepository<InvoiceDetailModel>
         {
-            private List<InvoiceDetailModel> _invoiceDetails;
             public APIInvoiceDetailRepository() { }
-            public APIInvoiceDetailRepository(List<InvoiceDetailModel> list) { _invoiceDetails = list; }
+            public APIInvoiceDetailRepository(List<InvoiceDetailModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -2437,8 +2305,7 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _invoiceDetails.FirstOrDefault(r => r.Id == intId);
-                    _invoiceDetails.Remove(item);
+
                     return 1;
                 }
                 else
@@ -2458,7 +2325,6 @@ namespace Kohi.Services
 
                     List<InvoiceDetailModel> invoiceDetails = JsonConvert.DeserializeObject<List<InvoiceDetailModel>>(jsonResponse);
 
-                    _invoiceDetails = invoiceDetails;
 
                     return invoiceDetails;
                 }
@@ -2472,7 +2338,7 @@ namespace Kohi.Services
             public InvoiceDetailModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _invoiceDetails ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicedetails?id=eq.{id}").Result;
@@ -2520,8 +2386,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _invoiceDetails.Count + 1;
-                _invoiceDetails.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -2552,14 +2416,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Invoice detail inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _invoiceDetails[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _invoiceDetails.RemoveAt(_invoiceDetails.Count - 1);
                     return 0;
                 }
             }
@@ -2572,7 +2434,7 @@ namespace Kohi.Services
             public int UpdateById(string id, InvoiceDetailModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _invoiceDetails ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(i => i.Id == intId);
                 if (item == null) return 0;
 
@@ -2599,7 +2461,6 @@ namespace Kohi.Services
                     item.SugarLevel = info.SugarLevel;
                     item.IceLevel = info.IceLevel;
                     item.Toppings = info.Toppings;
-                    _invoiceDetails = data;
                     Debug.WriteLine("Invoice detail updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -2614,9 +2475,8 @@ namespace Kohi.Services
 
         public class APIRecipeDetailRepository : IRepository<RecipeDetailModel>
         {
-            private List<RecipeDetailModel> _recipeDetails;
             public APIRecipeDetailRepository() { }
-            public APIRecipeDetailRepository(List<RecipeDetailModel> list) { _recipeDetails = list; }
+            public APIRecipeDetailRepository(List<RecipeDetailModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -2625,8 +2485,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _recipeDetails.FirstOrDefault(r => r.Id == intId);
-                    _recipeDetails.Remove(item);
                     return 1;
                 }
                 else
@@ -2646,7 +2504,6 @@ namespace Kohi.Services
 
                     List<RecipeDetailModel> recipeDetails = JsonConvert.DeserializeObject<List<RecipeDetailModel>>(jsonResponse);
 
-                    _recipeDetails = recipeDetails;
 
                     return recipeDetails;
                 }
@@ -2660,7 +2517,7 @@ namespace Kohi.Services
             public RecipeDetailModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _recipeDetails ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/recipedetails?id=eq.{id}").Result;
@@ -2708,8 +2565,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _recipeDetails.Count + 1;
-                _recipeDetails.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -2739,14 +2594,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Recipe detail inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _recipeDetails[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _recipeDetails.RemoveAt(_recipeDetails.Count - 1);
                     return 0;
                 }
             }
@@ -2757,7 +2610,7 @@ namespace Kohi.Services
             public int UpdateById(string id, RecipeDetailModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _recipeDetails ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(r => r.Id == intId);
                 if (item == null) return 0;
 
@@ -2782,7 +2635,6 @@ namespace Kohi.Services
                     item.IngredientId = info.IngredientId;
                     item.Quantity = info.Quantity;
                     item.Unit = info.Unit;
-                    _recipeDetails = data;
                     Debug.WriteLine("Recipe detail updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -2798,9 +2650,8 @@ namespace Kohi.Services
 
         public class APIPaymentRepository : IRepository<PaymentModel>
         {
-            private List<PaymentModel> _payments;
             public APIPaymentRepository() { }
-            public APIPaymentRepository(List<PaymentModel> list) { _payments = list; }
+            public APIPaymentRepository(List<PaymentModel> list) { }
 
             public int DeleteById(string id)
             {
@@ -2809,8 +2660,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _payments.FirstOrDefault(r => r.Id == intId);
-                    _payments.Remove(item);
                     return 1;
                 }
                 else
@@ -2830,8 +2679,6 @@ namespace Kohi.Services
 
                     List<PaymentModel> payments = JsonConvert.DeserializeObject<List<PaymentModel>>(jsonResponse);
 
-                    _payments = payments;
-
                     return payments;
                 }
                 else
@@ -2844,7 +2691,7 @@ namespace Kohi.Services
             public PaymentModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _payments ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/payments?id=eq.{id}").Result;
@@ -2892,8 +2739,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _payments.Count + 1;
-                _payments.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -2922,14 +2767,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Payment inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _payments[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _payments.RemoveAt(_payments.Count - 1);
                     return 0;
                 }
             }
@@ -2940,7 +2783,7 @@ namespace Kohi.Services
             public int UpdateById(string id, PaymentModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _payments ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(p => p.Id == intId);
                 if (item == null) return 0;
 
@@ -2964,7 +2807,6 @@ namespace Kohi.Services
                     item.PaymentDate = info.PaymentDate;
                     item.Amount = info.Amount;
                     item.PaymentMethod = info.PaymentMethod;
-                    _payments = data;
                     Debug.WriteLine("Payment updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -2979,9 +2821,8 @@ namespace Kohi.Services
 
         public class APIOrderToppingRepository : IRepository<OrderToppingModel>
         {
-            private List<OrderToppingModel> _orderToppings;
             public APIOrderToppingRepository() { }
-            public APIOrderToppingRepository(List<OrderToppingModel> list) { _orderToppings = list; }
+            public APIOrderToppingRepository(List<OrderToppingModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -2990,8 +2831,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _orderToppings.FirstOrDefault(r => r.Id == intId);
-                    _orderToppings.Remove(item);
                     return 1;
                 }
                 else
@@ -3011,8 +2850,6 @@ namespace Kohi.Services
 
                     List<OrderToppingModel> orderToppings = JsonConvert.DeserializeObject<List<OrderToppingModel>>(jsonResponse);
 
-                    _orderToppings = orderToppings;
-
                     return orderToppings;
                 }
                 else
@@ -3025,7 +2862,7 @@ namespace Kohi.Services
             public OrderToppingModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _orderToppings ?? GetAll();
+                var data =   GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/ordertoppings?id=eq.{id}").Result;
@@ -3073,8 +2910,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _orderToppings.Count + 1;
-                _orderToppings.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -3104,14 +2939,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Order topping inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _orderToppings[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _orderToppings.RemoveAt(_orderToppings.Count - 1);
                     return 0;
                 }
             }
@@ -3122,7 +2955,7 @@ namespace Kohi.Services
             public int UpdateById(string id, OrderToppingModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _orderToppings ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(o => o.Id == intId);
                 if (item == null) return 0;
 
@@ -3145,7 +2978,6 @@ namespace Kohi.Services
                 {
                     item.InvoiceDetailId = info.InvoiceDetailId;
                     item.ProductId = info.ProductId;
-                    _orderToppings = data;
                     Debug.WriteLine("Order topping updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -3160,9 +2992,8 @@ namespace Kohi.Services
 
         public class APITaxRepository : IRepository<TaxModel>
         {
-            private List<TaxModel> _taxes;
             public APITaxRepository() { }
-            public APITaxRepository(List<TaxModel> list) { _taxes = list; }
+            public APITaxRepository(List<TaxModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -3171,8 +3002,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _taxes.FirstOrDefault(r => r.Id == intId);
-                    _taxes.Remove(item);
                     return 1;
                 }
                 else
@@ -3192,7 +3021,6 @@ namespace Kohi.Services
 
                     List<TaxModel> taxes = JsonConvert.DeserializeObject<List<TaxModel>>(jsonResponse);
 
-                    _taxes = taxes;
 
                     return taxes;
                 }
@@ -3206,7 +3034,7 @@ namespace Kohi.Services
             public TaxModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _taxes ?? GetAll();
+                var data =  GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/taxes?id=eq.{id}").Result;
@@ -3254,8 +3082,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _taxes.Count + 1;
-                _taxes.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -3283,14 +3109,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Tax inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _taxes[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _taxes.RemoveAt(_taxes.Count - 1);
                     return 0;
                 }
             }
@@ -3301,7 +3125,7 @@ namespace Kohi.Services
             public int UpdateById(string id, TaxModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _taxes ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(t => t.Id == intId);
                 if (item == null) return 0;
 
@@ -3323,7 +3147,6 @@ namespace Kohi.Services
                     item.TaxName = info.TaxName;
                     item.TaxRate = info.TaxRate;
                     item.InvoiceTaxes = info.InvoiceTaxes;
-                    _taxes = data;
                     Debug.WriteLine("Tax updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
@@ -3338,9 +3161,8 @@ namespace Kohi.Services
 
         public class APIInvoiceTaxRepository : IRepository<InvoiceTaxModel>
         {
-            private List<InvoiceTaxModel> _invoiceTaxes;
             public APIInvoiceTaxRepository() { }
-            public APIInvoiceTaxRepository(List<InvoiceTaxModel> list) { _invoiceTaxes = list; }
+            public APIInvoiceTaxRepository(List<InvoiceTaxModel> list) {  }
 
             public int DeleteById(string id)
             {
@@ -3349,8 +3171,6 @@ namespace Kohi.Services
 
                 if (reponse.IsSuccessStatusCode)
                 {
-                    var item = _invoiceTaxes.FirstOrDefault(r => r.Id == intId);
-                    _invoiceTaxes.Remove(item);
                     return 1;
                 }
                 else
@@ -3370,7 +3190,6 @@ namespace Kohi.Services
 
                     List<InvoiceTaxModel> invoiceTaxes = JsonConvert.DeserializeObject<List<InvoiceTaxModel>>(jsonResponse);
 
-                    _invoiceTaxes = invoiceTaxes;
 
                     return invoiceTaxes;
                 }
@@ -3384,7 +3203,7 @@ namespace Kohi.Services
             public InvoiceTaxModel GetById(string id)
             {
                 if (!int.TryParse(id, out int intId)) return null;
-                var data = _invoiceTaxes ?? GetAll();
+                var data =   GetAll();
                 return data.FirstOrDefault(p => p.Id == intId);
 
                 HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicetaxes?id=eq.{id}").Result;
@@ -3432,8 +3251,6 @@ namespace Kohi.Services
                     return 0;
                 }
 
-                info.Id = _invoiceTaxes.Count + 1;
-                _invoiceTaxes.Add(info);
 
                 JObject jsonObject = JObject.FromObject(info, serializer);
                 //Remove all object's properties that are not match with the columns
@@ -3463,14 +3280,12 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     Debug.WriteLine("Invoice tax inserted successfully: " + responseContent);
                     JArray jsonArray = JArray.Parse(responseContent);
-                    _invoiceTaxes[^1].Id = jsonArray[0]["id"].ToObject<int>();
                     return 1;
                 }
                 else
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-                    _invoiceTaxes.RemoveAt(_invoiceTaxes.Count - 1);
                     return 0;
                 }
             }
@@ -3481,7 +3296,7 @@ namespace Kohi.Services
             public int UpdateById(string id, InvoiceTaxModel info)
             {
                 if (!int.TryParse(id, out int intId) || info == null) return 0;
-                var data = _invoiceTaxes ?? GetAll();
+                var data =  GetAll();
                 var item = data.FirstOrDefault(i => i.Id == intId);
                 if (item == null) return 0;
 
@@ -3504,7 +3319,6 @@ namespace Kohi.Services
                 {
                     item.InvoiceId = info.InvoiceId;
                     item.TaxId = info.TaxId;
-                    _invoiceTaxes = data;
                     Debug.WriteLine("Invoice tax updated successfully: " + reponse.Content.ReadAsStringAsync().Result);
                     return 1;
                 }
