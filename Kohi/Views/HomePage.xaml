@@ -249,6 +249,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!--TextBlock Grid.Row="0" 
@@ -363,8 +364,19 @@
                 <TextBlock x:Name="totalAmount" Grid.Column="1" Text="0" FontWeight="Bold"/>
             </Grid>
 
+            <!-- Phần giao diện thanh toán -->
+            <StackPanel Grid.Row="7" Orientation="Horizontal" Spacing="10">
+                <!-- Các phần khác như DeliveryFee, CustomerSearchBox... -->
+
+                <!-- Chọn phương thức thanh toán -->
+                <RadioButtons x:Name="PaymentMethodRadioButtons" Header="Phương thức thanh toán:" SelectedIndex="0">
+                    <RadioButton Content="Tiền mặt" Tag="Tiền mặt"/>
+                    <RadioButton Content="Chuyển khoản" Tag="Chuyển khoản"/>
+                </RadioButtons>
+            </StackPanel>
+
             <!-- Nút Thanh toán -->
-            <Button Grid.Row="7" 
+            <Button Grid.Row="8" 
                 Content="Thanh toán" 
                 Style="{ThemeResource AccentButtonStyle}"
                 HorizontalAlignment="Stretch" 

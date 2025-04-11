@@ -341,8 +341,19 @@ namespace Kohi.Views
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                var suggestions = ViewModel.CustomerViewModel.SearchCustomers(sender.Text);
-                sender.ItemsSource = suggestions;
+                if (string.IsNullOrWhiteSpace(sender.Text))
+                {
+                    // Khi người dùng xóa ô tìm kiếm, đặt lại SelectedCustomer và trạng thái giao diện
+                    ViewModel.CustomerViewModel.SelectedCustomer = null;
+                    sender.ItemsSource = null; // Xóa danh sách gợi ý
+                    checkBoxDelivery.IsChecked = false; // Bỏ check "Giao hàng"
+                    ResetDeliveryState(); // Đặt lại trạng thái giao hàng
+                }
+                else
+                {
+                    var suggestions = ViewModel.CustomerViewModel.SearchCustomers(sender.Text);
+                    sender.ItemsSource = suggestions;
+                }
             }
         }
 
@@ -367,6 +378,8 @@ namespace Kohi.Views
                 {
                     ViewModel.CustomerViewModel.SelectedCustomer = null;
                     sender.Text = string.Empty;
+                    checkBoxDelivery.IsChecked = false; 
+                    ResetDeliveryState();
                 }
             }
         }
@@ -393,13 +406,17 @@ namespace Kohi.Views
                     deliveryFee = (float)DeliveryFee.Value;
                 }
 
+                // Lấy phương thức thanh toán từ RadioButtons
+                string paymentMethod = (PaymentMethodRadioButtons.SelectedItem as RadioButton)?.Tag?.ToString() ?? "Tiền mặt";
+
                 var newInvoice = new InvoiceModel
                 {
                     CustomerId = ViewModel.CustomerViewModel.SelectedCustomer?.Id,
                     InvoiceDate = DateTime.Now,
                     TotalAmount = ViewModel.TotalPrice + deliveryFee,
                     DeliveryFee = deliveryFee,
-                    OrderType = DeliveryFee.IsEnabled ? "Delivery" : "InStore",
+                    OrderType = DeliveryFee.IsEnabled ? "Giao hàng" : "Tại chỗ",
+                    PaymentMethod = paymentMethod, // Gán PaymentMethod
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
                     InvoiceDetails = new List<InvoiceDetailModel>()
@@ -430,6 +447,8 @@ namespace Kohi.Views
 
                 CustomerSearchBox.Text = string.Empty;
                 ViewModel.CustomerViewModel.SelectedCustomer = null;
+
+                PaymentMethodRadioButtons.SelectedIndex = 0;
 
                 await ShowSuccessContentDialog(this.XamlRoot, "Thanh toán thành công! Hóa đơn đã được tạo.");
             }
