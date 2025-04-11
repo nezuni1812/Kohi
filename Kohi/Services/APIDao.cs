@@ -158,9 +158,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    CategoryModel category = JsonConvert.DeserializeObject<List<CategoryModel>>(responseContent)[0];
+                    info.Id = category.Id;
                     Debug.WriteLine("Category inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -330,8 +331,8 @@ namespace Kohi.Services
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     product = JsonConvert.DeserializeObject<List<ProductModel>>(responseContent)[0];
                     Debug.WriteLine("Person inserted successfully: " + product.Id);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    info.Id = product.Id;
+                    return info.Id;
                 }
                 else
                 {
@@ -500,9 +501,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    InventoryModel newInventory = JsonConvert.DeserializeObject<List<InventoryModel>>(responseContent)[0];
+                    info.Id = newInventory.Id;
                     Debug.WriteLine("Inventory inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -678,8 +680,8 @@ namespace Kohi.Services
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
                     ingredient = JsonConvert.DeserializeObject<List<IngredientModel>>(responseContent)[0];
+                    info.Id = ingredient.Id;
                     Debug.WriteLine("Ingredient inserted successfully: " + ingredient.Id);
-                    JArray jsonArray = JArray.Parse(responseContent);
                     return ingredient.Id;
                 }
                 else
@@ -845,9 +847,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    SupplierModel supplier = JsonConvert.DeserializeObject<List<SupplierModel>>(responseContent)[0];
+                    info.Id = supplier.Id;
                     Debug.WriteLine("Supplier inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -1013,10 +1016,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    InboundModel inbound = JsonConvert.DeserializeObject<List<InboundModel>>(responseContent)[0];
+                    info.Id = inbound.Id;
                     Debug.WriteLine("Inbound inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    Debug.WriteLine("Added inbound");
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -1186,9 +1189,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    OutboundModel outbound = JsonConvert.DeserializeObject<List<OutboundModel>>(responseContent)[0];
+                    info.Id = outbound.Id;
                     Debug.WriteLine("Outbound inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -1358,11 +1362,13 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    CustomerModel newCustomer = JsonConvert.DeserializeObject<List<CustomerModel>>(responseContent)[0];
                     Debug.WriteLine("Customer inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
+                    info.Id = newCustomer.Id;
                     return 1;
                 }
                 else
+
                 {
                     Debug.WriteLine("Failed insertion");
                     Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
@@ -1529,9 +1535,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    ExpenseCategoryModel expenseCategory = JsonConvert.DeserializeObject<List<ExpenseCategoryModel>>(responseContent)[0];
+                    info.Id = expenseCategory.Id;
                     Debug.WriteLine("Expense category inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -1700,9 +1707,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    CheckInventoryModel checkInventory = JsonConvert.DeserializeObject<List<CheckInventoryModel>>(responseContent)[0];
+                    info.Id = checkInventory.Id;
                     Debug.WriteLine("Check inventory inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -1879,9 +1887,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    ProductVariantModel productVariant = JsonConvert.DeserializeObject<List<ProductVariantModel>>(responseContent)[0];
+                    info.Id = productVariant.Id;
                     Debug.WriteLine("Product variant inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -2068,9 +2077,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    ExpenseModel expense = JsonConvert.DeserializeObject<List<ExpenseModel>>(responseContent)[0];
+                    info.Id = expense.Id;
                     Debug.WriteLine("Expense inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -2239,9 +2249,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    InvoiceModel invoice = JsonConvert.DeserializeObject<List<InvoiceModel>>(responseContent)[0];
+                    info.Id = invoice.Id;
                     Debug.WriteLine("Invoice inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -2414,9 +2425,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    InvoiceDetailModel invoiceDetail = JsonConvert.DeserializeObject<List<InvoiceDetailModel>>(responseContent)[0];
+                    info.Id = invoiceDetail.Id;
                     Debug.WriteLine("Invoice detail inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -2592,9 +2604,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    RecipeDetailModel recipeDetail = JsonConvert.DeserializeObject<List<RecipeDetailModel>>(responseContent)[0];
+                    info.Id = recipeDetail.Id;
                     Debug.WriteLine("Recipe detail inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -2765,9 +2778,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    PaymentModel payment = JsonConvert.DeserializeObject<List<PaymentModel>>(responseContent)[0];
+                    info.Id = payment.Id;
                     Debug.WriteLine("Payment inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -2937,9 +2951,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    OrderToppingModel orderTopping = JsonConvert.DeserializeObject<List<OrderToppingModel>>(responseContent)[0];
+                    info.Id = orderTopping.Id;
                     Debug.WriteLine("Order topping inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -3107,9 +3122,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    TaxModel tax = JsonConvert.DeserializeObject<List<TaxModel>>(responseContent)[0];
+                    info.Id = tax.Id;
                     Debug.WriteLine("Tax inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {
@@ -3278,9 +3294,10 @@ namespace Kohi.Services
                 {
                     // Handle the successful response (e.g., read the response content)
                     string responseContent = response.Content.ReadAsStringAsync().Result;
+                    InvoiceTaxModel invoiceTax = JsonConvert.DeserializeObject<List<InvoiceTaxModel>>(responseContent)[0];
+                    info.Id = invoiceTax.Id;
                     Debug.WriteLine("Invoice tax inserted successfully: " + responseContent);
-                    JArray jsonArray = JArray.Parse(responseContent);
-                    return 1;
+                    return info.Id;
                 }
                 else
                 {

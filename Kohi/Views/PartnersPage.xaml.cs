@@ -260,6 +260,8 @@ namespace Kohi.Views
                     Email = CustomerEmailTextBox.Text,
                 };
                 await CustomerViewModel.Add(newCustomer);
+
+                Debug.WriteLine("In info: " + newCustomer.Id);
             }
 
             else
