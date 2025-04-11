@@ -79,9 +79,18 @@ namespace Kohi.ViewModels
         {
             _dao = Service.GetKeyedSingleton<IDao>();
             Products = new FullObservableCollection<ProductModel>();
+            PageSize = 10;
             LoadData();
         }
 
+        public ProductViewModel(int sl)
+        {
+            _dao = Service.GetKeyedSingleton<IDao>();
+            Products = new FullObservableCollection<ProductModel>();
+            PageSize = sl;
+            LoadData();
+        }
+        
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;

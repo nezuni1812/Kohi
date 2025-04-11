@@ -12,20 +12,19 @@ namespace Kohi.ViewModels
 {
     public class HomePageViewModel
     {
-        private IDao _dao = Service.GetKeyedSingleton<IDao>();
-        public CategoryViewModel CategoryViewModel { get; set; }
-        public ProductViewModel ProductViewModel { get; set; }
-        public OrderToppingViewModel OrderToppingViewModel { get; set; }
-        public InvoiceDetailViewModel InvoiceDetailViewModel { get; set; }
-        public CustomerViewModel CustomerViewModel { get; set; }
-        public PaymentViewModel PaymentViewModel { get; set; }
-        public InvoiceViewModel InvoiceViewModel { get; set; }
-        public InvoiceTaxViewModel InvoiceTaxViewModel { get; set; }
+        public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
+        public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel(1000);
+        public OrderToppingViewModel OrderToppingViewModel { get; set; } = new OrderToppingViewModel();
+        public InvoiceDetailViewModel InvoiceDetailViewModel { get; set; } = new InvoiceDetailViewModel();
+        public CustomerViewModel CustomerViewModel { get; set; } = new CustomerViewModel();
+        public PaymentViewModel PaymentViewModel { get; set; } = new PaymentViewModel();
+        public InvoiceViewModel InvoiceViewModel { get; set; } = new InvoiceViewModel();
+        public InvoiceTaxViewModel InvoiceTaxViewModel { get; set; } = new InvoiceTaxViewModel();
         private FullObservableCollection<ProductModel> _allProducts => new FullObservableCollection<ProductModel>(
-            _dao.Products.GetAll(1, 1000).Where(p => p.IsTopping != true));
+            ProductViewModel.Products.Where(p => p.IsTopping != true));
         public FullObservableCollection<ProductModel> FilteredProducts { get; set; }
         public FullObservableCollection<ProductModel> ToppingProducts => new FullObservableCollection<ProductModel>(
-            _dao.Products.GetAll(1, 1000).Where(p => p.IsTopping == true));
+            ProductViewModel.Products.Where(p => p.IsTopping == true));
 
         public FullObservableCollection<InvoiceDetailModel> OrderItems = new FullObservableCollection<InvoiceDetailModel>();
 
@@ -38,14 +37,6 @@ namespace Kohi.ViewModels
 
         public HomePageViewModel()
         {
-            CategoryViewModel = new CategoryViewModel();
-            ProductViewModel = new ProductViewModel();
-            OrderToppingViewModel = new OrderToppingViewModel();
-            InvoiceDetailViewModel = new InvoiceDetailViewModel();
-            CustomerViewModel = new CustomerViewModel();
-            PaymentViewModel = new PaymentViewModel();
-            InvoiceViewModel = new InvoiceViewModel();
-            InvoiceTaxViewModel = new InvoiceTaxViewModel();
             FilteredProducts = new FullObservableCollection<ProductModel>(_allProducts);
         }
         public void FilterProductsByCategory(int? categoryId)
