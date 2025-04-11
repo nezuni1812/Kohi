@@ -1,4 +1,5 @@
 ﻿using Kohi.Models;
+using Kohi.Services;
 using Kohi.Utils;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace Kohi.ViewModels
 {
     public class HomePageViewModel
     {
+        private IDao _dao = Service.GetKeyedSingleton<IDao>();
         public CategoryViewModel CategoryViewModel { get; set; }
         public ProductViewModel ProductViewModel { get; set; }
         public OrderToppingViewModel OrderToppingViewModel { get; set; }
@@ -20,10 +22,10 @@ namespace Kohi.ViewModels
         public InvoiceViewModel InvoiceViewModel { get; set; }
         public InvoiceTaxViewModel InvoiceTaxViewModel { get; set; }
         private FullObservableCollection<ProductModel> _allProducts => new FullObservableCollection<ProductModel>(
-            ProductViewModel.Products.Where(p => p.IsTopping != true));
+            _dao.Products.GetAll(1, 1000).Where(p => p.IsTopping != true));
         public FullObservableCollection<ProductModel> FilteredProducts { get; set; }
         public FullObservableCollection<ProductModel> ToppingProducts => new FullObservableCollection<ProductModel>(
-            ProductViewModel.Products.Where(p => p.IsTopping == true));
+            _dao.Products.GetAll(1, 1000).Where(p => p.IsTopping == true));
 
         public FullObservableCollection<InvoiceDetailModel> OrderItems = new FullObservableCollection<InvoiceDetailModel>();
 
