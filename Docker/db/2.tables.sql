@@ -113,11 +113,12 @@ CREATE TABLE RecipeDetails (
 -- Tạo bảng Invoices
 CREATE TABLE Invoices (
     Id SERIAL PRIMARY KEY,
-    CustomerId INT NOT NULL,
+    CustomerId INT,
     InvoiceDate TIMESTAMP NOT NULL,
     TotalAmount REAL NOT NULL DEFAULT 0.0,
     DeliveryFee REAL NOT NULL DEFAULT 0.0,
     OrderType VARCHAR(50),
+    PaymentMethod VARCHAR(50),
     CreatedAt TIMESTAMP,
     UpdatedAt TIMESTAMP,
     CONSTRAINT fk_customer FOREIGN KEY (CustomerId) REFERENCES Customers(Id)
