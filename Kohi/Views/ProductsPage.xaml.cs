@@ -32,6 +32,7 @@ namespace Kohi.Views
         public ProductModel? SelectedProduct { get; set; }
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
         public ProductVariantViewModel ProductVariantViewModel { get; set; } = new ProductVariantViewModel();
+        public RecipeDetailViewModel RecipeDetailViewModel { get; set; } = new RecipeDetailViewModel();
         public ProductsPage()
         {
             this.InitializeComponent();
@@ -97,28 +98,35 @@ namespace Kohi.Views
             {
                 try
                 {
-                    // 1. Lấy tất cả ProductVariants liên quan đến SelectedProduct.Id
                     var allVariants = await ProductVariantViewModel.GetByProductId(SelectedProduct.Id);
 
-                    // 2. Xóa từng ProductVariant
                     foreach (var variant in allVariants)
                     {
+                        var allRecipes = await RecipeDetailViewModel.GetByProductVariantId(variant.Id);
+                        Debug.WriteLine($"Tìm thấy {allRecipes.Count} RecipeDetails cho ProductVariant ID: {variant.Id}");
+
+                        foreach (var recipe in allRecipes)
+                        {
+                            await RecipeDetailViewModel.Delete(recipe.Id.ToString());
+                            Debug.WriteLine($"Đã xóa RecipeDetail ID: {recipe.Id}");
+                        }
+
                         await ProductVariantViewModel.Delete(variant.Id.ToString());
                         Debug.WriteLine($"Đã xóa ProductVariant ID: {variant.Id}");
                     }
 
-                    // 3. Xóa Product sau khi đã xóa hết ProductVariants
                     await ProductViewModel.Delete(SelectedProduct.Id.ToString());
                     Debug.WriteLine($"Đã xóa sản phẩm ID: {SelectedProduct.Id}");
 
-                    // 4. Cập nhật lại danh sách sản phẩm và đặt lại SelectedProduct
                     await ProductViewModel.LoadData(ProductViewModel.CurrentPage);
                     SelectedProduct = null; 
                     UpdatePageList();
+
+                    Debug.WriteLine("Xóa sản phẩm hoàn tất.");
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}");
+                    Debug.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}\nStackTrace: {ex.StackTrace}");
                     var errorDialog = new ContentDialog
                     {
                         Title = "Lỗi",
