@@ -187,5 +187,18 @@ namespace Kohi.ViewModels
                 throw;
             }
         }
+        public async Task<List<ProductVariantModel>> GetAll()
+        {
+            try
+            {
+                var ProductVariants = _dao.ProductVariants.GetAll(1, 1000); // Đồng bộ
+                return ProductVariants;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

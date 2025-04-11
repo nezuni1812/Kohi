@@ -90,7 +90,7 @@ namespace Kohi.ViewModels
             PageSize = sl;
             LoadData();
         }
-        
+
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
@@ -275,6 +275,19 @@ namespace Kohi.ViewModels
             {
                 var product = _dao.Products.GetById(id); // Đồng bộ
                 return product;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
+        public async Task<List<ProductModel>> GetAll()
+        {
+            try
+            {
+                var products = _dao.Products.GetAll(1, 1000); // Đồng bộ
+                return products;
             }
             catch (Exception ex)
             {

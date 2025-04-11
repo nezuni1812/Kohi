@@ -120,5 +120,18 @@ namespace Kohi.ViewModels
 
             }
         }
+        public async Task<List<SupplierModel>> GetAll()
+        {
+            try
+            {
+                var Suppliers = _dao.Suppliers.GetAll(1, 1000); // Đồng bộ
+                return Suppliers;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

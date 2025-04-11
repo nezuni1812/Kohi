@@ -116,5 +116,18 @@ namespace Kohi.ViewModels
 
             }
         }
+        public async Task<List<InventoryModel>> GetAll()
+        {
+            try
+            {
+                var Inventories = _dao.Inventories.GetAll(1, 1000); // Đồng bộ
+                return Inventories;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

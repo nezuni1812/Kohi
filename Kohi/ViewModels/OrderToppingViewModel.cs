@@ -66,5 +66,18 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+        public async Task<List<OrderToppingModel>> GetAll()
+        {
+            try
+            {
+                var OrderToppings = _dao.OrderToppings.GetAll(1, 1000); // Đồng bộ
+                return OrderToppings;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

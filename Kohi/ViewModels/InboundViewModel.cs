@@ -106,5 +106,18 @@ namespace Kohi.ViewModels
 
             }
         }
+        public async Task<List<InboundModel>> GetAll()
+        {
+            try
+            {
+                var Inbounds = _dao.Inbounds.GetAll(1, 1000); // Đồng bộ
+                return Inbounds;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

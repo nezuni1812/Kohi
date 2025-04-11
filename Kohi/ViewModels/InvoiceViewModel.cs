@@ -118,5 +118,18 @@ namespace Kohi.ViewModels
                 await LoadData(page);
             }
         }
+        public async Task<List<InvoiceModel>> GetAll()
+        {
+            try
+            {
+                var Invoices = _dao.Invoices.GetAll(1, 1000); // Đồng bộ
+                return Invoices;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

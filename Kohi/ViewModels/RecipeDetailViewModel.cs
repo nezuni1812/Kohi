@@ -135,5 +135,18 @@ namespace Kohi.ViewModels
             }
             return recipeDetails;
         }
+        public async Task<List<RecipeDetailModel>> GetAll()
+        {
+            try
+            {
+                var recipeDetails = _dao.RecipeDetails.GetAll(1, 1000); // Đồng bộ
+                return recipeDetails;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }
