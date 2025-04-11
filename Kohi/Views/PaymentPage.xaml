@@ -11,19 +11,37 @@
     <ScrollView>
         <Grid Padding="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Ngân hàng -->
+                <RowDefinition Height="Auto"/>
+                <!-- ComboBox -->
+                <RowDefinition Height="Auto"/>
+                <!-- Số tài khoản -->
+                <RowDefinition Height="Auto"/>
+                <!-- TextBox STK -->
+                <RowDefinition Height="Auto"/>
+                <!-- Tên tài khoản -->
+                <RowDefinition Height="Auto"/>
+                <!-- TextBox Tên TK -->
+                <RowDefinition Height="Auto"/>
+                <!-- Số tiền -->
+                <RowDefinition Height="Auto"/>
+                <!-- TextBox Số tiền -->
+                <RowDefinition Height="Auto"/>
+                <!-- Mẫu QR -->
+                <RowDefinition Height="Auto"/>
+                <!-- ComboBox QR -->
+                <RowDefinition Height="Auto"/>
+                <!-- Địa chỉ -->
+                <RowDefinition Height="Auto"/>
+                <!-- TextBox Địa chỉ -->
+                <RowDefinition Height="Auto"/>
+                <!-- Nút tạo QR -->
+                <RowDefinition Height="Auto"/>
+                <!-- Kiểm tra QR -->
+                <RowDefinition Height="*"/>
+                <!-- Ảnh QR -->
+            </Grid.RowDefinitions>
 
         <!-- Ngân hàng -->
         <TextBlock Text="Ngân hàng:" Margin="0,5"/>
@@ -49,12 +67,19 @@
             <ComboBoxItem Content="standard"/>
         </ComboBox>
 
+        <!-- Địa chỉ quán -->
+
+        <TextBlock Text="Địa chỉ quán:" Grid.Row="10" Margin="0,10,0,0"/>
+        <TextBox x:Name="txtDiaChi" Grid.Row="11" Width="300"/>
         <!-- Nút Tạo QR -->
-        <Button Content="Tạo QR" Grid.Row="10" Width="150" Click="button1_Click" Margin="0,20,0,0"/>
+        <Button Content="Tạo QR và lưu thông tin" Grid.Row="12" Width="200" Click="button1_Click" Margin="0,20,0,0"/>
+
+        <TextBlock Text="Kiểm tra mã QR mẫu:" Grid.Row="13" Margin="0,10,0,0"/>
 
         <!-- Hiển thị QR Code -->
-        <Image x:Name="pictureBox1" Grid.Row="11" Width="300" Height="300" 
+        <Image x:Name="pictureBox1" Grid.Row="14" Width="300" Height="300" 
                Stretch="Uniform" Margin="0,20,0,0"/>
-    </Grid>
+
+        </Grid>
     </ScrollView>
 </Page>
