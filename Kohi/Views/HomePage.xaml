@@ -332,7 +332,6 @@
                    Grid.Column="2"
                    Width="100"
                    HorizontalAlignment="Right"
-                   Value="{Binding ViewModel.Invoice.DeliveryFee, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                    ValueChanged="DeliveryFee_ValueChanged"
                    Minimum="0"
                    SpinButtonPlacementMode="Hidden"/>

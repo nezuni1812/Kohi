@@ -170,6 +170,7 @@ namespace Kohi.Views
 
             Debug.WriteLine($"Editing expense receipt ID: {SelectedExpense.Id}");
             EditExpenseReceiptCategoryComboBox.SelectedItem = selectedExpenseCategory;
+            EditExpenseReceiptCategoryComboBox.SelectedIndex = selectedExpenseCategory.Id - 1;
             EditExpenseReceiptAmount.Text = SelectedExpense.Amount.ToString();
             EditExpenseReceiptDate.Date = SelectedExpense.ExpenseDate;
             EditExpenseReceiptNote.Text = SelectedExpense.Note;

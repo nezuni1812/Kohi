@@ -35,7 +35,7 @@ namespace Kohi.Views
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
         public ProductVariantViewModel ProductVariantViewModel { get; set; } = new ProductVariantViewModel();
         public RecipeDetailViewModel RecipeDetailViewModel { get; set; } = new RecipeDetailViewModel();
-        public AddNewProductViewModel ViewModel { get; set; } = new AddNewProductViewModel();
+        public EditProductViewModel ViewModel { get; set; } = new EditProductViewModel();
 
         private StorageFile selectedImageFile;
         private readonly IErrorHandler _errorHandler;
@@ -76,10 +76,18 @@ namespace Kohi.Views
             _currentProduct = product;
             if (_currentProduct != null)
             {
-                //var category = await CategoryViewModel.GetById(_currentProduct.CategoryId.ToString());
                 var selectedCategory = _currentProduct.Category;
                 ProductNameTextBox.Text = _currentProduct.Name;
-                CategoryProductComboBox.SelectedItem = selectedCategory;
+                if (selectedCategory != null)
+                {
+                    CategoryProductComboBox.SelectedIndex = selectedCategory.Id - 1;
+                }
+
+                Debug.WriteLine($"Categories count: {ViewModel.Categories.Count}");
+                for (int i = 0; i < ViewModel.Categories.Count; i++)
+                {
+                    Debug.WriteLine($"Index {i}: Id={ViewModel.Categories[i].Id}, Name={ViewModel.Categories[i].Name}");
+                }
 
                 IsActiveCheckBox.IsChecked = _currentProduct.IsActive;
                 IsToppingCheckBox.IsChecked = _currentProduct.IsTopping;
@@ -120,7 +128,7 @@ namespace Kohi.Views
 
                 foreach (var variant in _currentProduct.ProductVariants)
                 {
-                    var variantVM = new AddNewProductViewModel.ProductVariantViewModel
+                    var variantVM = new EditProductViewModel.ProductVariantViewModel
                     {
                         Size = variant.Size,
                         Price = variant.Price,
@@ -132,7 +140,7 @@ namespace Kohi.Views
                         var matchingIngredient = ViewModel.Ingredients.FirstOrDefault(i => i.Id == recipe.IngredientId);
                         if (matchingIngredient != null)
                         {
-                            variantVM.RecipeDetails.Add(new AddNewProductViewModel.RecipeDetailViewModel
+                            variantVM.RecipeDetails.Add(new EditProductViewModel.RecipeDetailViewModel
                             {
                                 Ingredient = matchingIngredient, 
                                 Quantity = recipe.Quantity,
@@ -143,7 +151,7 @@ namespace Kohi.Views
                         else
                         {
                             Debug.WriteLine($"Không tìm thấy Ingredient ID {recipe.IngredientId} trong ViewModel.Ingredients");
-                            variantVM.RecipeDetails.Add(new AddNewProductViewModel.RecipeDetailViewModel
+                            variantVM.RecipeDetails.Add(new EditProductViewModel.RecipeDetailViewModel
                             {
                                 Ingredient = recipe.Ingredient,
                                 Quantity = recipe.Quantity,
@@ -491,14 +499,14 @@ namespace Kohi.Views
         {
             if (IsToppingCheckBox.IsChecked != true)
             {
-                ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
+                ViewModel.Variants.Add(new EditProductViewModel.ProductVariantViewModel());
             }
         }
 
         private void RemoveVariantButton_Click(object sender, RoutedEventArgs e)
         {
             var button = (Button)sender;
-            var variant = (AddNewProductViewModel.ProductVariantViewModel)button.Tag;
+            var variant = (EditProductViewModel.ProductVariantViewModel)button.Tag;
 
             int index = ViewModel.Variants.IndexOf(variant);
             if (ViewModel.Variants.Count > 1 && index >= 0)
@@ -512,10 +520,10 @@ namespace Kohi.Views
             var button = sender as Button;
             if (button != null)
             {
-                var currentVariant = button.DataContext as AddNewProductViewModel.ProductVariantViewModel;
+                var currentVariant = button.DataContext as EditProductViewModel.ProductVariantViewModel;
                 if (currentVariant != null)
                 {
-                    currentVariant.RecipeDetails.Add(new AddNewProductViewModel.RecipeDetailViewModel());
+                    currentVariant.RecipeDetails.Add(new EditProductViewModel.RecipeDetailViewModel());
                 }
             }
         }
@@ -525,7 +533,7 @@ namespace Kohi.Views
             var comboBox = sender as ComboBox;
             if (comboBox != null)
             {
-                var recipeDetail = comboBox.DataContext as AddNewProductViewModel.RecipeDetailViewModel;
+                var recipeDetail = comboBox.DataContext as EditProductViewModel.RecipeDetailViewModel;
                 if (recipeDetail != null && recipeDetail.Ingredient != null)
                 {
                     var grid = FindParent<Grid>(comboBox);
@@ -544,12 +552,12 @@ namespace Kohi.Views
         private void RemoveRecipeDetailButton_Click(object sender, RoutedEventArgs e)
         {
             var button = (Button)sender;
-            var recipeDetailVM = button.DataContext as AddNewProductViewModel.RecipeDetailViewModel;
+            var recipeDetailVM = button.DataContext as EditProductViewModel.RecipeDetailViewModel;
 
             var listView = FindParent<ListView>(button);
             if (listView != null)
             {
-                var currentVariantVM = listView.DataContext as AddNewProductViewModel.ProductVariantViewModel;
+                var currentVariantVM = listView.DataContext as EditProductViewModel.ProductVariantViewModel;
                 if (currentVariantVM != null && recipeDetailVM != null)
                 {
                     currentVariantVM.RecipeDetails.Remove(recipeDetailVM);
