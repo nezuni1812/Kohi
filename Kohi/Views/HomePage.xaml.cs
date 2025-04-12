@@ -406,8 +406,8 @@ namespace Kohi.Views
                     deliveryFee = (float)DeliveryFee.Value;
                 }
 
-                // Lấy phương thức thanh toán từ RadioButtons
-                string paymentMethod = (PaymentMethodRadioButtons.SelectedItem as RadioButton)?.Tag?.ToString() ?? "Tiền mặt";
+                // Lấy phương thức thanh toán từ DropDownButton
+                string paymentMethod = PaymentMethodDropDown.Content?.ToString() ?? "Tiền mặt";
 
                 var newInvoice = new InvoiceModel
                 {
@@ -448,7 +448,8 @@ namespace Kohi.Views
                 CustomerSearchBox.Text = string.Empty;
                 ViewModel.CustomerViewModel.SelectedCustomer = null;
 
-                PaymentMethodRadioButtons.SelectedIndex = 0;
+                // Đặt lại DropDownButton về giá trị mặc định
+                PaymentMethodDropDown.Content = "Tiền mặt";
 
                 await ShowSuccessContentDialog(this.XamlRoot, "Thanh toán thành công! Hóa đơn đã được tạo.");
             }
@@ -456,6 +457,13 @@ namespace Kohi.Views
             {
                 Debug.WriteLine($"Error during checkout: {ex.Message}");
                 await ShowErrorContentDialog(this.XamlRoot, "Đã xảy ra lỗi trong quá trình thanh toán: " + ex.Message);
+            }
+        }
+        private void PaymentMethodMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem selectedItem)
+            {
+                PaymentMethodDropDown.Content = selectedItem.Text;
             }
         }
 

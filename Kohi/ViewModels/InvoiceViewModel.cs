@@ -59,36 +59,45 @@ namespace Kohi.ViewModels
 
         public async Task Add(InvoiceModel invoice)
         {
+            if (invoice == null)
+            {
+                Debug.WriteLine("Add failed: Invoice is null.");
+                throw new ArgumentNullException(nameof(invoice), "Hóa đơn không được null.");
+            }
+
+            if (invoice.InvoiceDetails == null || !invoice.InvoiceDetails.Any())
+            {
+                Debug.WriteLine("Add failed: InvoiceDetails is null or empty.");
+                throw new ArgumentException("Hóa đơn phải có ít nhất một chi tiết.", nameof(invoice.InvoiceDetails));
+            }
+
             try
             {
-                int invoiceResult = _dao.Invoices.Insert(invoice);
-
-                if (invoiceResult == 1)
+                int invoiceId = _dao.Invoices.Insert(invoice);
+                if (invoiceId <= 0)
                 {
-                    foreach (var detail in invoice.InvoiceDetails)
+                    Debug.WriteLine("Add failed: Could not insert invoice.");
+                    throw new Exception("Không thể tạo hóa đơn. Vui lòng thử lại.");
+                }
+
+                foreach (var detail in invoice.InvoiceDetails)
+                {
+                    detail.InvoiceId = invoiceId;
+                    int detailResult = _dao.InvoiceDetails.Insert(detail);
+                    if (detailResult <= 0)
                     {
-                        detail.InvoiceId = invoice.Id;
-                        int detailResult = _dao.InvoiceDetails.Insert(detail);
-
-                        if (detailResult != 1)
-                        {
-                            Debug.WriteLine($"Failed to insert InvoiceDetail for ProductId: {detail.ProductId}");
-                            throw new Exception("Có lỗi khi lưu chi tiết hóa đơn.");
-                        }
+                        Debug.WriteLine($"Add failed: Could not insert InvoiceDetail for ProductId: {detail.ProductId}.");
+                        throw new Exception($"Lỗi khi lưu chi tiết hóa đơn cho sản phẩm {detail.ProductId}.");
                     }
+                }
 
-                    await LoadData(CurrentPage);
-                }
-                else
-                {
-                    Debug.WriteLine("Failed to insert Invoice.");
-                    throw new Exception("Có lỗi khi tạo hóa đơn.");
-                }
+                // Tải lại dữ liệu sau khi lưu thành công
+                await LoadData(CurrentPage);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error adding invoice: {ex.Message}");
-                throw;
+                throw; 
             }
         }
 
