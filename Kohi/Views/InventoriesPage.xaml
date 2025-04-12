@@ -310,6 +310,13 @@
                     <TextBlock Text="Nhập từ Excel" Margin="5,0,0,0"/>
                 </StackPanel>
             </Button>
+            <!-- Thêm nút nhập xuất kho -->
+            <Button x:Name="importOutboundButton" Click="ImportOutboundButton_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="" FontSize="14"/>
+                    <TextBlock Text="Nhập xuất kho từ Excel" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
             <!-- ProgressRing để hiển thị trạng thái nhập -->
             <ProgressRing x:Name="ImportProgressRing" IsActive="False" Width="20" Height="20" Margin="10,0,0,0"/>
         </StackPanel>

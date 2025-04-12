@@ -11,7 +11,7 @@ namespace Kohi.Utils
     public static class ExcelDataReaderUtil
     {
         private const string ExpectedSheetName = "InboundImport";
-
+        private const string OutboundSheetName = "OutboundImport";
         public static List<RawInboundData> ReadInboundDataFromExcel(string filePath)
         {
             // Kiểm tra file tồn tại
@@ -51,7 +51,7 @@ namespace Kohi.Utils
                     rowData.TotalCostString = GetCellValue(cells, $"D{row.RowIndex}", stringTable);
                     rowData.InboundDateString = GetCellValue(cells, $"E{row.RowIndex}", stringTable);
                     rowData.ExpiryDateString = GetCellValue(cells, $"F{row.RowIndex}", stringTable);
-
+                    rowData.Notes = GetCellValue(cells, $"G{row.RowIndex}", stringTable); // Đọc cột Ghi chú
                     // Phân tích dữ liệu
                     ParseRowData(rowData);
                     dataList.Add(rowData);
@@ -60,7 +60,48 @@ namespace Kohi.Utils
 
             return dataList;
         }
+        public static List<RawOutboundData> ReadOutboundDataFromExcel(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"File not found: {filePath}");
+            }
 
+            var dataList = new List<RawOutboundData>();
+
+            using (SpreadsheetDocument document = SpreadsheetDocument.Open(filePath, false))
+            {
+                WorkbookPart wbPart = document.WorkbookPart;
+                SharedStringTable stringTable = wbPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault()?.SharedStringTable;
+                Sheet sheet = wbPart.Workbook.Descendants<Sheet>()
+                    .FirstOrDefault(s => s.Name != null && s.Name.Value.Equals(OutboundSheetName, StringComparison.OrdinalIgnoreCase))
+                    ?? wbPart.Workbook.Descendants<Sheet>().FirstOrDefault();
+
+                if (sheet == null) return dataList;
+
+                WorksheetPart wsPart = (WorksheetPart)wbPart.GetPartById(sheet.Id);
+                SheetData sheetData = wsPart.Worksheet.GetFirstChild<SheetData>();
+                if (sheetData == null) return dataList;
+
+                var rows = sheetData.Elements<Row>().Where(r => r.RowIndex != null && r.RowIndex.Value > 1);
+                foreach (Row row in rows)
+                {
+                    var rowData = new RawOutboundData { RowNumber = (int)row.RowIndex.Value };
+                    var cells = row.Elements<Cell>().ToDictionary(c => c.CellReference?.Value ?? "", c => c);
+
+                    rowData.InventoryIdString = GetCellValue(cells, $"A{row.RowIndex}", stringTable);
+                    rowData.QuantityString = GetCellValue(cells, $"B{row.RowIndex}", stringTable);
+                    rowData.OutboundDateString = GetCellValue(cells, $"C{row.RowIndex}", stringTable);
+                    rowData.Purpose = GetCellValue(cells, $"D{row.RowIndex}", stringTable);
+                    rowData.Notes = GetCellValue(cells, $"E{row.RowIndex}", stringTable);
+
+                    ParseOutboundData(rowData);
+                    dataList.Add(rowData);
+                }
+            }
+
+            return dataList;
+        }
         private static string GetCellValue(Dictionary<string, Cell> cells, string cellRef, SharedStringTable stringTable)
         {
             if (!cells.TryGetValue(cellRef, out Cell cell) || cell?.CellValue == null)
@@ -130,6 +171,36 @@ namespace Kohi.Utils
                     catch
                     {
                         // Nếu serialDate không hợp lệ, bỏ qua
+                    }
+                }
+            }
+        }
+        private static void ParseOutboundData(RawOutboundData data)
+        {
+            if (int.TryParse(data.InventoryIdString, out int inventoryId))
+            {
+                data.ParsedInventoryId = inventoryId;
+            }
+
+            if (int.TryParse(data.QuantityString, out int quantity))
+            {
+                data.ParsedQuantity = quantity;
+            }
+
+            if (!string.IsNullOrEmpty(data.OutboundDateString))
+            {
+                if (DateTime.TryParse(data.OutboundDateString, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime outboundDate))
+                {
+                    data.ParsedOutboundDate = outboundDate;
+                }
+                else if (double.TryParse(data.OutboundDateString, NumberStyles.Any, CultureInfo.InvariantCulture, out double serialDate))
+                {
+                    try
+                    {
+                        data.ParsedOutboundDate = DateTime.FromOADate(serialDate);
+                    }
+                    catch
+                    {
                     }
                 }
             }

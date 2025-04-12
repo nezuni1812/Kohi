@@ -46,6 +46,7 @@ namespace Kohi.Views
         public int SelectedInventoryId = -1;
         private Dictionary<string, int> _ingredientsDict;
         private Dictionary<string, int> _suppliersDict;
+        private Dictionary<int, int> _inventoryDict; // Thêm để kiểm tra InventoryId
         public InventoriesPage()
         {
             this.InitializeComponent();
@@ -66,8 +67,10 @@ namespace Kohi.Views
             {
                 var ingredients = await IngredientViewModel.GetAll();
                 var suppliers = await SupplierViewModel.GetAll();
+                var inventories = await InventoryViewModel.GetAll(); // Lấy danh sách Inventory
                 _ingredientsDict = ingredients?.ToDictionary(i => i.Name, i => i.Id, StringComparer.OrdinalIgnoreCase) ?? new Dictionary<string, int>();
                 _suppliersDict = suppliers?.ToDictionary(s => s.Name, s => s.Id, StringComparer.OrdinalIgnoreCase) ?? new Dictionary<string, int>();
+                _inventoryDict = inventories?.ToDictionary(i => i.Id, i => i.Id) ?? new Dictionary<int, int>();
             }
             catch (Exception ex)
             {
@@ -309,7 +312,8 @@ namespace Kohi.Views
                             Quantity = rawData.ParsedQuantity.Value,
                             TotalCost = rawData.ParsedTotalCost.Value,
                             InboundDate = rawData.ParsedInboundDate.Value,
-                            ExpiryDate = rawData.ParsedExpiryDate ?? DateTime.MaxValue
+                            ExpiryDate = rawData.ParsedExpiryDate ?? DateTime.Now,
+                            Notes = rawData.Notes,
                         };
                         Debug.WriteLine(inbound.IngredientId);
                         Debug.WriteLine(inbound.SupplierId);
@@ -358,6 +362,93 @@ namespace Kohi.Views
                 // Tắt ProgressRing và bật lại nút Import
                 ImportProgressRing.IsActive = false;
                 importButton.IsEnabled = true;
+            }
+        }
+
+        // Hàm xử lý nhập xuất kho từ Excel
+        private async void ImportOutboundButton_Click(object sender, RoutedEventArgs e)
+        {
+            ImportProgressRing.IsActive = true;
+            importOutboundButton.IsEnabled = false;
+
+            try
+            {
+                var openPicker = new FileOpenPicker
+                {
+                    ViewMode = PickerViewMode.List,
+                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+                };
+                openPicker.FileTypeFilter.Add(".xlsx");
+
+                var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
+                InitializeWithWindow.Initialize(openPicker, hwnd);
+
+                StorageFile file = await openPicker.PickSingleFileAsync();
+                if (file == null)
+                {
+                    return;
+                }
+
+                List<RawOutboundData> rawDataList = ExcelDataReaderUtil.ReadOutboundDataFromExcel(file.Path);
+                Debug.WriteLine($"Total outbound rows read from Excel: {rawDataList.Count}");
+                if (rawDataList.Count == 0)
+                {
+                    await ShowMessageDialog("Warning", "No valid outbound data found in the Excel file.");
+                    return;
+                }
+
+                for (int i = 0; i < Math.Min(rawDataList.Count, 3); i++)
+                {
+                    Debug.WriteLine($"Row {i + 2}: InventoryId = {rawDataList[i].InventoryIdString}, Quantity = {rawDataList[i].QuantityString}, " +
+                                    $"OutboundDate = {rawDataList[i].OutboundDateString}, Purpose = {rawDataList[i].Purpose}, Notes = {rawDataList[i].Notes}");
+                    Debug.WriteLine($"Parsed: InventoryId = {rawDataList[i].ParsedInventoryId}, Quantity = {rawDataList[i].ParsedQuantity}, " +
+                                    $"OutboundDate = {rawDataList[i].ParsedOutboundDate}");
+                }
+
+                Debug.WriteLine($"_inventoryDict count: {_inventoryDict.Count}");
+
+                int successCount = 0;
+                foreach (var rawData in rawDataList)
+                {
+                    if (!rawData.ParsedInventoryId.HasValue)
+                        Debug.WriteLine($"Row {rawData.RowNumber}: Invalid InventoryId = {rawData.InventoryIdString}");
+                    if (!rawData.ParsedQuantity.HasValue)
+                        Debug.WriteLine($"Row {rawData.RowNumber}: Invalid Quantity = {rawData.QuantityString}");
+                    if (!rawData.ParsedOutboundDate.HasValue)
+                        Debug.WriteLine($"Row {rawData.RowNumber}: Invalid OutboundDate = {rawData.OutboundDateString}");
+                    if (!_inventoryDict.ContainsKey(rawData.ParsedInventoryId ?? 0))
+                        Debug.WriteLine($"Row {rawData.RowNumber}: InventoryId '{rawData.ParsedInventoryId}' not found in _inventoryDict");
+
+                    if (rawData.ParsedInventoryId.HasValue && rawData.ParsedQuantity.HasValue && rawData.ParsedOutboundDate.HasValue &&
+                        _inventoryDict.ContainsKey(rawData.ParsedInventoryId.Value))
+                    {
+                        OutboundModel outbound = new OutboundModel
+                        {
+                            InventoryId = rawData.ParsedInventoryId.Value,
+                            Quantity = rawData.ParsedQuantity.Value,
+                            OutboundDate = rawData.ParsedOutboundDate.Value,
+                            Purpose = rawData.Purpose,
+                            Notes = rawData.Notes
+                        };
+                        Debug.WriteLine($"Outbound: InventoryId = {outbound.InventoryId}, Quantity = {outbound.Quantity}, " +
+                                        $"OutboundDate = {outbound.OutboundDate}, Purpose = {outbound.Purpose}, Notes = {outbound.Notes}");
+
+                        await OutboundViewModel.Add(outbound);
+                        Debug.WriteLine($"Outbound Id after Add: {outbound.Id}");
+                        successCount++;
+                    }
+                }
+
+                await ShowMessageDialog("Success", $"Imported {successCount} of {rawDataList.Count} outbound rows from the Excel file.");
+            }
+            catch (Exception ex)
+            {
+                await ShowMessageDialog("Error", $"Failed to import outbound data: {ex.Message}");
+            }
+            finally
+            {
+                ImportProgressRing.IsActive = false;
+                importOutboundButton.IsEnabled = true;
             }
         }
 

@@ -11,6 +11,8 @@ namespace Kohi.Utils
         public string InboundDateString { get; set; }
         public string ExpiryDateString { get; set; }
 
+        public string Notes { get; set; }
+
         public int RowNumber { get; set; }
 
         public int? ParsedQuantity { get; set; }
