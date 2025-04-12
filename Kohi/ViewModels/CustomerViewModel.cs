@@ -60,6 +60,19 @@ namespace Kohi.ViewModels
             }
         }
 
+        public CustomerModel GetById(string id)
+        {
+            try
+            {
+                var customer = _dao.Customers.GetById(id); 
+                return customer;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
         public List<CustomerModel> SearchCustomers(string query)
         {
             if (string.IsNullOrWhiteSpace(query))

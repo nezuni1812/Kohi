@@ -390,6 +390,13 @@ namespace Kohi.Views
             ViewModel.CustomerViewModel.SelectedCustomer = selectedCustomer;
             sender.Text = $"{selectedCustomer.Name} - {selectedCustomer.Phone}";
         }
+
+        private void PrintInvoice_Click(object sender, RoutedEventArgs e)
+        {
+            var invoice = PrepareInvoice();
+            Frame.Navigate(typeof(PrintInvoicePage), invoice);
+        }
+
         private async void CheckoutButton_Click(object sender, RoutedEventArgs e)
         {
             if (ViewModel.OrderItems == null || ViewModel.OrderItems.Count == 0)
@@ -400,58 +407,9 @@ namespace Kohi.Views
 
             try
             {
-                float deliveryFee = 0f;
-                if (DeliveryFee.IsEnabled)
-                {
-                    deliveryFee = (float)DeliveryFee.Value;
-                }
+                var newInvoice = PrepareInvoice();
 
-                // Lấy phương thức thanh toán từ DropDownButton
-                string paymentMethod = PaymentMethodDropDown.Content?.ToString() ?? "Tiền mặt";
-
-                var newInvoice = new InvoiceModel
-                {
-                    CustomerId = ViewModel.CustomerViewModel.SelectedCustomer?.Id,
-                    InvoiceDate = DateTime.Now,
-                    TotalAmount = ViewModel.TotalPrice + deliveryFee,
-                    DeliveryFee = deliveryFee,
-                    OrderType = DeliveryFee.IsEnabled ? "Giao hàng" : "Tại chỗ",
-                    PaymentMethod = paymentMethod, // Gán PaymentMethod
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    InvoiceDetails = new List<InvoiceDetailModel>()
-                };
-
-                foreach (var orderItem in ViewModel.OrderItems)
-                {
-                    newInvoice.InvoiceDetails.Add(new InvoiceDetailModel
-                    {
-                        ProductId = orderItem.ProductId,
-                        SugarLevel = orderItem.SugarLevel,
-                        IceLevel = orderItem.IceLevel,
-                        Quantity = orderItem.Quantity,
-                        ProductVariant = orderItem.ProductVariant,
-                        Toppings = orderItem.Toppings
-                    });
-                }
-
-                await ViewModel.InvoiceViewModel.Add(newInvoice);
-
-                ViewModel.OrderItems.Clear();
-
-                TotalItemsTextBlock.Text = ViewModel.TotalItems.ToString();
-                TotalPriceTextBlock.Text = ConvertMoney(ViewModel.TotalPrice);
-
-                checkBoxDelivery.IsChecked = false;
-                ResetDeliveryState();
-
-                CustomerSearchBox.Text = string.Empty;
-                ViewModel.CustomerViewModel.SelectedCustomer = null;
-
-                // Đặt lại DropDownButton về giá trị mặc định
-                PaymentMethodDropDown.Content = "Tiền mặt";
-
-                await ShowSuccessContentDialog(this.XamlRoot, "Thanh toán thành công! Hóa đơn đã được tạo.");
+                await SaveAndReset(newInvoice);
             }
             catch (Exception ex)
             {
@@ -459,6 +417,64 @@ namespace Kohi.Views
                 await ShowErrorContentDialog(this.XamlRoot, "Đã xảy ra lỗi trong quá trình thanh toán: " + ex.Message);
             }
         }
+        private InvoiceModel PrepareInvoice()
+        {
+            float deliveryFee = 0f;
+            if (DeliveryFee.IsEnabled && !double.IsNaN(DeliveryFee.Value))
+            {
+                deliveryFee = (float)DeliveryFee.Value;
+            }
+
+            string paymentMethod = PaymentMethodDropDown.Content?.ToString() ?? "Tiền mặt";
+
+            var newInvoice = new InvoiceModel
+            {
+                CustomerId = ViewModel.CustomerViewModel.SelectedCustomer?.Id,
+                InvoiceDate = DateTime.Now,
+                TotalAmount = ViewModel.TotalPrice + deliveryFee,
+                DeliveryFee = deliveryFee,
+                OrderType = DeliveryFee.IsEnabled ? "Giao hàng" : "Tại chỗ",
+                PaymentMethod = paymentMethod,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                InvoiceDetails = new List<InvoiceDetailModel>()
+            };
+
+            foreach (var orderItem in ViewModel.OrderItems)
+            {
+                newInvoice.InvoiceDetails.Add(new InvoiceDetailModel
+                {
+                    ProductId = orderItem.ProductId,
+                    SugarLevel = orderItem.SugarLevel,
+                    IceLevel = orderItem.IceLevel,
+                    Quantity = orderItem.Quantity,
+                    ProductVariant = orderItem.ProductVariant,
+                    Toppings = orderItem.Toppings
+                });
+            }
+
+            return newInvoice;
+        }
+        private async Task SaveAndReset(InvoiceModel newInvoice)
+        {
+            await ViewModel.InvoiceViewModel.Add(newInvoice);
+
+            ViewModel.OrderItems.Clear();
+
+            TotalItemsTextBlock.Text = ViewModel.TotalItems.ToString();
+            TotalPriceTextBlock.Text = ConvertMoney(ViewModel.TotalPrice);
+
+            checkBoxDelivery.IsChecked = false;
+            ResetDeliveryState();
+
+            CustomerSearchBox.Text = string.Empty;
+            ViewModel.CustomerViewModel.SelectedCustomer = null;
+
+            PaymentMethodDropDown.Content = "Tiền mặt";
+
+            await ShowSuccessContentDialog(this.XamlRoot, "Thanh toán thành công! Hóa đơn đã được tạo.");
+        }
+
         private void PaymentMethodMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuFlyoutItem selectedItem)
@@ -466,7 +482,6 @@ namespace Kohi.Views
                 PaymentMethodDropDown.Content = selectedItem.Text;
             }
         }
-
         private async Task ShowSuccessContentDialog(XamlRoot xamlRoot, string message)
         {
             ContentDialog successDialog = new ContentDialog

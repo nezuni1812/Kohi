@@ -89,6 +89,21 @@ namespace Kohi.ViewModels
                         Debug.WriteLine($"Add failed: Could not insert InvoiceDetail for ProductId: {detail.ProductId}.");
                         throw new Exception($"Lỗi khi lưu chi tiết hóa đơn cho sản phẩm {detail.ProductId}.");
                     }
+
+                    if (detail.Toppings != null && detail.Toppings.Any())
+                    {
+                        foreach (var topping in detail.Toppings)
+                        {
+                            topping.InvoiceDetailId = detailResult; // Gán InvoiceDetailId
+                            int toppingId = _dao.OrderToppings.Insert(topping);
+                            if (toppingId <= 0)
+                            {
+                                Debug.WriteLine($"Add failed: Could not insert OrderTopping for ProductId: {topping.ProductId}.");
+                                throw new Exception($"Lỗi khi lưu topping cho chi tiết hóa đơn {detail.Id}.");
+                            }
+                            topping.Id = toppingId;
+                        }
+                    }
                 }
 
                 // Tải lại dữ liệu sau khi lưu thành công

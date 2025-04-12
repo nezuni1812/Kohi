@@ -42,6 +42,7 @@
     <None Remove="Views\InvoiceReportPage.xaml" />
     <None Remove="Views\PartnersPage.xaml" />
     <None Remove="Views\PaymentPage.xaml" />
+    <None Remove="Views\PrintInvoicePage.xaml" />
     <None Remove="Views\ProductReportPage.xaml" />
     <None Remove="Views\Products\CategoriesPage.xaml" />
     <None Remove="Views\Products\ProductsPage.xaml" />
@@ -137,6 +138,9 @@
     <None Update="Views\HomePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
+    <Page Update="Views\PrintInvoicePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\IncomeExpenseCategoriesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

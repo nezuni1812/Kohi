@@ -365,7 +365,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button >
+                <Button Click="PrintInvoice_Click">
                     <StackPanel Grid.Column="0" Orientation="Horizontal">
                         <FontIcon Glyph="&#xE749;" Margin="0,0,10,0" FontSize="16"/>
                         <TextBlock Text="In Tạm Tính"/>
