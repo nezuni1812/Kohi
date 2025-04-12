@@ -1,4 +1,6 @@
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Kohi.Models;
+using Kohi.Services;
 using Kohi.ViewModels;
 using Kohi.Views.Converter;
 using Microsoft.UI.Xaml;
@@ -11,7 +13,9 @@ using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using Newtonsoft.Json;
+using RestSharp;
+using Windows.Storage;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -20,6 +24,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
+using Kohi.Models.BankingAPI;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -32,6 +37,7 @@ namespace Kohi.Views
     public sealed partial class HomePage : Page
     {
         public HomePageViewModel ViewModel { get; set; } = new HomePageViewModel();
+        private readonly DistanceService _distanceService = new DistanceService();
         public HomePage()
         {
             this.InitializeComponent();
@@ -535,7 +541,60 @@ namespace Kohi.Views
             {
                 deliveryFee = (float)DeliveryFee.Value;
             }
-            UpdateTotalAmount(ViewModel.TotalPrice, deliveryFee);
+
+            string shopAddress = RestoreAddress();
+            string customerAddress = CustomerAddressTextBlock.Text;
+            Debug.WriteLine($"Địa chỉ khách hàng: {CustomerAddressTextBlock.Text}");
+            Debug.WriteLine($"Địa chỉ cửa hàng: {shopAddress}");
+            try
+            {
+                double distance = await _distanceService.CalculateDistanceAsync(customerAddress, shopAddress);
+                DeliveryDistance.Text = distance.ToString("F2"); // Hiển thị khoảng cách với 2 chữ số thập phân
+                Debug.WriteLine(distance);
+                UpdateTotalAmount(ViewModel.TotalPrice, deliveryFee);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Lỗi tính khoảng cách: {ex.Message}");
+                await ShowErrorContentDialog(this.XamlRoot, "Không thể tính khoảng cách. Vui lòng kiểm tra lại địa chỉ.");
+                checkBox.IsChecked = false;
+                ResetDeliveryState();
+            }
+        }
+
+        private string RestoreAddress()
+        {
+            var settings = ApplicationData.Current.LocalSettings;
+            if (settings.Values.ContainsKey("UserPayment"))
+            {
+                try
+                {
+                    string json = settings.Values["UserPayment"]?.ToString();
+                    if (string.IsNullOrEmpty(json))
+                    {
+                        Debug.WriteLine("Lỗi: Dữ liệu UserPayment trong LocalSettings rỗng.");
+                        return string.Empty; // Hoặc trả về địa chỉ mặc định của cửa hàng
+                    }
+
+                    var saved = JsonConvert.DeserializeObject<UserPaymentSettings>(json);
+                    if (saved == null || string.IsNullOrWhiteSpace(saved.Address))
+                    {
+                        Debug.WriteLine("Lỗi: Địa chỉ trong UserPayment không hợp lệ hoặc rỗng.");
+                        return string.Empty; // Hoặc trả về địa chỉ mặc định
+                    }
+
+                    Debug.WriteLine($"Địa chỉ cửa hàng lấy được: {saved.Address}");
+                    return saved.Address;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Lỗi khôi phục địa chỉ từ LocalSettings: {ex.Message}");
+                    return string.Empty; // Hoặc trả về địa chỉ mặc định
+                }
+            }
+
+            Debug.WriteLine("Lỗi: Không tìm thấy key UserPayment trong LocalSettings.");
+            return string.Empty; // Hoặc trả về địa chỉ mặc định
         }
 
         private void DeliveryCheckBox_Unchecked(object sender, RoutedEventArgs e)
