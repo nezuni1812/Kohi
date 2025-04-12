@@ -19,7 +19,11 @@ using WinUI.TableView;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.EntityFrameworkCore.Metadata;
-
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
+using Kohi.Utils;
+using System.Threading.Tasks;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -40,6 +44,8 @@ namespace Kohi.Views
         public InventoryModel? SelectedInventory { get; set; }
         
         public int SelectedInventoryId = -1;
+        private Dictionary<string, int> _ingredientsDict;
+        private Dictionary<string, int> _suppliersDict;
         public InventoriesPage()
         {
             this.InitializeComponent();
@@ -49,10 +55,25 @@ namespace Kohi.Views
         }
         public async void InventoriesPage_Loaded(object sender, RoutedEventArgs e)
         {
+            await LoadLookupDataAsync();
             await InventoryViewModel.LoadData(); // Tải trang đầu tiên
             UpdatePageList();
         }
-
+        // Hàm tải danh sách nguyên liệu và nhà cung cấp
+        private async Task LoadLookupDataAsync()
+        {
+            try
+            {
+                var ingredients = await IngredientViewModel.GetAll();
+                var suppliers = await SupplierViewModel.GetAll();
+                _ingredientsDict = ingredients?.ToDictionary(i => i.Name, i => i.Id, StringComparer.OrdinalIgnoreCase) ?? new Dictionary<string, int>();
+                _suppliersDict = suppliers?.ToDictionary(s => s.Name, s => s.Id, StringComparer.OrdinalIgnoreCase) ?? new Dictionary<string, int>();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to load lookup data: {ex.Message}");
+            }
+        }
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is TableView tableView && tableView.SelectedItem is InventoryModel selectedInventory)
@@ -218,7 +239,140 @@ namespace Kohi.Views
 
             }
         }
+        // Hàm xử lý sự kiện khi nhấn nút Import
+        private async void ImportButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Bật ProgressRing để hiển thị trạng thái đang xử lý
+            ImportProgressRing.IsActive = true;
+            // Tắt nút Import để tránh nhấn liên tục
+            importButton.IsEnabled = false;
 
+            try
+            {
+                // Tạo FileOpenPicker để chọn file Excel
+                var openPicker = new FileOpenPicker
+                {
+                    ViewMode = PickerViewMode.List,
+                    SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+                };
+                openPicker.FileTypeFilter.Add(".xlsx");
+
+                // Khởi tạo FilePicker với cửa sổ chính
+                var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
+                InitializeWithWindow.Initialize(openPicker, hwnd);
+
+                // Mở FilePicker và chờ người dùng chọn file
+                StorageFile file = await openPicker.PickSingleFileAsync();
+                if (file == null)
+                {
+                    // Người dùng hủy chọn file, thoát hàm
+                    return;
+                }
+
+                // Đọc dữ liệu từ file Excel bằng ExcelDataReaderUtil
+                List<RawInboundData> rawDataList = ExcelDataReaderUtil.ReadInboundDataFromExcel(file.Path);
+                Debug.WriteLine(rawDataList[0].IngredientName);
+                Debug.WriteLine(rawDataList[1].IngredientName);
+                Debug.WriteLine(rawDataList[2].IngredientName);
+
+                Debug.WriteLine(rawDataList[0].SupplierName);
+                Debug.WriteLine(rawDataList[1].SupplierName);
+                Debug.WriteLine(rawDataList[2].SupplierName);
+
+                Debug.WriteLine(rawDataList[0].QuantityString);
+                Debug.WriteLine(rawDataList[1].QuantityString);
+                Debug.WriteLine(rawDataList[2].QuantityString);
+
+                Debug.WriteLine(rawDataList[0].TotalCostString);
+                Debug.WriteLine(rawDataList[1].TotalCostString);
+                Debug.WriteLine(rawDataList[2].TotalCostString);
+
+                Debug.WriteLine(rawDataList[0].InboundDateString);
+                Debug.WriteLine(rawDataList[1].InboundDateString);
+                Debug.WriteLine(rawDataList[2].InboundDateString);
+
+                Debug.WriteLine(rawDataList[0].ExpiryDateString);
+                Debug.WriteLine(rawDataList[1].ExpiryDateString);
+                Debug.WriteLine(rawDataList[2].ExpiryDateString);
+                foreach (var rawData in rawDataList)
+                {
+                    // Kiểm tra các trường bắt buộc và ánh xạ IngredientName, SupplierName sang ID
+                    if (rawData.ParsedQuantity.HasValue && rawData.ParsedTotalCost.HasValue && rawData.ParsedInboundDate.HasValue &&
+                        _ingredientsDict.TryGetValue(rawData.IngredientName, out int ingredientId) &&
+                        _suppliersDict.TryGetValue(rawData.SupplierName, out int supplierId))
+                    {
+                        // Tạo InboundModel từ dữ liệu Excel
+                        InboundModel inbound = new InboundModel
+                        {
+                            IngredientId = ingredientId,
+                            SupplierId = supplierId,
+                            Quantity = rawData.ParsedQuantity.Value,
+                            TotalCost = rawData.ParsedTotalCost.Value,
+                            InboundDate = rawData.ParsedInboundDate.Value,
+                            ExpiryDate = rawData.ParsedExpiryDate ?? DateTime.MaxValue
+                        };
+                        Debug.WriteLine(inbound.IngredientId);
+                        Debug.WriteLine(inbound.SupplierId);
+                        Debug.WriteLine(inbound.Quantity);
+                        Debug.WriteLine(inbound.TotalCost);
+                        Debug.WriteLine(inbound.InboundDate);
+                        Debug.WriteLine(inbound.ExpiryDate);
+
+                        // Thêm InboundModel vào ViewModel
+                        await InboundViewModel.Add(inbound);
+                        Debug.WriteLine(inbound.Id);
+                        if (inbound.Id > 0)
+                        {
+                            // Tạo InventoryModel tương ứng
+                            InventoryModel inventory = new InventoryModel
+                            {
+                                InboundId = inbound.Id,
+                                Quantity = inbound.Quantity,
+                                InboundDate = inbound.InboundDate,
+                                ExpiryDate = inbound.ExpiryDate
+                            };
+                            Debug.WriteLine(inventory.InboundId);
+                            Debug.WriteLine(inventory.Quantity);
+                            Debug.WriteLine(inventory.InboundDate);
+                            Debug.WriteLine(inventory.ExpiryDate);
+                            // Thêm InventoryModel vào ViewModel
+                            await InventoryViewModel.Add(inventory);
+                            Debug.WriteLine(inventory.Id);
+                        }
+                    }
+                }
+
+                // Làm mới TableView với trang hiện tại
+                await InventoryViewModel.LoadData(InventoryViewModel.CurrentPage);
+                UpdatePageList();
+                // Hiển thị thông báo thành công
+                await ShowMessageDialog("Success", "Imported data from selected file.");
+            }
+            catch (Exception ex)
+            {
+                // Hiển thị thông báo lỗi nếu có
+                await ShowMessageDialog("Error", $"Failed to import: {ex.Message}");
+            }
+            finally
+            {
+                // Tắt ProgressRing và bật lại nút Import
+                ImportProgressRing.IsActive = false;
+                importButton.IsEnabled = true;
+            }
+        }
+
+        // Hàm hiển thị thông báo (ContentDialog) cho thành công/lỗi
+        private async Task ShowMessageDialog(string title, string content, string closeButtonText = "OK")
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = new TextBlock { Text = content, TextWrapping = TextWrapping.Wrap },
+                CloseButtonText = closeButtonText,
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
         private void CheckDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             args.Cancel = true;

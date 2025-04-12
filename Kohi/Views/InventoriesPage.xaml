@@ -303,6 +303,15 @@
                     <TextBlock Text="Nhập lô hàng mới" Margin="5,0,0,0"/>
                 </StackPanel>
             </Button>
+            <!-- Nút Import mới -->
+            <Button x:Name="importButton" Click="ImportButton_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Glyph="" FontSize="14"/>
+                    <TextBlock Text="Nhập từ Excel" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+            <!-- ProgressRing để hiển thị trạng thái nhập -->
+            <ProgressRing x:Name="ImportProgressRing" IsActive="False" Width="20" Height="20" Margin="10,0,0,0"/>
         </StackPanel>
     </Grid>
 </Page>
