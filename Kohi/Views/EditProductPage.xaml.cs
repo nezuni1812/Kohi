@@ -76,9 +76,11 @@ namespace Kohi.Views
             _currentProduct = product;
             if (_currentProduct != null)
             {
-                var category = await CategoryViewModel.GetById(_currentProduct.CategoryId.ToString());
+                //var category = await CategoryViewModel.GetById(_currentProduct.CategoryId.ToString());
+                var selectedCategory = _currentProduct.Category;
                 ProductNameTextBox.Text = _currentProduct.Name;
-                CategoryProductComboBox.SelectedItem = category;
+                CategoryProductComboBox.SelectedItem = selectedCategory;
+
                 IsActiveCheckBox.IsChecked = _currentProduct.IsActive;
                 IsToppingCheckBox.IsChecked = _currentProduct.IsTopping;
                 DescriptionTextBox.Text = _currentProduct.Description;
