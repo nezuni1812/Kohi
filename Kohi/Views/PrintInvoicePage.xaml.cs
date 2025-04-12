@@ -12,6 +12,13 @@ using Microsoft.UI.Xaml.Printing;
 using Windows.Graphics.Printing;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Windowing;
+using Kohi.Models.BankingAPI;
+using Microsoft.UI.Xaml.Media.Imaging;
+using Newtonsoft.Json;
+using RestSharp;
+using System.Threading.Tasks;
+using Windows.Storage.Streams;
+using Windows.Storage;
 
 namespace Kohi.Views
 {
@@ -32,6 +39,10 @@ namespace Kohi.Views
         {
             this.InitializeComponent();
             Invoice = new InvoiceModel();
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
             RegisterPrint();
         }
 
@@ -50,6 +61,11 @@ namespace Kohi.Views
             }
         }
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            UnregisterPrint(); 
+        }
         private void UpdateInvoiceDisplay()
         {
             if (Invoice == null)
@@ -70,8 +86,8 @@ namespace Kohi.Views
                 DeliveryFee.Visibility = Visibility.Collapsed;
                 OrderType.Text = "TẠI CHỖ";
             }
-            TotalAmountTextBlock.Text = $"Tổng tiền: {ConvertMoney(Invoice.TotalAmount - Invoice.DeliveryFee)}";
-            PaymentMethodTextBlock.Text = $"{Invoice.PaymentMethod}: {ConvertMoney(Invoice.TotalAmount)}";
+            TotalAmountTextBlock.Text = $"Tổng tiền hàng: {ConvertMoney(Invoice.TotalAmount - Invoice.DeliveryFee)}";
+            PaymentMethodTextBlock.Text = $"Thanh toán: {Invoice.PaymentMethod}";
 
             if (Invoice.CustomerId > 0)
             {
@@ -129,6 +145,136 @@ namespace Kohi.Views
             }
 
             InvoiceDetailsItemsControl.ItemsSource = InvoiceDetailDisplays;
+            DisplayQRCode();
+        }
+
+        private async void DisplayQRCode()
+        {
+            string paymentMethod = Invoice.PaymentMethod;
+
+            // Tạo mã QR nếu phương thức thanh toán không phải "Tiền mặt"
+            if (paymentMethod != "Tiền mặt")
+            {
+                int totalAmount = (int)Invoice.TotalAmount;
+                var qrImage = await GenerateQRCodeAsync(totalAmount);
+                qrPicture.Source = qrImage;
+            }
+        }
+
+        private async Task<BitmapImage> GenerateQRCodeAsync(int amount)
+        {
+            try
+            {
+                // Lấy thông tin từ LocalSettings
+                var userPaymentSettings = RestoreUserPaymentSettings();
+                if (userPaymentSettings == null)
+                {
+                    throw new Exception("Không tìm thấy thông tin tài khoản trong LocalSettings.");
+                }
+
+                // Tạo request cho API VietQR
+                var apiRequest = new ApiBankingRequestModel
+                {
+                    acqId = Convert.ToInt32(userPaymentSettings.BankBin),
+                    accountNo = long.Parse(userPaymentSettings.AccountNo),
+                    accountName = userPaymentSettings.AccountName,
+                    amount = amount,
+                    format = "text",
+                    template = userPaymentSettings.Template ?? "print"
+                };
+
+                var jsonRequest = JsonConvert.SerializeObject(apiRequest);
+                var client = new RestClient("https://api.vietqr.io/v2/generate");
+                var request = new RestRequest();
+
+                request.Method = Method.Post;
+                request.AddHeader("Accept", "application/json");
+                request.AddParameter("application/json", jsonRequest, ParameterType.RequestBody);
+
+                var response = await client.ExecuteAsync(request);
+                if (response.IsSuccessful)
+                {
+                    var content = response.Content;
+                    var dataResult = JsonConvert.DeserializeObject<ApiBankingResponseModel>(content);
+                    return await Base64ToImageAsync(dataResult.data.qrDataURL.Replace("data:image/png;base64,", ""));
+                }
+                else
+                {
+                    throw new Exception("Lỗi khi gọi API VietQR: " + response.ErrorMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorContentDialog(this.XamlRoot, $"Lỗi tạo mã QR: {ex.Message}");
+                return null;
+            }
+        }
+
+        private async Task<BitmapImage> Base64ToImageAsync(string base64String)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(base64String))
+                {
+                    throw new Exception("Chuỗi Base64 không hợp lệ");
+                }
+
+                byte[] imageBytes = Convert.FromBase64String(base64String);
+                BitmapImage image = new BitmapImage();
+
+                using (InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream())
+                {
+                    using (DataWriter writer = new DataWriter(stream.GetOutputStreamAt(0)))
+                    {
+                        writer.WriteBytes(imageBytes);
+                        await writer.StoreAsync();
+                    }
+
+                    stream.Seek(0);
+                    await image.SetSourceAsync(stream);
+                }
+
+                return image;
+            }
+            catch (FormatException ex)
+            {
+                throw new Exception("Lỗi: Dữ liệu Base64 không hợp lệ", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi chuyển đổi Base64 thành hình ảnh: {ex.Message}", ex);
+            }
+        }
+        private UserPaymentSettings RestoreUserPaymentSettings()
+        {
+            var settings = ApplicationData.Current.LocalSettings;
+            if (settings.Values.ContainsKey("UserPayment"))
+            {
+                try
+                {
+                    string json = settings.Values["UserPayment"]?.ToString();
+                    return JsonConvert.DeserializeObject<UserPaymentSettings>(json);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Lỗi khôi phục dữ liệu: {ex.Message}");
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        private async Task ShowErrorContentDialog(XamlRoot xamlRoot, string errorMessage)
+        {
+            ContentDialog errorDialog = new ContentDialog
+            {
+                Title = "Lỗi",
+                Content = errorMessage,
+                CloseButtonText = "Đóng",
+                XamlRoot = xamlRoot
+            };
+
+            await errorDialog.ShowAsync();
         }
 
         private string ConvertMoney(float value)
@@ -139,7 +285,14 @@ namespace Kohi.Views
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(HomePage));
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack(); 
+            }
+            else
+            {
+                Frame.Navigate(typeof(HomePage));
+            }
         }
 
         private void RegisterPrint()
@@ -154,6 +307,23 @@ namespace Kohi.Views
             printDoc.Paginate += Paginate;
             printDoc.GetPreviewPage += GetPreviewPage;
             printDoc.AddPages += AddPages;
+        }
+
+        private void UnregisterPrint()
+        {
+            if (printDoc == null)
+            {
+                return;
+            }
+            printDoc.Paginate -= Paginate;
+            printDoc.GetPreviewPage -= GetPreviewPage;
+            printDoc.AddPages -= AddPages;
+            printDoc = null;
+            printDocSource = null;
+
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            PrintManager printManager = PrintManagerInterop.GetForWindow(hWnd);
+            printManager.PrintTaskRequested -= PrintTaskRequested;
         }
 
         private async void PrintButton_Click(object sender, RoutedEventArgs e)

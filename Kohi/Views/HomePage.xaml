@@ -8,6 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    NavigationCacheMode="Required"
     Loaded="Page_Loaded">
 
     <Page.Resources>
@@ -339,15 +340,22 @@
 
 
             <Grid x:Name="AddressDisplay" Grid.Row="4" Padding="10,0,10,0" Visibility="Collapsed">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Địa chỉ:" Margin="0,0,2,0"/>
-                <TextBlock Grid.Column="1" x:Name="CustomerAddressTextBlock"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <TextBlock Text="Địa chỉ:" Margin="0,0,2,0"/>
+                    <TextBlock x:Name="CustomerAddressTextBlock"
                      Text="{Binding ViewModel.CustomerViewModel.SelectedCustomer.Address}"/>
-                <TextBlock Grid.Column="2" x:Name="DeliveryDistance" Text="0 km"/>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <TextBlock Text="Khoảng cách giao hàng:" Margin="0,0,2,0"/>
+                    <TextBlock>
+                    <Run x:Name="DeliveryDistance" Text="-"/>
+                    <Run Text="km"/>
+                    </TextBlock>
+                </StackPanel>
             </Grid>
 
             <!--Grid Grid.Row="5" Padding="10,5,10,5">

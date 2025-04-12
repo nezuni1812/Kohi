@@ -43,6 +43,7 @@ namespace Kohi.Views
         public HomePage()
         {
             this.InitializeComponent();
+            this.NavigationCacheMode = NavigationCacheMode.Required;
         }
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
@@ -419,61 +420,23 @@ namespace Kohi.Views
 
                 await SaveAndReset(newInvoice);
                 // Lấy phương thức thanh toán từ DropDownButton
-                string paymentMethod = PaymentMethodDropDown.Content?.ToString() ?? "Tiền mặt";
-
-                var newInvoice = new InvoiceModel
-                {
-                    CustomerId = ViewModel.CustomerViewModel.SelectedCustomer?.Id,
-                    InvoiceDate = DateTime.Now,
-                    TotalAmount = ViewModel.TotalPrice + deliveryFee,
-                    DeliveryFee = deliveryFee,
-                    OrderType = DeliveryFee.IsEnabled ? "Giao hàng" : "Tại chỗ",
-                    PaymentMethod = paymentMethod, // Gán PaymentMethod
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    InvoiceDetails = new List<InvoiceDetailModel>()
-                };
-
-                foreach (var orderItem in ViewModel.OrderItems)
-                {
-                    newInvoice.InvoiceDetails.Add(new InvoiceDetailModel
-                    {
-                        ProductId = orderItem.ProductId,
-                        SugarLevel = orderItem.SugarLevel,
-                        IceLevel = orderItem.IceLevel,
-                        Quantity = orderItem.Quantity,
-                        ProductVariant = orderItem.ProductVariant,
-                        Toppings = orderItem.Toppings
-                    });
-                }
-
-                await ViewModel.InvoiceViewModel.Add(newInvoice);
+                //string paymentMethod = PaymentMethodDropDown.Content?.ToString() ?? "Tiền mặt";
 
                 // Tạo mã QR nếu phương thức thanh toán không phải "Tiền mặt"
-                if (paymentMethod != "Tiền mặt")
+                /*if (paymentMethod != "Tiền mặt")
                 {
+                    float deliveryFee = 0f;
+                    if (DeliveryFee.IsEnabled && !double.IsNaN(DeliveryFee.Value))
+                    {
+                        deliveryFee = (float)DeliveryFee.Value;
+                    }
                     int totalAmount = (int)(ViewModel.TotalPrice + deliveryFee);
                     var qrImage = await GenerateQRCodeAsync(totalAmount);
                     if (qrImage != null)
                     {
                         await ShowQRCodeDialogAsync(qrImage, totalAmount);
                     }
-                }
-                ViewModel.OrderItems.Clear();
-
-                TotalItemsTextBlock.Text = ViewModel.TotalItems.ToString();
-                TotalPriceTextBlock.Text = ConvertMoney(ViewModel.TotalPrice);
-
-                checkBoxDelivery.IsChecked = false;
-                ResetDeliveryState();
-
-                CustomerSearchBox.Text = string.Empty;
-                ViewModel.CustomerViewModel.SelectedCustomer = null;
-
-                // Đặt lại DropDownButton về giá trị mặc định
-                PaymentMethodDropDown.Content = "Tiền mặt";
-
-                await ShowSuccessContentDialog(this.XamlRoot, "Thanh toán thành công! Hóa đơn đã được tạo.");
+                }*/
             }
             catch (Exception ex)
             {
@@ -809,7 +772,7 @@ namespace Kohi.Views
             }
             return null;
         }
-        private async Task ShowQRCodeDialogAsync(BitmapImage qrImage, int amount)
+        /*private async Task ShowQRCodeDialogAsync(BitmapImage qrImage, int amount)
         {
             ContentDialog qrDialog = new ContentDialog
             {
@@ -837,6 +800,6 @@ namespace Kohi.Views
             };
 
             await qrDialog.ShowAsync();
-        }
+        }*/
     }
 }
