@@ -137,5 +137,18 @@ namespace Kohi.ViewModels
 
             }
         }
+        public async Task<List<OutboundModel>> GetAll()
+        {
+            try
+            {
+                var Outbounds = _dao.Outbounds.GetAll(1, 1000); // Đồng bộ
+                return Outbounds;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

@@ -111,5 +111,18 @@ namespace Kohi.ViewModels
 
             }
         }
+        public async Task<List<ExpenseCategoryModel>> GetAll()
+        {
+            try
+            {
+                var ExpenseCategories = _dao.ExpenseCategories.GetAll(1, 1000); // Đồng bộ
+                return ExpenseCategories;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

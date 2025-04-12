@@ -156,5 +156,18 @@ namespace Kohi.ViewModels
                 // Xử lý lỗi (tùy chọn)
             }
         }
+        public async Task<List<CategoryModel>> GetAll()
+        {
+            try
+            {
+                var Categories = _dao.Categories.GetAll(1, 1000); // Đồng bộ
+                return Categories;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

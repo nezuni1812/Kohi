@@ -133,5 +133,18 @@ namespace Kohi.ViewModels
                 Debug.WriteLine($"Error updating customer: {ex.Message}");
             }
         }
+        public async Task<List<CustomerModel>> GetAll()
+        {
+            try
+            {
+                var Customers = _dao.Customers.GetAll(1, 1000); // Đồng bộ
+                return Customers;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }
