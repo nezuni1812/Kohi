@@ -25,6 +25,8 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
 using Kohi.Models.BankingAPI;
+using Microsoft.UI.Xaml.Media.Imaging;
+using Windows.Storage.Streams;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -443,6 +445,16 @@ namespace Kohi.Views
 
                 await ViewModel.InvoiceViewModel.Add(newInvoice);
 
+                // Tạo mã QR nếu phương thức thanh toán không phải "Tiền mặt"
+                if (paymentMethod != "Tiền mặt")
+                {
+                    int totalAmount = (int)(ViewModel.TotalPrice + deliveryFee);
+                    var qrImage = await GenerateQRCodeAsync(totalAmount);
+                    if (qrImage != null)
+                    {
+                        await ShowQRCodeDialogAsync(qrImage, totalAmount);
+                    }
+                }
                 ViewModel.OrderItems.Clear();
 
                 TotalItemsTextBlock.Text = ViewModel.TotalItems.ToString();
@@ -634,6 +646,136 @@ namespace Kohi.Views
             {
                 Debug.WriteLine("Error: totalAmount TextBlock is null.");
             }
+        }
+        private async Task<BitmapImage> GenerateQRCodeAsync(int amount)
+        {
+            try
+            {
+                // Lấy thông tin từ LocalSettings
+                var userPaymentSettings = RestoreUserPaymentSettings();
+                if (userPaymentSettings == null)
+                {
+                    throw new Exception("Không tìm thấy thông tin tài khoản trong LocalSettings.");
+                }
+
+                // Tạo request cho API VietQR
+                var apiRequest = new ApiBankingRequestModel
+                {
+                    acqId = Convert.ToInt32(userPaymentSettings.BankBin),
+                    accountNo = long.Parse(userPaymentSettings.AccountNo),
+                    accountName = userPaymentSettings.AccountName,
+                    amount = amount,
+                    format = "text",
+                    template = userPaymentSettings.Template ?? "print"
+                };
+
+                var jsonRequest = JsonConvert.SerializeObject(apiRequest);
+                var client = new RestClient("https://api.vietqr.io/v2/generate");
+                var request = new RestRequest();
+
+                request.Method = Method.Post;
+                request.AddHeader("Accept", "application/json");
+                request.AddParameter("application/json", jsonRequest, ParameterType.RequestBody);
+
+                var response = await client.ExecuteAsync(request);
+                if (response.IsSuccessful)
+                {
+                    var content = response.Content;
+                    var dataResult = JsonConvert.DeserializeObject<ApiBankingResponseModel>(content);
+                    return await Base64ToImageAsync(dataResult.data.qrDataURL.Replace("data:image/png;base64,", ""));
+                }
+                else
+                {
+                    throw new Exception("Lỗi khi gọi API VietQR: " + response.ErrorMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorContentDialog(this.XamlRoot, $"Lỗi tạo mã QR: {ex.Message}");
+                return null;
+            }
+        }
+        private async Task<BitmapImage> Base64ToImageAsync(string base64String)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(base64String))
+                {
+                    throw new Exception("Chuỗi Base64 không hợp lệ");
+                }
+
+                byte[] imageBytes = Convert.FromBase64String(base64String);
+                BitmapImage image = new BitmapImage();
+
+                using (InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream())
+                {
+                    using (DataWriter writer = new DataWriter(stream.GetOutputStreamAt(0)))
+                    {
+                        writer.WriteBytes(imageBytes);
+                        await writer.StoreAsync();
+                    }
+
+                    stream.Seek(0);
+                    await image.SetSourceAsync(stream);
+                }
+
+                return image;
+            }
+            catch (FormatException ex)
+            {
+                throw new Exception("Lỗi: Dữ liệu Base64 không hợp lệ", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi chuyển đổi Base64 thành hình ảnh: {ex.Message}", ex);
+            }
+        }
+        private UserPaymentSettings RestoreUserPaymentSettings()
+        {
+            var settings = ApplicationData.Current.LocalSettings;
+            if (settings.Values.ContainsKey("UserPayment"))
+            {
+                try
+                {
+                    string json = settings.Values["UserPayment"]?.ToString();
+                    return JsonConvert.DeserializeObject<UserPaymentSettings>(json);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Lỗi khôi phục dữ liệu: {ex.Message}");
+                    return null;
+                }
+            }
+            return null;
+        }
+        private async Task ShowQRCodeDialogAsync(BitmapImage qrImage, int amount)
+        {
+            ContentDialog qrDialog = new ContentDialog
+            {
+                Title = "Mã QR Thanh Toán",
+                Content = new StackPanel
+                {
+                    Children =
+            {
+                new TextBlock
+                {
+                    Text = $"Số tiền: {ConvertMoney(amount)}",
+                    Margin = new Thickness(0, 0, 0, 10)
+                },
+                new Image
+                {
+                    Source = qrImage,
+                    Width = 200,
+                    Height = 200,
+                    Stretch = Stretch.Uniform
+                }
+            }
+                },
+                CloseButtonText = "Đóng",
+                XamlRoot = this.XamlRoot
+            };
+
+            await qrDialog.ShowAsync();
         }
     }
 }
