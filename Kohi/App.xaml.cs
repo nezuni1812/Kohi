@@ -18,7 +18,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Kohi.Views;
 using Kohi.Services;
-//using Syncfusion.Licensing;
+using Syncfusion.Licensing;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -51,7 +51,7 @@ namespace Kohi
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            //SyncfusionLicenseProvider.RegisterLicense("Mzc3MDU4OEAzMjM4MmUzMDJlMzBsZ211SjlybUsyRzl4UlZ2a2cxMEFVWVZ4MkkvcG9kU1hWYXJaUDhsbDhjPQ==");
+            SyncfusionLicenseProvider.RegisterLicense("");
             m_window = new MainWindow();
             m_window.Activate();
         }

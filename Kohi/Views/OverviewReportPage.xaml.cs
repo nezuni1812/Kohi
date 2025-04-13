@@ -12,7 +12,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-//using Syncfusion.UI.Xaml.Charts;
+using Syncfusion.UI.Xaml.Charts;
 using Kohi.ViewModels;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -30,9 +30,9 @@ namespace Kohi.Views
         {
             this.InitializeComponent();
 
-            //SfCircularChart chart = new SfCircularChart();
+            SfCircularChart chart = new SfCircularChart();
 
-            //chart.DataContext = chartViewModel;
+            chart.DataContext = chartViewModel;
             this.DataContext = chartViewModel;
         }
     }
