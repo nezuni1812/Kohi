@@ -35,20 +35,44 @@ namespace Kohi.ViewModels
                 pageNumber: CurrentPage,
                 pageSize: PageSize
             ));
+            // Thêm: Lấy tất cả Inbound và Ingredient để liên kết
+            var allInbounds = await Task.Run(() => _dao.Inbounds.GetAll(1, 1000));
+            var allIngredients = await Task.Run(() => _dao.Ingredients.GetAll(1, 1000));
+
             CheckInventories.Clear();
             foreach (var item in result)
             {
+                // Liên kết Inventory
                 item.Inventory = _dao.Inventories.GetById(item.InventoryId.ToString());
                 if (item.Inventory != null)
                 {
-                    // Sử dụng item.Inventory.Quantity
-                    Debug.WriteLine($"CheckInventory {item.Id}: Inventory Quantity = {item.Inventory.Quantity}");
-                    // Ví dụ: Gán TheoryQuantity từ Inventory.Quantity nếu cần
+                    // Thêm: Liên kết Inbound và Ingredient
+                    item.Inventory.Inbound = allInbounds.FirstOrDefault(i => i.Id == item.Inventory.InboundId);
+                    if (item.Inventory.Inbound != null)
+                    {
+                        item.Inventory.Inbound.Ingredient = allIngredients.FirstOrDefault(i => i.Id == item.Inventory.Inbound.IngredientId);
+                        if (item.Inventory.Inbound.Ingredient != null)
+                        {
+                            Debug.WriteLine($"CheckInventory {item.Id}: Ingredient = {item.Inventory.Inbound.Ingredient.Name}, Unit = {item.Inventory.Inbound.Ingredient.Unit}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"CheckInventory {item.Id}: Ingredient = null for IngredientId {item.Inventory.Inbound.IngredientId}");
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"CheckInventory {item.Id}: Inbound = null for InboundId {item.Inventory.InboundId}");
+                    }
+                    // Sửa: Dùng float cho TheoryQuantity
+                    item.TheoryQuantity = item.Inventory.Quantity;
                 }
                 else
                 {
-                    Debug.WriteLine($"CheckInventory {item.Id}: Inventory = null, cannot access Quantity");
+                    Debug.WriteLine($"CheckInventory {item.Id}: Inventory = null for InventoryId {item.InventoryId}");
+                    item.TheoryQuantity = 0;
                 }
+                // Sửa: Tính Discrepancy với float
                 item.Discrepancy = item.TheoryQuantity - item.ActualQuantity;
                 CheckInventories.Add(item);
             }

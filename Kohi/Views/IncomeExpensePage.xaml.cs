@@ -18,6 +18,7 @@ using Kohi.Models;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using Kohi.Utils;
+using Kohi.Errors;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -32,13 +33,19 @@ namespace Kohi.Views
         public ExpenseViewModel ExpenseViewModel { get; set; } = new ExpenseViewModel();
         public ExpenseCategoryViewModel ExpenseCategoryViewModel { get; set; } = new ExpenseCategoryViewModel();
         public ExpenseModel SelectedExpense { get; set; }
-
+        private readonly IErrorHandler _errorHandler; // Thêm IErrorHandler
         public IncomeExpensePage()
         {
             this.InitializeComponent();
             Loaded += ExpensesPage_Loaded;
             this.DataContext = this;
-
+            var emptyInputHandler = new EmptyInputErrorHandler();
+            var positiveNumberHandler = new PositiveNumberValidationErrorHandler(new List<string>
+            {
+                "Số tiền"
+            });
+            emptyInputHandler.SetNext(positiveNumberHandler);
+            _errorHandler = emptyInputHandler;
             //GridContent.DataContext = IncomeViewModel;
         }
 
@@ -178,44 +185,38 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                // Validate input
-                if (EditExpenseReceiptCategoryComboBox.SelectedItem == null)
+                // Thêm: Kiểm tra bằng IErrorHandler
+                var fields = new Dictionary<string, string>
                 {
-                    var validationDialog = new ContentDialog
+                    { "Loại phiếu chi", EditExpenseReceiptCategoryComboBox.SelectedItem != null ? "valid" : "" },
+                    { "Số tiền", EditExpenseReceiptAmount.Text },
+                };
+
+                List<string> errors = _errorHandler.HandleError(fields);
+                if (errors.Any())
+                {
+                    var errorDialog = new ContentDialog
                     {
-                        Title = "Lỗi",
-                        Content = "Vui lòng chọn loại phiếu chi",
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
                         CloseButtonText = "OK",
                         XamlRoot = this.XamlRoot
                     };
-                    await validationDialog.ShowAsync();
+                    await errorDialog.ShowAsync();
                     return;
                 }
 
-                if (string.IsNullOrWhiteSpace(EditExpenseReceiptAmount.Text) ||
-                    !decimal.TryParse(EditExpenseReceiptAmount.Text, out decimal amount))
+                // Thêm: Kiểm tra số tiền hợp lệ
+                if (!float.TryParse(EditExpenseReceiptAmount.Text, out float amount))
                 {
-                    var validationDialog = new ContentDialog
+                    var errorDialog = new ContentDialog
                     {
-                        Title = "Lỗi",
-                        Content = "Vui lòng nhập số tiền hợp lệ",
+                        Title = "Lỗi nhập liệu",
+                        Content = "Số tiền phải là số hợp lệ.",
                         CloseButtonText = "OK",
                         XamlRoot = this.XamlRoot
                     };
-                    await validationDialog.ShowAsync();
-                    return;
-                }
-
-                if (EditExpenseReceiptDate.Date == null)
-                {
-                    var validationDialog = new ContentDialog
-                    {
-                        Title = "Lỗi",
-                        Content = "Vui lòng chọn ngày",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await validationDialog.ShowAsync();
+                    await errorDialog.ShowAsync();
                     return;
                 }
                 selectedExpenseCategory = EditExpenseReceiptCategoryComboBox.SelectedItem as ExpenseCategoryModel;
@@ -245,44 +246,39 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                // Validate input
-                if (AddExpenseReceiptCategoryComboBox.SelectedItem == null)
+                // Thêm: Kiểm tra bằng IErrorHandler
+                var fields = new Dictionary<string, string>
                 {
-                    var validationDialog = new ContentDialog
+                    { "Loại phiếu chi", AddExpenseReceiptCategoryComboBox.SelectedItem != null ? "valid" : "" },
+                    { "Số tiền", AddExpenseReceiptAmount.Text },
+                    { "Ngày", AddExpenseReceiptDate.Date != null ? "valid" : "" }
+                };
+
+                List<string> errors = _errorHandler.HandleError(fields);
+                if (errors.Any())
+                {
+                    var errorDialog = new ContentDialog
                     {
-                        Title = "Lỗi",
-                        Content = "Vui lòng chọn loại phiếu chi",
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
                         CloseButtonText = "OK",
                         XamlRoot = this.XamlRoot
                     };
-                    await validationDialog.ShowAsync();
+                    await errorDialog.ShowAsync();
                     return;
                 }
 
-                if (string.IsNullOrWhiteSpace(AddExpenseReceiptAmount.Text) ||
-                    !decimal.TryParse(AddExpenseReceiptAmount.Text, out decimal amount))
+                // Thêm: Kiểm tra số tiền hợp lệ
+                if (!float.TryParse(AddExpenseReceiptAmount.Text, out float amount))
                 {
-                    var validationDialog = new ContentDialog
+                    var errorDialog = new ContentDialog
                     {
-                        Title = "Lỗi",
-                        Content = "Vui lòng nhập số tiền hợp lệ",
+                        Title = "Lỗi nhập liệu",
+                        Content = "Số tiền phải là số hợp lệ.",
                         CloseButtonText = "OK",
                         XamlRoot = this.XamlRoot
                     };
-                    await validationDialog.ShowAsync();
-                    return;
-                }
-
-                if (AddExpenseReceiptDate.Date == null)
-                {
-                    var validationDialog = new ContentDialog
-                    {
-                        Title = "Lỗi",
-                        Content = "Vui lòng chọn ngày",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await validationDialog.ShowAsync();
+                    await errorDialog.ShowAsync();
                     return;
                 }
                 var selectedExpenseCategory = AddExpenseReceiptCategoryComboBox.SelectedItem as ExpenseCategoryModel;

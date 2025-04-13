@@ -1,3 +1,4 @@
+using Kohi.Errors;
 using Kohi.Models;
 using Kohi.ViewModels;
 using Microsoft.UI.Xaml;
@@ -30,11 +31,13 @@ namespace Kohi.Views
     {
         public ExpenseCategoryViewModel ExpenseCategoryViewModel { get; set; } = new ExpenseCategoryViewModel();
         public ExpenseCategoryModel? SelectedExpenseCategory { get; set; }
+        private readonly IErrorHandler _errorHandler; // Thêm IErrorHandler
         public IncomeExpenseCategoriesPage()
         {
             this.InitializeComponent();
             this.DataContext = this;
             SelectedExpenseCategory = null;
+            _errorHandler = new EmptyInputErrorHandler();
             Loaded += ExpenseCategoriesPage_Loaded;
         }
 
@@ -141,6 +144,24 @@ namespace Kohi.Views
             var result = await EditExpenseCategoryDialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
+                var fields = new Dictionary<string, string>
+                {
+                    { "Tên danh mục", EditExpenseCategoryName.Text }
+                };
+
+                List<string> errors = _errorHandler.HandleError(fields);
+                if (errors.Any())
+                {
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
                 SelectedExpenseCategory.CategoryName = EditExpenseCategoryName.Text;
                 SelectedExpenseCategory.Description = EditExpenseCategoryNote.Text;
                 await ExpenseCategoryViewModel.Update(SelectedExpenseCategory.Id.ToString(), SelectedExpenseCategory);
@@ -167,17 +188,22 @@ namespace Kohi.Views
             // Process the result if Primary button was clicked (Confirm)
             if (result == ContentDialogResult.Primary)
             {
-                // Validate input
-                if (string.IsNullOrWhiteSpace(expenseCategoryName.Text))
+                var fields = new Dictionary<string, string>
                 {
-                    var validationDialog = new ContentDialog
+                    { "Tên danh mục", expenseCategoryName.Text }
+                };
+
+                List<string> errors = _errorHandler.HandleError(fields);
+                if (errors.Any())
+                {
+                    var errorDialog = new ContentDialog
                     {
-                        Title = "Lỗi",
-                        Content = "Tên danh mục không được để trống",
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
                         CloseButtonText = "OK",
                         XamlRoot = this.XamlRoot
                     };
-                    await validationDialog.ShowAsync();
+                    await errorDialog.ShowAsync();
                     return;
                 }
 

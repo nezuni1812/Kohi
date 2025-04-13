@@ -20,7 +20,7 @@
             <Setter Property="Margin" Value="10,0,0,0" />
         </Style>
     </Page.Resources>
-
+    <ScrollView>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -321,4 +321,5 @@
             <ProgressRing x:Name="ImportProgressRing" IsActive="False" Width="20" Height="20" Margin="10,0,0,0"/>
         </StackPanel>
     </Grid>
+    </ScrollView>
 </Page>

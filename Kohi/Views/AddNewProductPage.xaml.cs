@@ -137,7 +137,21 @@ namespace Kohi.Views
 
             List<string> validationErrors = _errorHandler?.HandleError(fields) ?? new List<string>();
             errors.AddRange(validationErrors);
+            // Kiểm tra biến thể
+            for (int i = 0; i < ViewModel.Variants.Count; i++)
+            {
+                var variantVM = ViewModel.Variants[i];
+                var variantFields = new Dictionary<string, string>
+                {
+                    { "Size", variantVM.Size ?? "" },
+                    { "Price", variantVM.Price.ToString(System.Globalization.CultureInfo.InvariantCulture) },
+                    { "Cost", variantVM.Cost.ToString(System.Globalization.CultureInfo.InvariantCulture) }
+                };
 
+                // Kiểm tra bổ sung để đảm bảo Price và Cost > 0
+                errors.AddRange(_errorHandler?.HandleError(variantFields)?.Select(err => $"{err}") ?? new List<string>());
+                if (HasErrors(errors)) return;
+            }
             if (HasErrors(errors))
             {
                 return;
@@ -169,7 +183,7 @@ namespace Kohi.Views
                     {
                         var variantFields = new Dictionary<string, string>
                         {
-                            { "Size", variantVM.Size ?? "N/A" },
+                            { "Size", variantVM.Size ?? "" },
                             { "Price", variantVM.Price.ToString() },
                             { "Cost", variantVM.Cost.ToString() }
                         };
@@ -179,7 +193,7 @@ namespace Kohi.Views
 
                         var variant = new ProductVariantModel
                         {
-                            Size = variantVM.Size ?? "N/A",
+                            Size = variantVM.Size,
                             Price = variantVM.Price,
                             Cost = variantVM.Cost,
                             ProductId = product.Id,
@@ -210,7 +224,7 @@ namespace Kohi.Views
                                 {
                                     IngredientId = recipeVM.Ingredient?.Id ?? 0,
                                     Quantity = recipeVM.Quantity,
-                                    Unit = recipeVM.Unit ?? recipeVM.Ingredient?.Unit ?? "N/A",
+                                    Unit = recipeVM.Unit ?? recipeVM.Ingredient?.Unit ?? "",
                                     ProductVariantId = variant.Id
                                 };
 

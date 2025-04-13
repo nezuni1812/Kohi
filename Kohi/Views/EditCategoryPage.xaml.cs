@@ -12,6 +12,9 @@ using Kohi.Utils;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
+using Kohi.Errors;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Kohi.Views
 {
@@ -21,10 +24,11 @@ namespace Kohi.Views
         public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
         private CategoryModel _currentCategory;
         private StorageFile _selectedImageFile;
-
+        private readonly IErrorHandler _errorHandler; // Thêm IErrorHandler
         public EditCategoryPage()
         {
             this.InitializeComponent();
+            _errorHandler = new EmptyInputErrorHandler(); // Khởi tạo EmptyInputErrorHandler
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -155,9 +159,17 @@ namespace Kohi.Views
             }
 
             string imgName = await SaveImage();
-            if (string.IsNullOrEmpty(imgName) && string.IsNullOrEmpty(_currentCategory.ImageUrl))
+            // Sử dụng IErrorHandler để kiểm tra các trường không trống
+            var fields = new Dictionary<string, string>
             {
-                outtext.Text = "Vui lòng chọn hình ảnh.";
+                { "Tên danh mục", CategoryNameTextBox.Text },
+                { "Hình ảnh", imgName },
+            };
+
+            List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+            if (errors.Any())
+            {
+                outtext.Text = string.Join("\n", errors);
                 return;
             }
 

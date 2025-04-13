@@ -1,4 +1,5 @@
-﻿using Kohi.Models;
+﻿using Kohi.Errors;
+using Kohi.Models;
 using Kohi.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -34,7 +35,7 @@ namespace Kohi.Views
         public SupplierViewModel SupplierViewModel { get; set; } = new SupplierViewModel();
         private SupplierModel selectedSupplier;
         private CustomerModel selectedCustomer;
-
+        private readonly IErrorHandler _errorHandler; // Thêm biến IErrorHandler
         public PartnersPage()
         {
             this.InitializeComponent();
@@ -42,6 +43,8 @@ namespace Kohi.Views
             addButtonTextBlock.Text = "Thêm khách hàng";
             editButton.Click += EditButton_Click; // Thêm sự kiện cho nút chỉnh sửa
             Loaded += PartnersPage_Loaded; // Thêm sự kiện Loaded
+            var emptyInputHandler = new EmptyInputErrorHandler();
+            _errorHandler = emptyInputHandler;
         }
         private async void PartnersPage_Loaded(object sender, RoutedEventArgs e)
         {
@@ -131,6 +134,27 @@ namespace Kohi.Views
 
                 if (result == ContentDialogResult.Primary)
                 {
+                    // Thêm: Kiểm tra dữ liệu nhập bằng IErrorHandler
+                    var fields = new Dictionary<string, string>
+                    {
+                        { "Tên khách hàng", EditCustomerNameTextBox.Text },
+                        { "Số điện thoại", EditCustomerPhoneNumberTextBox.Text }
+                    };
+
+                    // Thêm: Xử lý lỗi từ EmptyInputErrorHandler
+                    List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                    if (errors.Any())
+                    {
+                        ContentDialog errorDialog = new ContentDialog
+                        {
+                            Title = "Lỗi nhập liệu",
+                            Content = string.Join("\n", errors),
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        await errorDialog.ShowAsync();
+                        return;
+                    }
                     // Cập nhật dữ liệu sau khi chỉnh sửa
                     selectedCustomer.Name = EditCustomerNameTextBox.Text;
                     selectedCustomer.Phone = EditCustomerPhoneNumberTextBox.Text;
@@ -151,6 +175,27 @@ namespace Kohi.Views
                 var result = await SupplierEditDialog.ShowAsync();
                 if (result == ContentDialogResult.Primary)
                 {
+                    // Thêm: Kiểm tra dữ liệu nhập bằng IErrorHandler
+                    var fields = new Dictionary<string, string>
+                    {
+                        { "Tên nhà cung cấp", EditSupplierNameTextBox.Text },
+                        { "Số điện thoại", EditSupplierPhoneNumberTextBox.Text }
+                    };
+
+                    // Thêm: Xử lý lỗi từ EmptyInputErrorHandler
+                    List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                    if (errors.Any())
+                    {
+                        ContentDialog errorDialog = new ContentDialog
+                        {
+                            Title = "Lỗi nhập liệu",
+                            Content = string.Join("\n", errors),
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        await errorDialog.ShowAsync();
+                        return;
+                    }
                     // Cập nhật dữ liệu sau khi chỉnh sửa
                     selectedSupplier.Name = EditSupplierNameTextBox.Text;
                     selectedSupplier.Phone = EditSupplierPhoneNumberTextBox.Text;
@@ -226,6 +271,27 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                // Thêm: Kiểm tra dữ liệu nhập bằng IErrorHandler
+                var fields = new Dictionary<string, string>
+                {
+                    { "Tên nhà cung cấp", SupplierNameTextBox.Text },
+                    { "Số điện thoại", SupplierPhoneNumberTextBox.Text }
+                };
+
+                // Thêm: Xử lý lỗi từ EmptyInputErrorHandler
+                List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                if (errors.Any())
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
                 var newSupplier = new SupplierModel
                 {
                     Name = SupplierNameTextBox.Text,
@@ -252,6 +318,27 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                // Thêm: Kiểm tra dữ liệu nhập bằng IErrorHandler
+                var fields = new Dictionary<string, string>
+                {
+                    { "Tên khách hàng", CustomerNameTextBox.Text },
+                    { "Số điện thoại", CustomerPhoneNumberTextBox.Text }
+                };
+
+                // Thêm: Xử lý lỗi từ EmptyInputErrorHandler
+                List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                if (errors.Any())
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
                 var newCustomer = new CustomerModel
                 {
                     Name = CustomerNameTextBox.Text,

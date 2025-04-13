@@ -16,6 +16,7 @@ using Kohi.Models;
 using Kohi.ViewModels;
 using System.Diagnostics;
 using WinUI.TableView;
+using Kohi.Errors;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,12 +33,16 @@ namespace Kohi.Views
         public IngredientModel? selectedIngredient { get; set; }
 
         public int selectedIngredientId = -1;
+        private readonly IErrorHandler _errorHandler; // Thêm biến IErrorHandler
         public IngredientsPage()
         {
             this.InitializeComponent();
             selectedIngredientId = -1;
             selectedIngredient = null;
             Loaded += IngredientsPage_Loaded;
+            // Thêm: Khởi tạo IErrorHandler với EmptyInputErrorHandler
+            var emptyInputHandler = new EmptyInputErrorHandler();
+            _errorHandler = emptyInputHandler;
         }
 
         public async void IngredientsPage_Loaded(object sender, RoutedEventArgs e)
@@ -87,6 +92,27 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                // Thêm: Kiểm tra dữ liệu nhập bằng IErrorHandler
+                var fields = new Dictionary<string, string>
+                {
+                    { "Tên nguyên vật liệu", IngredientNameTextBox.Text },
+                    { "Đơn vị", UnitTextBox.Text }
+                };
+
+                // Thêm: Xử lý lỗi từ EmptyInputErrorHandler
+                List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                if (errors.Any())
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
                 var newIngredient = new IngredientModel
                 {
                     Name = IngredientNameTextBox.Text,
@@ -138,6 +164,27 @@ namespace Kohi.Views
 
             if (await EditIngredientDialog.ShowAsync() == ContentDialogResult.Primary)
             {
+                // Thêm: Kiểm tra dữ liệu nhập bằng IErrorHandler
+                var fields = new Dictionary<string, string>
+                {
+                    { "Tên nguyên vật liệu", EditIngredientNameTextBox.Text },
+                    { "Đơn vị", EditUnitTextBox.Text }
+                };
+
+                // Thêm: Xử lý lỗi từ EmptyInputErrorHandler
+                List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                if (errors.Any())
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
                 IngredientModel editedIngredient = new IngredientModel
                 {
                     Id = selectedIngredient.Id, // Giữ nguyên Id của mục đang chỉnh sửa

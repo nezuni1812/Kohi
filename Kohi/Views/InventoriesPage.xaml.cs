@@ -24,6 +24,7 @@ using Windows.Storage.Pickers;
 using WinRT.Interop;
 using Kohi.Utils;
 using System.Threading.Tasks;
+using Kohi.Errors;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -47,12 +48,26 @@ namespace Kohi.Views
         private Dictionary<string, int> _ingredientsDict;
         private Dictionary<string, int> _suppliersDict;
         private Dictionary<int, int> _inventoryDict; // Thêm để kiểm tra InventoryId
+        private readonly IErrorHandler _errorHandler;
         public InventoriesPage()
         {
             this.InitializeComponent();
             Loaded += InventoriesPage_Loaded;
             this.DataContext = this;
             //GridContent.DataContext = IncomeViewModel;
+            var emptyInputHandler = new EmptyInputErrorHandler();
+            // Chỉ định các trường cần kiểm tra số dương
+            var positiveNumberHandler = new PositiveNumberValidationErrorHandler(new List<string>
+            {
+                "Số lượng thực tế",
+                "Số lượng xuất",
+                "Số lượng nhập",
+                "Tổng giá trị",
+                "Số lượng", // Cho Excel
+                "Tổng giá trị" // Cho Excel
+            });
+            emptyInputHandler.SetNext(positiveNumberHandler);
+            _errorHandler = emptyInputHandler;
         }
         public async void InventoriesPage_Loaded(object sender, RoutedEventArgs e)
         {
@@ -148,6 +163,39 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                var fields = new Dictionary<string, string>
+                {
+                    { "Mã lô hàng", CheckBatchCodeTextBox.Text },
+                    { "Số lượng thực tế", InventoryQuantityBox.Text },
+                };
+
+                List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                if (errors.Any())
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                // Thêm kiểm tra số hợp lệ trước khi lưu
+                if (!int.TryParse(InventoryQuantityBox.Text, out int actualQuantity))
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = "Số lượng thực tế phải là số hợp lệ.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
                 CheckInventoryModel checkInventory = new CheckInventoryModel
                 {
                     InventoryId = Convert.ToInt32(CheckBatchCodeTextBox.Text),
@@ -157,6 +205,8 @@ namespace Kohi.Views
                 };
 
                 await CheckInventoryViewModel.Add(checkInventory);
+                await InventoryViewModel.LoadData(InventoryViewModel.CurrentPage);
+                UpdatePageList();
             }
         }
 
@@ -181,6 +231,64 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
+                var fields = new Dictionary<string, string>
+                {
+                    { "Mã lô hàng", OutboundBatchCodeTextBox.Text },
+                    { "Số lượng xuất", OutboundQuantityBox.Text },
+                };
+
+                List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                if (errors.Any())
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                // Thêm kiểm tra số hợp lệ trước khi lưu
+                if (!int.TryParse(OutboundQuantityBox.Text, out int quantity))
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = "Số lượng xuất phải là số hợp lệ.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+                var inventory = InventoryViewModel.Inventories.FirstOrDefault(i => i.Id == SelectedInventoryId);
+                if (inventory == null)
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = $"Không tìm thấy lô hàng với mã {SelectedInventoryId}.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+                if (quantity > inventory.Quantity)
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = $"Số lượng xuất ({quantity}) vượt quá số lượng hiện tại ({inventory.Quantity}).",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
                 // OutboundBatchCodeTextBox
                 OutboundModel outbound = new OutboundModel
                 {
@@ -191,7 +299,8 @@ namespace Kohi.Views
                     Notes = OutboundNotesTextBox.Text,
                 };
                 await OutboundViewModel.Add(outbound); // Sửa từ Add() thành Add(inbound)
-
+                await InventoryViewModel.LoadData(InventoryViewModel.CurrentPage);
+                UpdatePageList();
             }
         }
 
@@ -204,7 +313,27 @@ namespace Kohi.Views
             {
                 var selectedIngredient = IngredientComboBox.SelectedItem as IngredientModel;
                 var selectedSupplier = InboudSupplierComboBox.SelectedItem as SupplierModel;
+                var fields = new Dictionary<string, string>
+                {
+                    { "Nguyên vật liệu", selectedIngredient != null ? selectedIngredient.Name : "" },
+                    { "Nhà cung cấp", selectedSupplier != null ? selectedSupplier.Name : "" },
+                    { "Số lượng nhập", InboundQuantityNumberBox.Value.ToString() },
+                    { "Tổng giá trị", InboundTotalValueNumberBox.Value.ToString() },
+                };
 
+                List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                if (errors.Any())
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
                 if (selectedIngredient == null || selectedSupplier == null)
                 {
                     // Thông báo lỗi nếu không chọn Ingredient hoặc Supplier
@@ -220,7 +349,7 @@ namespace Kohi.Views
                     Quantity = Convert.ToInt32(InboundQuantityNumberBox.Value), // Sử dụng Value thay vì Text
                     TotalCost = Convert.ToInt32(InboundTotalValueNumberBox.Value), // Sử dụng Value thay vì Text
                     InboundDate = InboundDateCalendarDatePicker.Date?.DateTime ?? DateTime.Now, // Default nếu không chọn
-                    ExpiryDate = InboundExpiryDateCalendarDatePicker.Date?.DateTime ?? DateTime.MaxValue // Default nếu không chọn
+                    ExpiryDate = InboundExpiryDateCalendarDatePicker.Date?.DateTime ?? DateTime.Now // Default nếu không chọn
                 };
 
                 // Gọi phương thức Add từ InboundViewModel (sửa lại để truyền inbound)
@@ -396,17 +525,58 @@ namespace Kohi.Views
                     await ShowMessageDialog("Warning", "No valid outbound data found in the Excel file.");
                     return;
                 }
-
-                for (int i = 0; i < Math.Min(rawDataList.Count, 3); i++)
+                // Thêm: Thu thập lỗi từ tất cả dòng
+                List<string> errors = new List<string>();
+                foreach (var rawData in rawDataList)
                 {
-                    Debug.WriteLine($"Row {i + 2}: InventoryId = {rawDataList[i].InventoryIdString}, Quantity = {rawDataList[i].QuantityString}, " +
-                                    $"OutboundDate = {rawDataList[i].OutboundDateString}, Purpose = {rawDataList[i].Purpose}, Notes = {rawDataList[i].Notes}");
-                    Debug.WriteLine($"Parsed: InventoryId = {rawDataList[i].ParsedInventoryId}, Quantity = {rawDataList[i].ParsedQuantity}, " +
-                                    $"OutboundDate = {rawDataList[i].ParsedOutboundDate}");
+                    // Kiểm tra lỗi với _errorHandler
+                    var fields = new Dictionary<string, string>
+                    {
+                        { "Mã lô hàng", rawData.InventoryIdString },
+                        { "Số lượng xuất", rawData.QuantityString },
+                    };
+
+                    errors.AddRange(_errorHandler?.HandleError(fields) ?? new List<string>());
+
+                    // Kiểm tra tính hợp lệ của dữ liệu
+                    if (!rawData.ParsedInventoryId.HasValue)
+                    {
+                        errors.Add($"Dòng {rawData.RowNumber}: Mã lô hàng không hợp lệ ({rawData.InventoryIdString}).");
+                    }
+                    if (!rawData.ParsedQuantity.HasValue)
+                    {
+                        errors.Add($"Dòng {rawData.RowNumber}: Số lượng xuất không hợp lệ ({rawData.QuantityString}).");
+                    }
+                    if (!rawData.ParsedOutboundDate.HasValue)
+                    {
+                        errors.Add($"Dòng {rawData.RowNumber}: Ngày xuất kho không hợp lệ ({rawData.OutboundDateString}).");
+                    }
+                    if (rawData.ParsedInventoryId.HasValue && !_inventoryDict.ContainsKey(rawData.ParsedInventoryId.Value))
+                    {
+                        errors.Add($"Dòng {rawData.RowNumber}: Không tìm thấy lô hàng với mã {rawData.ParsedInventoryId}.");
+                    }
+
+                    // Thêm: Kiểm tra số lượng xuất không vượt quá số lượng hiện tại
+                    if (rawData.ParsedInventoryId.HasValue && rawData.ParsedQuantity.HasValue)
+                    {
+                        var inventory = InventoryViewModel.Inventories.FirstOrDefault(i => i.Id == rawData.ParsedInventoryId.Value);
+                        if (inventory == null)
+                        {
+                            errors.Add($"Dòng {rawData.RowNumber}: Không tìm thấy lô hàng với mã {rawData.ParsedInventoryId}.");
+                        }
+                        else if (rawData.ParsedQuantity.Value > inventory.Quantity)
+                        {
+                            errors.Add($"Dòng {rawData.RowNumber}: Số lượng xuất ({rawData.ParsedQuantity.Value}) vượt quá số lượng hiện tại ({inventory.Quantity}).");
+                        }
+                    }
                 }
 
-                Debug.WriteLine($"_inventoryDict count: {_inventoryDict.Count}");
-
+                // Thêm: Nếu có lỗi, hiển thị ContentDialog và dừng
+                if (errors.Any())
+                {
+                    await ShowMessageDialog("Lỗi nhập liệu", string.Join("\n", errors));
+                    return;
+                }
                 int successCount = 0;
                 foreach (var rawData in rawDataList)
                 {
@@ -440,6 +610,8 @@ namespace Kohi.Views
                 }
 
                 await ShowMessageDialog("Success", $"Imported {successCount} of {rawDataList.Count} outbound rows from the Excel file.");
+                await InventoryViewModel.LoadData(InventoryViewModel.CurrentPage);
+                UpdatePageList();
             }
             catch (Exception ex)
             {
