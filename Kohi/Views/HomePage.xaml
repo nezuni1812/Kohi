@@ -203,24 +203,31 @@
 
             <TextBlock Grid.Row="1" Text="Danh mục" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
-            <Grid Grid.Row="2" HorizontalAlignment="Left" Padding="0,0,50,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+            <ScrollView Grid.Row="2" 
+            HorizontalScrollBarVisibility="Auto" 
+            VerticalScrollBarVisibility="Hidden" 
+            HorizontalScrollMode="Enabled" 
+            VerticalScrollMode="Disabled"
+                        Padding="0,0,0,15">
+                <Grid HorizontalAlignment="Stretch" MinWidth="500" Padding="0,0,50,0" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="Tất cả" Click="ShowAllProducts_Click" Margin="0,0,10,0"/>
+                    <ItemsView Grid.Column="1" x:Name="categoriesList" Width="1000"
+                       ItemsSource="{x:Bind ViewModel.CategoryViewModel.Categories}" 
+                       ItemTemplate="{StaticResource ItemsViewTemplate}"
+                       SelectionMode="Single"
+                       SelectionChanged="onCategorySelectionChanged"
+                       HorizontalAlignment="Left">
+                        <ItemsView.Layout>
+                            <LinedFlowLayout ItemsStretch="None" LineSpacing="5" LineHeight="33" MinItemSpacing="10"/>
+                        </ItemsView.Layout>
+                    </ItemsView>
+                </Grid>
+            </ScrollView>
 
-                <ItemsView Grid.Column="0" x:Name="categoriesList" 
-                   ItemsSource="{x:Bind ViewModel.CategoryViewModel.Categories}" 
-                   ItemTemplate="{StaticResource ItemsViewTemplate}"
-                   SelectionMode="Single"
-                   SelectionChanged="onCategorySelectionChanged">
-                    <ItemsView.Layout>
-                        <LinedFlowLayout ItemsStretch="None" LineSpacing="5" LineHeight="38" MinItemSpacing="10"/>
-                    </ItemsView.Layout>
-                </ItemsView>
-
-                <Button Grid.Column="1" Content="Hiển thị tất cả" Click="ShowAllProducts_Click" Margin="10,0,0,0"/>
-            </Grid>
             <TextBlock Grid.Row="3" Text="Mặt hàng" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
             <ScrollView Grid.Row="4">

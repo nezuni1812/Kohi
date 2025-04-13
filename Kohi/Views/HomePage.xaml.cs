@@ -55,6 +55,22 @@ namespace Kohi.Views
             //ViewModel.AddProduct();
         }
 
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            try
+            {
+                await ViewModel.ProductViewModel.LoadData();
+                await ViewModel.CategoryViewModel.LoadData();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error reloading customers: {ex.Message}");
+            }
+        }
+
+
         private void onCategorySelectionChanged(object sender, ItemsViewSelectionChangedEventArgs e)
         {
             var selectedItem = categoriesList.SelectedItem as CategoryModel;
@@ -325,6 +341,12 @@ namespace Kohi.Views
                 ViewModel.OrderItems.Remove(item);
                 TotalItemsTextBlock.Text = ViewModel.TotalItems.ToString();
                 TotalPriceTextBlock.Text = ConvertMoney(ViewModel.TotalPrice);
+                float deliveryFee = 0f;
+                if (DeliveryFee.IsEnabled)
+                {
+                    deliveryFee = (float)DeliveryFee.Value;
+                }
+                UpdateTotalAmount(ViewModel.TotalPrice, deliveryFee);
             }
         }
 
@@ -346,7 +368,7 @@ namespace Kohi.Views
             return null;
         }
 
-        private void CustomerSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private async void CustomerSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
@@ -360,6 +382,7 @@ namespace Kohi.Views
                 }
                 else
                 {
+                    await ViewModel.CustomerViewModel.LoadData();
                     var suggestions = ViewModel.CustomerViewModel.SearchCustomers(sender.Text);
                     sender.ItemsSource = suggestions;
                 }
@@ -493,7 +516,7 @@ namespace Kohi.Views
 
             checkBoxDelivery.IsChecked = false;
             ResetDeliveryState();
-
+            UpdateTotalAmount(0, 0);
             CustomerSearchBox.Text = string.Empty;
             ViewModel.CustomerViewModel.SelectedCustomer = null;
 

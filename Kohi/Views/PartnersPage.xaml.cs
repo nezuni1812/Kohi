@@ -123,9 +123,9 @@ namespace Kohi.Views
             if (SelectorBar.SelectedItem == CustomerSelectorBar && selectedCustomer != null)
             {
                 EditCustomerNameTextBox.Text = selectedCustomer.Name;
-                EditCustomerAddressTextBox.Text = selectedCustomer.Phone;
-                EditCustomerPhoneNumberTextBox.Text = selectedCustomer.Email;
-                EditCustomerEmailTextBox.Text = selectedCustomer.Address;
+                EditCustomerAddressTextBox.Text = selectedCustomer.Address;
+                EditCustomerPhoneNumberTextBox.Text = selectedCustomer.Phone;
+                EditCustomerEmailTextBox.Text = selectedCustomer.Email;
                 var result = await CustomerEditDialog.ShowAsync();
                 // Điền dữ liệu vào CustomerEditDialog
 
@@ -133,9 +133,9 @@ namespace Kohi.Views
                 {
                     // Cập nhật dữ liệu sau khi chỉnh sửa
                     selectedCustomer.Name = EditCustomerNameTextBox.Text;
-                    selectedCustomer.Phone = EditCustomerAddressTextBox.Text;
-                    selectedCustomer.Email = EditCustomerPhoneNumberTextBox.Text;
-                    selectedCustomer.Address = EditCustomerEmailTextBox.Text;
+                    selectedCustomer.Phone = EditCustomerPhoneNumberTextBox.Text;
+                    selectedCustomer.Email = EditCustomerEmailTextBox.Text;
+                    selectedCustomer.Address = EditCustomerAddressTextBox.Text;
 
                     await CustomerViewModel.Update(selectedCustomer.Id.ToString(), selectedCustomer);
                 }

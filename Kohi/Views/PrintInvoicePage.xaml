@@ -43,8 +43,8 @@
             </Button>
         </Grid>
 
-        <ScrollView Grid.Row="1">
-            <Grid x:Name="ContentToPrint" Padding="20,0,20,20" Width="400" HorizontalAlignment="Center" VerticalAlignment="Top">
+        <ScrollView Grid.Row="1" Foreground="Black">
+            <Grid Background="White" x:Name="ContentToPrint" Padding="20,0,20,20" Width="400" HorizontalAlignment="Center" VerticalAlignment="Top">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <!-- Tiêu đề hóa đơn -->
@@ -77,8 +77,8 @@
                         <Run x:Name="CustomerPhone" Text="Không có số"/>
                     </TextBlock>
                     <TextBlock x:Name="DeliveryAddress" Visibility="Collapsed" FontSize="14" HorizontalAlignment="Left">
-    <Run Text="Địa chỉ:"/>
-    <Run x:Name="CustomerAddress" Text="Không có địa chỉ"/>
+                        <Run Text="Địa chỉ:"/>
+                        <Run x:Name="CustomerAddress" Text="Không có địa chỉ"/>
                     </TextBlock>
                 </StackPanel>
 
