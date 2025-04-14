@@ -13,7 +13,7 @@
 
     <Page.Resources>
         <converter:MoneyFormatConverter x:Key="MoneyFormatConverter"/>
-        <!--<converter:DateTimeConverter x:Key="DateTimeConverter"/>-->
+        <converter:DateTimeConverter x:Key="DateTimeConverter"/>
         <BrushCollection x:Key="ChartPalette">
             <SolidColorBrush Color="{ThemeResource SystemAccentColor}"/>
             <SolidColorBrush Color="{ThemeResource SystemAccentColorLight3}"/>
@@ -146,7 +146,7 @@
                                     <Run Text="{x:Bind Id}"/>
                                 </TextBlock>
                                 <TextBlock Text="{x:Bind OrderType}"/>
-                                <!--<TextBlock Text="{x:Bind CreatedAt, Converter={StaticResource DateTimeConverter}, FallbackValue='Không có ngày'}" />-->
+                                <TextBlock Text="{x:Bind CreatedAt, Converter={StaticResource DateTimeConverter}, FallbackValue='Không có ngày'}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Vertical">
                                 <TextBlock Text="{x:Bind TotalAmount, Converter={StaticResource MoneyFormatConverter}}" 
