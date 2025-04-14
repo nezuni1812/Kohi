@@ -390,9 +390,9 @@ namespace Kohi.Views
                 {
                     // Khi người dùng xóa ô tìm kiếm, đặt lại SelectedCustomer và trạng thái giao diện
                     ViewModel.CustomerViewModel.SelectedCustomer = null;
-                    sender.ItemsSource = null; // Xóa danh sách gợi ý
-                    checkBoxDelivery.IsChecked = false; // Bỏ check "Giao hàng"
-                    ResetDeliveryState(); // Đặt lại trạng thái giao hàng
+                    sender.ItemsSource = null;
+                    checkBoxDelivery.IsChecked = false; 
+                    ResetDeliveryState(); 
                 }
                 else
                 {
@@ -437,8 +437,14 @@ namespace Kohi.Views
             sender.Text = $"{selectedCustomer.Name} - {selectedCustomer.Phone}";
         }
 
-        private void PrintInvoice_Click(object sender, RoutedEventArgs e)
+        private async void PrintInvoice_Click(object sender, RoutedEventArgs e)
         {
+            var userPaymentSettings = RestoreUserPaymentSettings();
+            if (userPaymentSettings == null)
+            {
+                await ShowErrorContentDialog(this.XamlRoot, "Chưa có thông tin chuyển khoản. Hãy vào trang Thiết lập để thêm thông tin");
+                return;
+            }
             var invoice = PrepareInvoice();
             Frame.Navigate(typeof(PrintInvoicePage), invoice);
         }
@@ -609,13 +615,19 @@ namespace Kohi.Views
                 }
             }
 
+            string shopAddress = RestoreAddress();
+            if (shopAddress == string.Empty)
+            {
+                await ShowErrorContentDialog(this.XamlRoot, "Chưa có địa chỉ của quán. Hãy vào trang Thiết lập để thêm thông tin");
+                return;
+            }
+
             float deliveryFee = 0f;
             if (DeliveryFee.IsEnabled)
             {
                 deliveryFee = (float)DeliveryFee.Value;
             }
 
-            string shopAddress = RestoreAddress();
             string customerAddress = CustomerAddressTextBlock.Text;
             Debug.WriteLine($"Địa chỉ khách hàng: {CustomerAddressTextBlock.Text}");
             Debug.WriteLine($"Địa chỉ cửa hàng: {shopAddress}");
@@ -708,7 +720,7 @@ namespace Kohi.Views
                 Debug.WriteLine("Error: totalAmount TextBlock is null.");
             }
         }
-        private async Task<BitmapImage> GenerateQRCodeAsync(int amount)
+        /*private async Task<BitmapImage> GenerateQRCodeAsync(int amount)
         {
             try
             {
@@ -790,7 +802,7 @@ namespace Kohi.Views
             {
                 throw new Exception($"Lỗi chuyển đổi Base64 thành hình ảnh: {ex.Message}", ex);
             }
-        }
+        }*/
         private UserPaymentSettings RestoreUserPaymentSettings()
         {
             var settings = ApplicationData.Current.LocalSettings;
