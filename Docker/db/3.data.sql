@@ -52,11 +52,11 @@ INSERT INTO inbounds (IngredientId, Quantity, SupplierId, Notes, TotalCost, inbo
 INSERT INTO inbounds (IngredientId, Quantity, SupplierId, Notes, TotalCost, inbounddate, expirydate) VALUES (3, 80, 3, 'Lá trà', 500000, current_timestamp, current_timestamp);
 INSERT INTO inbounds (IngredientId, Quantity, SupplierId, Notes, TotalCost, inbounddate, expirydate) VALUES (4, 60, 4, 'Hạt cà phê', 100000, current_timestamp, current_timestamp);
 INSERT INTO inbounds (IngredientId, Quantity, SupplierId, Notes, TotalCost, inbounddate, expirydate) VALUES (5, 70, 5, 'Sốt trái cây', 300000, current_timestamp, current_timestamp);
-INSERT INTO invoices (CustomerId, TotalAmount, invoicedate) VALUES (1, 150000, current_timestamp);
-INSERT INTO invoices (CustomerId, TotalAmount, invoicedate) VALUES (2, 200000, current_timestamp);
-INSERT INTO invoices (CustomerId, TotalAmount, invoicedate) VALUES (3, 300000, current_timestamp);
-INSERT INTO invoices (CustomerId, TotalAmount, invoicedate) VALUES (4, 250000, current_timestamp);
-INSERT INTO invoices (CustomerId, TotalAmount, invoicedate) VALUES (5, 180000, current_timestamp);
+INSERT INTO invoices (CustomerId, TotalAmount, invoicedate, createdat) VALUES (1, 150000, current_timestamp, current_timestamp);
+INSERT INTO invoices (CustomerId, TotalAmount, invoicedate, createdat) VALUES (2, 200000, current_timestamp, current_timestamp);
+INSERT INTO invoices (CustomerId, TotalAmount, invoicedate, createdat) VALUES (3, 300000, current_timestamp, current_timestamp);
+INSERT INTO invoices (CustomerId, TotalAmount, invoicedate, createdat) VALUES (4, 250000, current_timestamp, current_timestamp);
+INSERT INTO invoices (CustomerId, TotalAmount, invoicedate, createdat) VALUES (5, 180000, current_timestamp, current_timestamp);
 INSERT INTO inventories (InboundId, Quantity, inbounddate, expirydate) VALUES (1, 90, current_timestamp, current_timestamp);
 INSERT INTO inventories (InboundId, Quantity, inbounddate, expirydate) VALUES (2, 45, current_timestamp, current_timestamp);
 INSERT INTO inventories (InboundId, Quantity, inbounddate, expirydate) VALUES (3, 75, current_timestamp, current_timestamp);

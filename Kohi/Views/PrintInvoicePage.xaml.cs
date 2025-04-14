@@ -150,9 +150,13 @@ namespace Kohi.Views
 
         private async void DisplayQRCode()
         {
+            if (Invoice.Id >= 0)
+            {
+                return; // Không tạo mã QR nếu hóa đơn đã được lưu
+            }
+
             string paymentMethod = Invoice.PaymentMethod;
 
-            // Tạo mã QR nếu phương thức thanh toán không phải "Tiền mặt"
             if (paymentMethod != "Tiền mặt")
             {
                 int totalAmount = (int)Invoice.TotalAmount;
