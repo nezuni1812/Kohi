@@ -112,7 +112,7 @@ namespace Kohi.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error adding invoice: {ex.Message}");
-                throw; 
+                throw;
             }
         }
 
@@ -210,7 +210,86 @@ namespace Kohi.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in GetAll: {ex.Message}");
-                return new List<InvoiceModel>(); 
+                return new List<InvoiceModel>();
+            }
+        }
+
+        public async Task<InvoiceModel> GetDetailsById(int invoiceId)
+        {
+            try
+            {
+                var invoice = _dao.Invoices.GetById(invoiceId.ToString());
+                if (invoice == null)
+                {
+                    Debug.WriteLine($"GetDetailsById: No invoice found for Id {invoiceId}.");
+                    return null;
+                }
+                Debug.WriteLine($"GetDetailsById: Found invoice {invoice.Id}");
+
+                var allInvoiceDetails = await Task.Run(() => _dao.InvoiceDetails.GetAll(
+                    pageNumber: 1,
+                    pageSize: 1000
+                ));
+                if (allInvoiceDetails == null || !allInvoiceDetails.Any())
+                {
+                    Debug.WriteLine($"GetDetailsById: No invoice details found.");
+                    invoice.InvoiceDetails = new List<InvoiceDetailModel>();
+                    return invoice;
+                }
+
+                var detailsForInvoice = allInvoiceDetails.Where(d => d.InvoiceId == invoice.Id).ToList();
+                invoice.InvoiceDetails = detailsForInvoice;
+                Debug.WriteLine($"GetDetailsById: Invoice {invoice.Id} has {invoice.InvoiceDetails.Count} details");
+
+                var allProductVariants = await Task.Run(() => _dao.ProductVariants.GetAll(
+                    pageNumber: 1,
+                    pageSize: 1000
+                ));
+                if (allProductVariants == null || !allProductVariants.Any())
+                {
+                    Debug.WriteLine($"GetDetailsById: No product variants found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetDetailsById: Loaded {allProductVariants.Count} product variants");
+                }
+
+                var allProducts = await Task.Run(() => _dao.Products.GetAll(
+                    pageNumber: 1,
+                    pageSize: 1000
+                ));
+                if (allProducts == null || !allProducts.Any())
+                {
+                    Debug.WriteLine($"GetDetailsById: No products found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetDetailsById: Loaded {allProducts.Count} products");
+                }
+
+                foreach (var detail in invoice.InvoiceDetails)
+                {
+                    detail.ProductVariant = allProductVariants?.FirstOrDefault(pv => pv.Id == detail.ProductId);
+                    if (detail.ProductVariant == null)
+                    {
+                        Debug.WriteLine($"GetDetailsById: InvoiceDetail {detail.Id} has no matching ProductVariant for ProductId {detail.ProductId}");
+                    }
+                    else
+                    {
+                        detail.ProductVariant.Product = allProducts?.FirstOrDefault(p => p.Id == detail.ProductVariant.ProductId);
+                        if (detail.ProductVariant.Product == null)
+                        {
+                            Debug.WriteLine($"GetDetailsById: ProductVariant {detail.ProductVariant.Id} has no matching Product for ProductId {detail.ProductVariant.ProductId}");
+                        }
+                    }
+                }
+
+                return invoice;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetDetailsById for InvoiceId {invoiceId}: {ex.Message}");
+                return null;
             }
         }
     }

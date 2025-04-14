@@ -27,6 +27,11 @@ using Windows.UI;
 using Kohi.Models.BankingAPI;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage.Streams;
+using System.Data;
+using Microsoft.ML;
+using Microsoft.ML.Data;
+using Microsoft.ML.Trainers;
+using DocumentFormat.OpenXml.Bibliography;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -40,6 +45,85 @@ namespace Kohi.Views
     {
         public HomePageViewModel ViewModel { get; set; } = new HomePageViewModel();
         private readonly DistanceService _distanceService = new DistanceService();
+        public class SalesData
+        {
+            [LoadColumn(0)]
+            public string Product { get; set; }
+
+            [LoadColumn(1)]
+            public float DayOfWeek { get; set; }
+
+            [LoadColumn(2)]
+            public float Month { get; set; }
+
+            [LoadColumn(3)]
+            public float Temperature { get; set; }
+
+            [LoadColumn(4)]
+            public float SalesCount { get; set; } // This is the label (target)
+        }
+
+        public class SalesPrediction
+        {
+            [ColumnName("Score")]
+            public float PredictedSales { get; set; }
+        }
+
+        static async Task<TransformerChain<RegressionPredictionTransformer<LinearRegressionModelParameters>>> Fitting(EstimatorChain<RegressionPredictionTransformer<LinearRegressionModelParameters>> trainingPipeline, IDataView trainingDataView)
+        {
+            return await Task.Run(() => trainingPipeline.Fit(trainingDataView));
+        }
+
+        async void actuallTrainAndPredict()
+        {
+            MLContext mlContext = new MLContext(seed: 0);
+
+            if (mlContext != null)
+            {
+                Debug.WriteLine("Path: " + Environment.CurrentDirectory);
+                IDataView trainingDataView = mlContext.Data.LoadFromTextFile<SalesData>(
+                    path: "C:\\Users\\jiji\\source\\repos\\Kohi\\Kohi\\sales_train.csv",
+                    hasHeader: true,
+                    separatorChar: ',');
+
+
+                Debug.WriteLine("Process pipeline");
+                var dataProcessPipeline = mlContext.Transforms.CopyColumns("Label", nameof(SalesData.SalesCount))
+                .Append(mlContext.Transforms.Categorical.OneHotEncoding("ProductEncoded", nameof(SalesData.Product)))
+                .Append(mlContext.Transforms.Concatenate("Features", "ProductEncoded", nameof(SalesData.DayOfWeek),
+                                                    nameof(SalesData.Month), nameof(SalesData.Temperature)))
+                .Append(mlContext.Transforms.NormalizeMinMax("Features"));
+
+                var trainer = mlContext.Regression.Trainers.Sdca(labelColumnName: "Label", featureColumnName: "Features");
+
+                var trainingPipeline = dataProcessPipeline.Append(trainer);
+
+                Debug.WriteLine("Train");
+
+                var trainedModel = await Fitting(trainingPipeline, trainingDataView);
+
+                Debug.WriteLine("Prediction model");
+                var predictionEngine = mlContext.Model.CreatePredictionEngine<SalesData, SalesPrediction>(trainedModel);
+
+                var newData = new SalesData
+                {
+                    Product = "Latte",
+                    DayOfWeek = 5,
+                    Month = 4,
+                    Temperature = 18.5f
+                };
+
+                Debug.WriteLine("Predict");
+                SalesPrediction prediction = predictionEngine.Predict(newData);
+                Debug.WriteLine($"Predicted sales for Latte: {prediction.PredictedSales:F2}");
+            }
+        }
+        private async void trainAndPredict(object sender, RoutedEventArgs e)
+        {
+            actuallTrainAndPredict();
+            Debug.WriteLine("Called to train and predict");
+        }
+
         public bool IsLoading { get; set; } = false;
         public HomePage()
         {
