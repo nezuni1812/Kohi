@@ -16,229 +16,204 @@
         <Style x:Key="HeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="Bold" />
-            <!--Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" /-->
             <Setter Property="HorizontalAlignment" Value="Left" />
             <Setter Property="Margin" Value="10,0,0,0" />
         </Style>
-
-        <!--DataTemplate x:Key="GridViewTemplate" x:DataType="model:Category">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Width="260" Height="130" Margin="0,0,0,0">
-                <Grid VerticalAlignment="Center" Width="100" Height="100" Margin="0,0,0,0">
-                    <Image Source="{Binding Image, Converter={StaticResource absolute}}"/>
-                </Grid>
-                <StackPanel Orientation="Vertical" Margin="0,10,0,0" Width="150">
-                    <TextBlock TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxLines="2" Style="{StaticResource BodyStrongTextBlockStyle}">
-                <Run Text="{x:Bind ID}" FontStyle="Italic"/>. <Run Text="{x:Bind Name}" FontWeight="Bold"/>
-                    </TextBlock>
-                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
-                <Run Text="Author: " FontWeight="Bold"/>
-                <Run Text="{x:Bind Author}"/>
-                    </TextBlock>
-                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
-                <Run Text="Year: " FontWeight="Bold"/>
-                <Run Text="{x:Bind PublishYear}"/>
-                    </TextBlock>
-                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
-                <Run Text="ISBN: " FontWeight="Bold"/>
-                <Run Text="{x:Bind ISBN}"/>
-                    </TextBlock>
-                </StackPanel>
-            </StackPanel>
-        </DataTemplate-->
     </Page.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <ContentDialog x:Name="EditExpenseReceiptDialog"
-            Title="Chỉnh sửa phiếu chi"
-            CloseButtonText="Đóng"
-            PrimaryButtonText="Xác nhận"
-            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-            CloseButtonClick="EditExpenseReceiptDialog_CloseButtonClick"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-            <Grid Grid.Row="1" ColumnSpacing="10" Width="340">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.6*"/>
-                    <ColumnDefinition Width="0.4*"/>
-                </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Loại phiếu chi"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <ComboBox x:Name="EditExpenseReceiptCategoryComboBox" 
-                              ItemsSource="{Binding ExpenseCategoryViewModel.ExpenseCategories}" 
-                              DisplayMemberPath="CategoryName" 
-                              PlaceholderText="-- Chọn loại phiếu chi --"/>
-                </StackPanel>
+            <ContentDialog x:Name="EditExpenseReceiptDialog"
+                Title="Chỉnh sửa phiếu chi"
+                CloseButtonText="Đóng"
+                PrimaryButtonText="Xác nhận"
+                PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+                CloseButtonClick="EditExpenseReceiptDialog_CloseButtonClick"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <Grid ColumnSpacing="10" Width="340">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.6*"/>
+                        <ColumnDefinition Width="0.4*"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Row="1" Grid.Column="0"  Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Tiền"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <TextBox x:Name="EditExpenseReceiptAmount" PlaceholderText="Nhập số tiền" InputScope="Number"/>
-                </StackPanel>
+                    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Loại phiếu chi"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <ComboBox x:Name="EditExpenseReceiptCategoryComboBox" 
+                                  ItemsSource="{Binding ExpenseCategoryViewModel.ExpenseCategories}" 
+                                  DisplayMemberPath="CategoryName" 
+                                  PlaceholderText="-- Chọn loại phiếu chi --"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Thời gian"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <CalendarDatePicker x:Name="EditExpenseReceiptDate" PlaceholderText="Chọn ngày"/>
-                </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Tiền"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <TextBox x:Name="EditExpenseReceiptAmount" PlaceholderText="Nhập số tiền" InputScope="Number"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Mô tả"/>
-                    </TextBlock>
-                    <TextBox x:Name="EditExpenseReceiptNote" PlaceholderText="Nhập mô tả"/>
-                </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Thời gian"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <CalendarDatePicker x:Name="EditExpenseReceiptDate" PlaceholderText="Chọn ngày"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Mô tả"/>
+                        </TextBlock>
+                        <TextBox x:Name="EditExpenseReceiptNote" PlaceholderText="Nhập mô tả"/>
+                    </StackPanel>
+                </Grid>
+            </ContentDialog>
+
+            <ContentDialog x:Name="AddExpenseReceiptDialog"
+                Title="Thêm phiếu chi mới"
+                CloseButtonText="Đóng"
+                PrimaryButtonText="Xác nhận"
+                PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+                CloseButtonClick="AddExpenseReceiptDialog_CloseButtonClick"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <Grid ColumnSpacing="10" Width="340">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.6*"/>
+                        <ColumnDefinition Width="0.4*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Loại phiếu chi"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <ComboBox x:Name="AddExpenseReceiptCategoryComboBox" 
+                                  ItemsSource="{Binding ExpenseCategoryViewModel.ExpenseCategories}" 
+                                  DisplayMemberPath="CategoryName" 
+                                  PlaceholderText="-- Chọn loại phiếu chi --"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Tiền"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <TextBox x:Name="AddExpenseReceiptAmount" PlaceholderText="Nhập số tiền" InputScope="Number"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Thời gian"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <CalendarDatePicker x:Name="AddExpenseReceiptDate" PlaceholderText="Chọn ngày"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Mô tả"/>
+                        </TextBlock>
+                        <TextBox x:Name="AddExpenseReceiptNote" PlaceholderText="Nhập mô tả"/>
+                    </StackPanel>
+                </Grid>
+            </ContentDialog>
+
+            <TextBlock Grid.Row="0" Text="Danh sách phiếu chi" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+            <Border Grid.Row="1" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top"/>
+
+            <Grid Grid.Row="2" Margin="0,10,0,10">
+                <tableView:TableView x:Name="MyTableView"
+                    ItemsSource="{x:Bind ExpenseViewModel.ExpenseReceipts}"
+                    AutoGenerateColumns="False"           
+                    SelectionMode="Single"
+                    CanFilterColumns="True"
+                    CanSortColumns="True"
+                    CornerButtonMode="Options"
+                    ShowExportOptions="True"
+                    HeaderGridLinesVisibility="All"
+                    GridLinesVisibility="All"
+                    SelectionChanged="OnSelectionChanged"
+                    IsReadOnly="True">
+                    <tableView:TableView.Columns>
+                        <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}"/>
+                        <tableView:TableViewTextColumn Header="Loại phiếu chi" Binding="{Binding ExpenseCategory.CategoryName}"/>
+                        <tableView:TableViewNumberColumn Header="Tiền" Binding="{Binding Amount, Converter={StaticResource vnmoney}}"/>
+                        <tableView:TableViewDateColumn Header="Thời gian" Binding="{Binding ExpenseDate}"/>
+                        <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Note}"/>
+                    </tableView:TableView.Columns>
+                </tableView:TableView>
             </Grid>
-        </ContentDialog>
 
-        <ContentDialog x:Name="AddExpenseReceiptDialog"
-            Title="Thêm phiếu chi mới"
-            CloseButtonText="Đóng"
-            PrimaryButtonText="Xác nhận"
-            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-            CloseButtonClick="AddExpenseReceiptDialog_CloseButtonClick"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-            <Grid Grid.Row="1" ColumnSpacing="10" Width="340">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.6*"/>
-                    <ColumnDefinition Width="0.4*"/>
-                </Grid.ColumnDefinitions>
+            <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
+                CornerRadius="{ThemeResource ControlCornerRadius}">
+                <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </Border>
 
-                <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Loại phiếu chi"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <ComboBox x:Name="AddExpenseReceiptCategoryComboBox" 
-                              ItemsSource="{Binding ExpenseCategoryViewModel.ExpenseCategories}" 
-                              DisplayMemberPath="CategoryName" 
-                              PlaceholderText="-- Chọn loại phiếu chi --"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1" Grid.Column="0"  Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Tiền"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <TextBox x:Name="AddExpenseReceiptAmount" PlaceholderText="Nhập số tiền" InputScope="Number"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Thời gian"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <CalendarDatePicker x:Name="AddExpenseReceiptDate" PlaceholderText="Chọn ngày"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Mô tả"/>
-                    </TextBlock>
-                    <TextBox x:Name="AddExpenseReceiptNote" PlaceholderText="Nhập mô tả"/>
-                </StackPanel>
-            </Grid>
-        </ContentDialog>
-        
-        <TextBlock Grid.Row="0" Text="Danh sách phiếu chi" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
-
-        <!--SelectorBar Grid.Row="1" Grid.Column="0" x:Name="SelectorBar" SelectionChanged="SelectorBar_SelectionChanged" >
-            <SelectorBarItem x:Name="IncomeSelectorBar" Text="Phiếu thu" IsSelected="True" />
-            <SelectorBarItem x:Name="ExpenseSelectorBar" Text="Phiếu chi" />
-        </SelectorBar-->
-
-        <Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
-
-        <!--AutoSuggestBox Grid.Row="2" PlaceholderText="Tìm kiếm" QueryIcon="Find" Margin="0,10,0,10"/-->
-        <Grid Grid.Row="2" Margin="0,10,0,10">
-            <tableView:TableView x:Name="MyTableView"
-                 ItemsSource="{x:Bind ExpenseViewModel.ExpenseReceipts}"
-                 AutoGenerateColumns="False"           
-                 SelectionMode="Single"
-                 CanFilterColumns="True"
-                 CanSortColumns="True"
-                 CornerButtonMode="Options"
-                 ShowExportOptions="True"
-                 HeaderGridLinesVisibility="All"
-                 GridLinesVisibility="All"
-                 SelectionChanged="OnSelectionChanged"
-                 IsReadOnly="True">
-                <tableView:TableView.Columns>
-                    <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
-                    
-                    <tableView:TableViewTextColumn Header="Loại phiếu chi" Binding="{Binding ExpenseCategory.CategoryName}" />
-                    
-                    <tableView:TableViewNumberColumn Header="Tiền" Binding="{Binding Amount, Converter={StaticResource vnmoney}}"/>
-
-                    <tableView:TableViewDateColumn Header="Thời gian" Binding="{Binding ExpenseDate}" />
-                    
-                    <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Note}" />
-
-                </tableView:TableView.Columns>
-            </tableView:TableView>
+            <StackPanel Grid.Row="4" Orientation="Horizontal">
+                <Button x:Name="editButton" Click="showEditExpenseReceiptDialog_Click" Style="{ThemeResource AccentButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE70F;" FontSize="14"/>
+                        <TextBlock x:Name="editButtonTextBlock" Text="Chỉnh sửa phiếu chi" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="deleteButton" Click="showDeleteExpenseReceiptDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                        <TextBlock x:Name="deleteButtonTextBlock" Text="Xóa phiếu chi" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="addButton" Click="showAddExpenseReceiptDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE710;" FontSize="14"/>
+                        <TextBlock x:Name="addButtonTextBlock" Text="Thêm phiếu chi" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Grid>
-        <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
-        CornerRadius="{ThemeResource ControlCornerRadius}">
-            <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-            </ListBox>
-        </Border>
-        
-        <StackPanel Grid.Row="4" Orientation="Horizontal">
-            <Button x:Name="editButton" Click="showEditExpenseReceiptDialog_Click" Style="{ThemeResource AccentButtonStyle}">
-                <StackPanel Orientation="Horizontal">
-                    <FontIcon Glyph="&#xE70F;" FontSize="14"/>
-                    <TextBlock x:Name="editButtonTextBlock" Text="Chỉnh sửa phiếu chi" Margin="5,0,0,0"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="deleteButton" Click="showDeleteExpenseReceiptDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
-                <StackPanel Orientation="Horizontal">
-                    <FontIcon Glyph="&#xE74D;" FontSize="14"/>
-                    <TextBlock x:Name="deleteButtonTextBlock" Text="Xóa phiếu chi" Margin="5,0,0,0"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="addButton" Click="showAddExpenseReceiptDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
-                <StackPanel Orientation="Horizontal">
-                    <FontIcon Glyph="&#xE710;" FontSize="14"/>
-                    <TextBlock x:Name="addButtonTextBlock" Text="Thêm phiếu chi" Margin="5,0,0,0"/>
-                </StackPanel>
-            </Button>
-        </StackPanel>
-        
-        
-    </Grid>
 
+        <muxc:ProgressRing x:Name="ProgressRing" 
+            IsActive="False"
+            Width="50"
+            Height="50"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Grid.Row="0"/>
+    </Grid>
 </Page>

@@ -17,27 +17,23 @@ using WinUI.TableView;
 using Kohi.Models;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
-using Kohi.Utils;
 using Kohi.Errors;
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using System.Threading.Tasks;
 
 namespace Kohi.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class IncomeExpensePage : Page
     {
         public IncomeViewModel IncomeViewModel { get; set; } = new IncomeViewModel();
         public ExpenseViewModel ExpenseViewModel { get; set; } = new ExpenseViewModel();
         public ExpenseCategoryViewModel ExpenseCategoryViewModel { get; set; } = new ExpenseCategoryViewModel();
         public ExpenseModel SelectedExpense { get; set; }
-        private readonly IErrorHandler _errorHandler; // Thêm IErrorHandler
+        private readonly IErrorHandler _errorHandler;
+        public bool IsLoading { get; set; } = false;
+
         public IncomeExpensePage()
         {
             this.InitializeComponent();
-            Loaded += ExpensesPage_Loaded;
             this.DataContext = this;
             var emptyInputHandler = new EmptyInputErrorHandler();
             var positiveNumberHandler = new PositiveNumberValidationErrorHandler(new List<string>
@@ -46,13 +42,44 @@ namespace Kohi.Views
             });
             emptyInputHandler.SetNext(positiveNumberHandler);
             _errorHandler = emptyInputHandler;
-            //GridContent.DataContext = IncomeViewModel;
+            Loaded += ExpensesPage_Loaded;
         }
 
-        public async void ExpensesPage_Loaded(object sender, RoutedEventArgs e)
+        private async void ExpensesPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await ExpenseViewModel.LoadData(); // Tải trang đầu tiên
-            UpdatePageList();
+            await LoadDataWithProgress();
+        }
+
+        private async Task LoadDataWithProgress(int page = 1)
+        {
+            try
+            {
+                IsLoading = true;
+                ProgressRing.IsActive = true;
+
+                await Task.WhenAll(
+                    ExpenseViewModel.LoadData(page),
+                    ExpenseCategoryViewModel.LoadData()
+                );
+                UpdatePageList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading expense receipts: {ex.Message}");
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = $"Không thể tải dữ liệu: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+                ProgressRing.IsActive = false;
+            }
         }
 
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -62,11 +89,6 @@ namespace Kohi.Views
                 SelectedExpense = selectedExpense;
                 Debug.WriteLine($"Selected Expense ID: {SelectedExpense.Id}");
             }
-        }
-
-        public void addButton_click(object sender, RoutedEventArgs e)
-        {
-
         }
 
         public void UpdatePageList()
@@ -83,38 +105,16 @@ namespace Kohi.Views
             var selectedPage = (int)pageList.SelectedItem;
             if (selectedPage != ExpenseViewModel.CurrentPage)
             {
-                await ExpenseViewModel.LoadData(selectedPage);
-                UpdatePageList();
+                await LoadDataWithProgress(selectedPage);
             }
         }
 
-        private void SelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
-        {
-            //if (sender.SelectedItem == IncomeSelectorBar)
-            //{
-            //    //ReceiptCategory.Text = "Loại phiếu thu";
-            //    //Amount.Text = "Số tiền thu";
-            //    addButtonTextBlock.Text = "Thêm phiếu thu";
-
-
-            //    //GridContent.DataContext = IncomeViewModel;
-            //}
-            //else if (sender.SelectedItem == ExpenseSelectorBar)
-            //{
-            //    //ReceiptCategory.Text = "Loại phiếu chi";
-            //    //Amount.Text = "Số tiền chi";
-            //    addButtonTextBlock.Text = "Thêm phiếu chi";
-            //    MyTableView.ItemsSource = ExpenseViewModel.ExpenseReceipts; 
-            //    //GridContent.DataContext = ExpenseViewModel;
-            //}
-        }
         private void AddExpenseReceiptDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            // Simply close the dialog without saving
         }
+
         private void EditExpenseReceiptDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            // Simply close the dialog without saving
         }
 
         public async void showDeleteExpenseReceiptDialog_Click(object sender, RoutedEventArgs e)
@@ -128,7 +128,6 @@ namespace Kohi.Views
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
-
                 await noSelectionDialog.ShowAsync();
                 return;
             }
@@ -147,9 +146,9 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                // Actually delete the expense receipt
                 await ExpenseViewModel.Delete(SelectedExpense.Id.ToString());
                 Debug.WriteLine($"Đã xóa phiếu chi ID: {SelectedExpense.Id}");
+                await LoadDataWithProgress(ExpenseViewModel.CurrentPage);
             }
             else
             {
@@ -168,16 +167,15 @@ namespace Kohi.Views
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
-
                 await noSelectionDialog.ShowAsync();
                 return;
             }
 
-            var selectedExpenseCategory = SelectedExpense.ExpenseCategory;
+            await ExpenseCategoryViewModel.LoadData();
+            var selectedExpenseCategory = ExpenseCategoryViewModel.ExpenseCategories.FirstOrDefault(c => c.Id == SelectedExpense.ExpenseCategoryId);
 
             Debug.WriteLine($"Editing expense receipt ID: {SelectedExpense.Id}");
             EditExpenseReceiptCategoryComboBox.SelectedItem = selectedExpenseCategory;
-            EditExpenseReceiptCategoryComboBox.SelectedIndex = selectedExpenseCategory.Id - 1;
             EditExpenseReceiptAmount.Text = SelectedExpense.Amount.ToString();
             EditExpenseReceiptDate.Date = SelectedExpense.ExpenseDate;
             EditExpenseReceiptNote.Text = SelectedExpense.Note;
@@ -185,11 +183,11 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                // Thêm: Kiểm tra bằng IErrorHandler
                 var fields = new Dictionary<string, string>
                 {
                     { "Loại phiếu chi", EditExpenseReceiptCategoryComboBox.SelectedItem != null ? "valid" : "" },
                     { "Số tiền", EditExpenseReceiptAmount.Text },
+                    { "Ngày", EditExpenseReceiptDate.Date != null ? "valid" : "" }
                 };
 
                 List<string> errors = _errorHandler.HandleError(fields);
@@ -206,7 +204,6 @@ namespace Kohi.Views
                     return;
                 }
 
-                // Thêm: Kiểm tra số tiền hợp lệ
                 if (!float.TryParse(EditExpenseReceiptAmount.Text, out float amount))
                 {
                     var errorDialog = new ContentDialog
@@ -219,34 +216,30 @@ namespace Kohi.Views
                     await errorDialog.ShowAsync();
                     return;
                 }
+
                 selectedExpenseCategory = EditExpenseReceiptCategoryComboBox.SelectedItem as ExpenseCategoryModel;
-                // Update the expense model
                 SelectedExpense.ExpenseCategoryId = selectedExpenseCategory.Id;
-                SelectedExpense.Amount = float.Parse(EditExpenseReceiptAmount.Text);
+                SelectedExpense.Amount = amount;
                 SelectedExpense.ExpenseDate = EditExpenseReceiptDate.Date.Value.DateTime;
                 SelectedExpense.Note = EditExpenseReceiptNote.Text;
-                // Save changes
+
                 await ExpenseViewModel.Update(SelectedExpense.Id.ToString(), SelectedExpense);
-                // Refresh data
-                await ExpenseViewModel.LoadData();
-                UpdatePageList();
+                await LoadDataWithProgress(ExpenseViewModel.CurrentPage);
             }
         }
 
         public async void showAddExpenseReceiptDialog_Click(object sender, RoutedEventArgs e)
         {
-
-            // Clear form fields
+            await ExpenseCategoryViewModel.LoadData();
             AddExpenseReceiptCategoryComboBox.SelectedItem = null;
             AddExpenseReceiptAmount.Text = string.Empty;
-            AddExpenseReceiptDate.Date = DateTime.Today; // Set to current date
+            AddExpenseReceiptDate.Date = DateTime.Today;
             AddExpenseReceiptNote.Text = string.Empty;
 
             var result = await AddExpenseReceiptDialog.ShowAsync();
 
             if (result == ContentDialogResult.Primary)
             {
-                // Thêm: Kiểm tra bằng IErrorHandler
                 var fields = new Dictionary<string, string>
                 {
                     { "Loại phiếu chi", AddExpenseReceiptCategoryComboBox.SelectedItem != null ? "valid" : "" },
@@ -268,7 +261,6 @@ namespace Kohi.Views
                     return;
                 }
 
-                // Thêm: Kiểm tra số tiền hợp lệ
                 if (!float.TryParse(AddExpenseReceiptAmount.Text, out float amount))
                 {
                     var errorDialog = new ContentDialog
@@ -281,18 +273,18 @@ namespace Kohi.Views
                     await errorDialog.ShowAsync();
                     return;
                 }
+
                 var selectedExpenseCategory = AddExpenseReceiptCategoryComboBox.SelectedItem as ExpenseCategoryModel;
-                // Create new expense
                 var newExpense = new ExpenseModel
                 {
                     ExpenseCategoryId = selectedExpenseCategory.Id,
-                    Amount = float.Parse(AddExpenseReceiptAmount.Text),
+                    Amount = amount,
                     ExpenseDate = AddExpenseReceiptDate.Date.Value.DateTime,
                     Note = AddExpenseReceiptNote.Text
                 };
 
-                // Add to database
                 await ExpenseViewModel.Add(newExpense);
+                await LoadDataWithProgress();
             }
         }
     }

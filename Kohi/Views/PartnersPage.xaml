@@ -6,6 +6,7 @@
     xmlns:local="using:Kohi.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     xmlns:tableView="using:WinUI.TableView"
     xmlns:converter="using:Kohi.Views.Converter">
@@ -52,7 +53,7 @@
                     </TextBlock>
                     <TextBox x:Name="SupplierPhoneNumberTextBox" PlaceholderText="Nhập số điện thoại"/>
                 </StackPanel>
-                
+
                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
                         <Run Text="Email"/>
@@ -87,8 +88,8 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                <Run Text="Họ và tên"/>
-                <Run Text="*" Foreground="Red"/>
+                        <Run Text="Họ và tên"/>
+                        <Run Text="*" Foreground="Red"/>
                     </TextBlock>
                     <TextBox x:Name="CustomerNameTextBox" PlaceholderText="Nhập họ và tên"/>
                 </StackPanel>
@@ -103,7 +104,7 @@
 
                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                <Run Text="Email"/>
+                        <Run Text="Email"/>
                     <!--Run Text="*" Foreground="Red"/-->
                     </TextBlock>
                     <TextBox x:Name="CustomerEmailTextBox" PlaceholderText="Nhập email"/>
@@ -111,7 +112,7 @@
 
                 <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                <Run Text="Địa chỉ"/>
+                        <Run Text="Địa chỉ"/>
                     </TextBlock>
                     <TextBox x:Name="CustomerAddressTextBox" PlaceholderText="Nhập địa chỉ"/>
                 </StackPanel>
@@ -119,13 +120,13 @@
         </ContentDialog>
 
         <ContentDialog x:Name="SupplierEditDialog"
-        Title="Chỉnh sửa cung cấp"
-        CloseButtonText="Đóng"
-        PrimaryButtonText="Xác nhận"
-        PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-        CloseButtonClick="SupplierDialog_CloseButtonClick"
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center">
+            Title="Chỉnh sửa cung cấp"
+            CloseButtonText="Đóng"
+            PrimaryButtonText="Xác nhận"
+            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+            CloseButtonClick="SupplierDialog_CloseButtonClick"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
             <Grid Grid.Row="1" ColumnSpacing="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -135,31 +136,31 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                <Run Text="Tên"/>
-                <Run Text="*" Foreground="Red"/>
+                        <Run Text="Tên"/>
+                        <Run Text="*" Foreground="Red"/>
                     </TextBlock>
                     <TextBox x:Name="EditSupplierNameTextBox" PlaceholderText="Nhập họ và tên"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                <Run Text="Số điện thoại"/>
-                <!--Run Text="*" Foreground="Red"/-->
+                        <Run Text="Số điện thoại"/>
+                        <!--Run Text="*" Foreground="Red"/-->
                     </TextBlock>
                     <TextBox x:Name="EditSupplierPhoneNumberTextBox" PlaceholderText="Nhập số điện thoại"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                <Run Text="Email"/>
-                <!--Run Text="*" Foreground="Red"/-->
+                        <Run Text="Email"/>
+                        <!--Run Text="*" Foreground="Red"/-->
                     </TextBlock>
                     <TextBox x:Name="EditSupplierEmailTextBox" PlaceholderText="Nhập email"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                <Run Text="Địa chỉ"/>
+                        <Run Text="Địa chỉ"/>
                     </TextBlock>
                     <TextBox x:Name="EditSupplierAddressTextBox" PlaceholderText="Nhập địa chỉ"/>
                 </StackPanel>
@@ -167,13 +168,13 @@
         </ContentDialog>
 
         <ContentDialog x:Name="CustomerEditDialog"
-        Title="Chỉnh sửa khách hàng"
-        CloseButtonText="Đóng"
-        PrimaryButtonText="Xác nhận"
-        PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-        CloseButtonClick="CustomerDialog_CloseButtonClick"
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center">
+            Title="Chỉnh sửa khách hàng"
+            CloseButtonText="Đóng"
+            PrimaryButtonText="Xác nhận"
+            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+            CloseButtonClick="CustomerDialog_CloseButtonClick"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
             <Grid Grid.Row="1" ColumnSpacing="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -183,31 +184,31 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-        <Run Text="Họ và tên"/>
-        <Run Text="*" Foreground="Red"/>
+                        <Run Text="Họ và tên"/>
+                        <Run Text="*" Foreground="Red"/>
                     </TextBlock>
                     <TextBox x:Name="EditCustomerNameTextBox" PlaceholderText="Nhập họ và tên"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-                <Run Text="Số điện thoại"/>
-                <!--Run Text="*" Foreground="Red"/-->
+                        <Run Text="Số điện thoại"/>
+                        <!--Run Text="*" Foreground="Red"/-->
                     </TextBlock>
                     <TextBox x:Name="EditCustomerPhoneNumberTextBox" PlaceholderText="Nhập số điện thoại"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-        <Run Text="Email"/>
-            <!--Run Text="*" Foreground="Red"/-->
+                        <Run Text="Email"/>
+                        <!--Run Text="*" Foreground="Red"/-->
                     </TextBlock>
                     <TextBox x:Name="EditCustomerEmailTextBox" PlaceholderText="Nhập email"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,10">
                     <TextBlock Margin="0,0,0,5">
-        <Run Text="Địa chỉ"/>
+                        <Run Text="Địa chỉ"/>
                     </TextBlock>
                     <TextBox x:Name="EditCustomerAddressTextBox" PlaceholderText="Nhập địa chỉ"/>
                 </StackPanel>
@@ -225,17 +226,17 @@
 
         <Grid Grid.Row="2" Margin="0,10,0,10">
             <tableView:TableView x:Name="MyTableView"
-             ItemsSource="{Binding ViewModel.Customers}"
-             AutoGenerateColumns="False"           
-             SelectionMode="Single"
-             CanFilterColumns="True"
-             CanSortColumns="True"
-             CornerButtonMode="Options"
-             ShowExportOptions="True"
-             HeaderGridLinesVisibility="All"
-             GridLinesVisibility="All"
-             SelectionChanged="OnSelectionChanged"
-             IsReadOnly="True">
+                ItemsSource="{Binding ViewModel.Customers}"
+                AutoGenerateColumns="False"           
+                SelectionMode="Single"
+                CanFilterColumns="True"
+                CanSortColumns="True"
+                CornerButtonMode="Options"
+                ShowExportOptions="True"
+                HeaderGridLinesVisibility="All"
+                GridLinesVisibility="All"
+                SelectionChanged="OnSelectionChanged"
+                IsReadOnly="True">
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
                     <tableView:TableViewTextColumn Header="Tên" Binding="{Binding Name}" />
@@ -245,8 +246,9 @@
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
+
         <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
-    CornerRadius="{ThemeResource ControlCornerRadius}">
+            CornerRadius="{ThemeResource ControlCornerRadius}">
             <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -255,7 +257,15 @@
                 </ListBox.ItemsPanel>
             </ListBox>
         </Border>
-        
+
+        <muxc:ProgressRing x:Name="ProgressRing" 
+            IsActive="False"
+            Width="50"
+            Height="50"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Grid.Row="3"/>
+
         <StackPanel Grid.Row="4" Orientation="Horizontal" Width="Auto">
             <Button x:Name="editButton" Style="{ThemeResource AccentButtonStyle}">
                 <StackPanel Orientation="Horizontal">
@@ -276,6 +286,5 @@
                 </StackPanel>
             </Button>
         </StackPanel>
-        
     </Grid>
 </Page>

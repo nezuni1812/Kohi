@@ -32,16 +32,16 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        
+
         <ContentDialog x:Name="OutboundDialog"
-    Title="Xuất kho hàng hóa"
-    CloseButtonText="Đóng"
-    PrimaryButtonText="Xác nhận"
-    PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-    PrimaryButtonClick="OutboundDialog_PrimaryButtonClick"
-    CloseButtonClick="OutboundDialog_CloseButtonClick"
-    HorizontalAlignment="Center"
-    VerticalAlignment="Center">
+            Title="Xuất kho hàng hóa"
+            CloseButtonText="Đóng"
+            PrimaryButtonText="Xác nhận"
+            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+            PrimaryButtonClick="OutboundDialog_PrimaryButtonClick"
+            CloseButtonClick="OutboundDialog_CloseButtonClick"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
             <Grid Width="350" ColumnSpacing="10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -81,62 +81,55 @@
                 <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
                     <TextBlock Text="Lý do" Margin="0,0,0,5"/>
                     <TextBox x:Name="OutboundReasonTextBox" PlaceholderText="Nhập lý do xuất kho" 
-                     AcceptsReturn="True"
-                     TextWrapping="Wrap" 
-                     Height="50"/>
+                        AcceptsReturn="True"
+                        TextWrapping="Wrap" 
+                        Height="50"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="0,0,0,10">
                     <TextBlock Text="Ghi chú" Margin="0,0,0,5"/>
                     <TextBox x:Name="OutboundNotesTextBox" PlaceholderText="Nhập ghi chú"
-                     AcceptsReturn="True" 
-                     TextWrapping="Wrap" 
-                     Height="50"/>
+                        AcceptsReturn="True" 
+                        TextWrapping="Wrap" 
+                        Height="50"/>
                 </StackPanel>
             </Grid>
         </ContentDialog>
-        
+
         <TextBlock Grid.Row="0" Text="Xuất kho" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
 
         <Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
 
         <Grid Grid.Row="2" Margin="0,10,0,10">
             <tableView:TableView x:Name="MyTableView"
-         ItemsSource="{x:Bind OutboundViewModel.Outbounds}"
-         AutoGenerateColumns="False"           
-         SelectionMode="Single"
-         CanFilterColumns="True"
-         CanSortColumns="True"
-         CornerButtonMode="Options"
-         ShowExportOptions="True"
-         HeaderGridLinesVisibility="All"
-         GridLinesVisibility="All"
-         SelectionChanged="OnSelectionChanged"
-         IsReadOnly="True">
+                ItemsSource="{x:Bind OutboundViewModel.Outbounds}"
+                AutoGenerateColumns="False"           
+                SelectionMode="Single"
+                CanFilterColumns="True"
+                CanSortColumns="True"
+                CornerButtonMode="Options"
+                ShowExportOptions="True"
+                HeaderGridLinesVisibility="All"
+                GridLinesVisibility="All"
+                SelectionChanged="OnSelectionChanged"
+                IsReadOnly="True">
                 <tableView:TableView.Columns>
                     <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}" />
                     <tableView:TableViewNumberColumn Header="Mã lô hàng" Binding="{Binding InventoryId }" />
-
-
                     <tableView:TableViewTextColumn Header="Tên nguyên liệu" Binding="{Binding Inventory.Inbound.Ingredient.Name }" />
-                    <tableView:TableViewNumberColumn Header="Đơn vị" Binding="{Binding Inventory.Inbound.Ingredient.Unit}" />
-
+                    <tableView:TableViewTextColumn Header="Đơn vị" Binding="{Binding Inventory.Inbound.Ingredient.Unit}" />
                     <tableView:TableViewNumberColumn Header="SL xuất" Binding="{Binding Quantity }" />
                     <tableView:TableViewNumberColumn Header="SL còn lại" Binding="{Binding Inventory.Quantity }" />
-
                     <tableView:TableViewDateColumn Header="Ngày xuất kho " Binding="{Binding OutboundDate}" />
                     <tableView:TableViewTextColumn Header="Lí do xuất kho" Binding="{Binding Purpose}" />
-
                     <tableView:TableViewTextColumn Header="Nhà cung cấp" Binding="{Binding Inventory.Inbound.Supplier.Name}" />
-
-
                     <tableView:TableViewTextColumn Header="Ghi chú" Binding="{Binding Notes }" CanFilter="False"/>
-
                 </tableView:TableView.Columns>
             </tableView:TableView>
         </Grid>
+
         <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
-        CornerRadius="{ThemeResource ControlCornerRadius}">
+            CornerRadius="{ThemeResource ControlCornerRadius}">
             <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -146,7 +139,15 @@
             </ListBox>
         </Border>
 
-        <StackPanel Grid.Row="4" Orientation="Horizontal">
+        <muxc:ProgressRing x:Name="ProgressRing" 
+            IsActive="False"
+            Width="50"
+            Height="50"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Grid.Row="3"/>
+
+        <!--StackPanel Grid.Row="4" Orientation="Horizontal">
             <Button IsEnabled="False" x:Name="editButton" Click="showEditInfoDialog_Click" Style="{StaticResource AccentButtonStyle}">
                 <StackPanel Orientation="Horizontal">
                     <FontIcon Glyph="&#xE70F;" FontSize="14"/>
@@ -159,8 +160,6 @@
                     <TextBlock Text="Xóa lô hàng" Margin="5,0,0,0"/>
                 </StackPanel>
             </Button>
-        </StackPanel>
-
-        
+        </StackPanel-->
     </Grid>
 </Page>

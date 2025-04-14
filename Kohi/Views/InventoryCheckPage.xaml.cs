@@ -16,6 +16,8 @@ using Kohi.Models;
 using Kohi.ViewModels;
 using System.Diagnostics;
 using WinUI.TableView;
+using System.Threading.Tasks; // Added for Task
+
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -30,17 +32,47 @@ namespace Kohi.Views
         public InventoryCheckViewModel InventoryCheckViewModel { get; set; } = new InventoryCheckViewModel();
         public CheckInventoryModel? SelectedCheckInventory { get; set; }
         public int SelectedCheckInventoryId = -1;
+        public bool IsLoading { get; set; } = false;
+
         public InventoryCheckPage()
         {
             this.InitializeComponent();
-            Loaded += InventoryChecksPage_Loaded;
+            Loaded += InventoryCheckPage_Loaded;
 
             //GridContent.DataContext = IncomeViewModel;
         }
-        public async void InventoryChecksPage_Loaded(object sender, RoutedEventArgs e)
+        private async void InventoryCheckPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await InventoryCheckViewModel.LoadData(); // Tải trang đầu tiên
-            UpdatePageList();
+            await LoadDataWithProgress();
+        }
+
+        private async Task LoadDataWithProgress(int page = 1)
+        {
+            try
+            {
+                IsLoading = true;
+                ProgressRing.IsActive = true;
+
+                await InventoryCheckViewModel.LoadData(page);
+                UpdatePageList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading inventory checks: {ex.Message}");
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = $"Không thể tải dữ liệu: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+                ProgressRing.IsActive = false;
+            }
         }
 
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -77,8 +109,7 @@ namespace Kohi.Views
             var selectedPage = (int)pageList.SelectedItem;
             if (selectedPage != InventoryCheckViewModel.CurrentPage)
             {
-                await InventoryCheckViewModel.LoadData(selectedPage);
-                UpdatePageList();
+                await LoadDataWithProgress(selectedPage);
             }
         }
         public async void showEditInfoDialog_Click(object sender, RoutedEventArgs e)
@@ -110,7 +141,7 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                
+
             }
         }
 

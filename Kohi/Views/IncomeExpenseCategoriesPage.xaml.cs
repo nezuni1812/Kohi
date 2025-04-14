@@ -14,24 +14,20 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using Windows.Gaming.Preview.GamesEnumeration;
 using WinUI.TableView;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Kohi.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class IncomeExpenseCategoriesPage : Page
     {
         public ExpenseCategoryViewModel ExpenseCategoryViewModel { get; set; } = new ExpenseCategoryViewModel();
         public ExpenseCategoryModel? SelectedExpenseCategory { get; set; }
-        private readonly IErrorHandler _errorHandler; // Thêm IErrorHandler
+        private readonly IErrorHandler _errorHandler;
+        public bool IsLoading { get; set; } = false;
+
         public IncomeExpenseCategoriesPage()
         {
             this.InitializeComponent();
@@ -41,10 +37,38 @@ namespace Kohi.Views
             Loaded += ExpenseCategoriesPage_Loaded;
         }
 
-        public async void ExpenseCategoriesPage_Loaded(object sender, RoutedEventArgs e)
+        private async void ExpenseCategoriesPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await ExpenseCategoryViewModel.LoadData();
-            UpdatePageList();
+            await LoadDataWithProgress();
+        }
+
+        private async Task LoadDataWithProgress(int page = 1)
+        {
+            try
+            {
+                IsLoading = true;
+                ProgressRing.IsActive = true;
+
+                await ExpenseCategoryViewModel.LoadData(page);
+                UpdatePageList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading expense categories: {ex.Message}");
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = $"Không thể tải dữ liệu: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+                ProgressRing.IsActive = false;
+            }
         }
 
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -52,9 +76,10 @@ namespace Kohi.Views
             if (sender is TableView tableView && tableView.SelectedItem is ExpenseCategoryModel expenseCategory)
             {
                 SelectedExpenseCategory = expenseCategory;
-                Debug.WriteLine($"Selected Customer ID: {SelectedExpenseCategory.Id}");
+                Debug.WriteLine($"Selected Expense Category ID: {SelectedExpenseCategory.Id}");
             }
         }
+
         public void UpdatePageList()
         {
             if (ExpenseCategoryViewModel == null) return;
@@ -69,20 +94,17 @@ namespace Kohi.Views
             var selectedPage = (int)pageList.SelectedItem;
             if (selectedPage != ExpenseCategoryViewModel.CurrentPage)
             {
-                await ExpenseCategoryViewModel.LoadData(selectedPage);
-                UpdatePageList();
+                await LoadDataWithProgress(selectedPage);
             }
         }
 
         private void ExpenseCategoryDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             args.Cancel = true;
-
         }
 
         private void ExpenseCategoryDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-
         }
 
         public async void showDeleteExpenseCategoryDialog_Click(object sender, RoutedEventArgs e)
@@ -99,6 +121,7 @@ namespace Kohi.Views
                 await noSelectionDialog.ShowAsync();
                 return;
             }
+
             var deleteDialog = new ContentDialog
             {
                 Title = "Xác nhận xóa",
@@ -115,6 +138,7 @@ namespace Kohi.Views
             {
                 await ExpenseCategoryViewModel.Delete(SelectedExpenseCategory.Id.ToString());
                 Debug.WriteLine("Đã xóa danh mục");
+                await LoadDataWithProgress(ExpenseCategoryViewModel.CurrentPage);
             }
             else
             {
@@ -133,7 +157,6 @@ namespace Kohi.Views
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
-
                 await noSelectionDialog.ShowAsync();
                 return;
             }
@@ -162,30 +185,29 @@ namespace Kohi.Views
                     await errorDialog.ShowAsync();
                     return;
                 }
+
                 SelectedExpenseCategory.CategoryName = EditExpenseCategoryName.Text;
                 SelectedExpenseCategory.Description = EditExpenseCategoryNote.Text;
                 await ExpenseCategoryViewModel.Update(SelectedExpenseCategory.Id.ToString(), SelectedExpenseCategory);
+                await LoadDataWithProgress(ExpenseCategoryViewModel.CurrentPage);
             }
         }
 
         private void AddExpenseCategoryDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            // Simply close the dialog
         }
+
         private void EditExpenseCategoryDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            // Simply close the dialog without saving changes
         }
+
         public async void showAddExpenseCategoryDialog_Click(object sender, RoutedEventArgs e)
         {
-            // Clear any existing values in the dialog fields
             expenseCategoryName.Text = string.Empty;
             expenseCategoryNote.Text = string.Empty;
 
-            // Show the dialog
             var result = await AddExpenseCategoryDialog.ShowAsync();
 
-            // Process the result if Primary button was clicked (Confirm)
             if (result == ContentDialogResult.Primary)
             {
                 var fields = new Dictionary<string, string>
@@ -207,19 +229,14 @@ namespace Kohi.Views
                     return;
                 }
 
-                // Create new expense category
                 var newCategory = new ExpenseCategoryModel
                 {
                     CategoryName = expenseCategoryName.Text,
                     Description = expenseCategoryNote.Text
                 };
 
-                // Add to database
                 await ExpenseCategoryViewModel.Add(newCategory);
-
-                // Refresh data
-                await ExpenseCategoryViewModel.LoadData();
-                UpdatePageList();
+                await LoadDataWithProgress();
             }
         }
     }

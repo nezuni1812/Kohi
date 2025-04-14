@@ -40,6 +40,7 @@ namespace Kohi.Views
     {
         public HomePageViewModel ViewModel { get; set; } = new HomePageViewModel();
         private readonly DistanceService _distanceService = new DistanceService();
+        public bool IsLoading { get; set; } = false;
         public HomePage()
         {
             this.InitializeComponent();
@@ -58,18 +59,31 @@ namespace Kohi.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
+            await LoadDataWithProgress();
+        }
+        private async Task LoadDataWithProgress()
+        {
             try
             {
-                await ViewModel.ProductViewModel.LoadData();
-                await ViewModel.CategoryViewModel.LoadData();
+                IsLoading = true;
+                ProgressRing.IsActive = true;
+
+                await Task.WhenAll(
+                    ViewModel.ProductViewModel.LoadData(),
+                    ViewModel.CategoryViewModel.LoadData()
+                );
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error reloading customers: {ex.Message}");
+                await ShowErrorContentDialog(this.XamlRoot, $"Lỗi khi tải dữ liệu: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+                ProgressRing.IsActive = false;
             }
         }
-
 
         private void onCategorySelectionChanged(object sender, ItemsViewSelectionChangedEventArgs e)
         {

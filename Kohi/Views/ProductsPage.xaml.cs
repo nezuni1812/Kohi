@@ -1,48 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Kohi.Models;
 using Kohi.ViewModels;
 using System.Diagnostics;
 using WinUI.TableView;
-using Microsoft.UI.Xaml.Media.Animation;
-using System.Threading.Tasks;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Kohi.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class ProductsPage : Page
     {
         public ProductModel? SelectedProduct { get; set; }
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
         public ProductVariantViewModel ProductVariantViewModel { get; set; } = new ProductVariantViewModel();
         public RecipeDetailViewModel RecipeDetailViewModel { get; set; } = new RecipeDetailViewModel();
+        public bool IsLoading { get; set; } = false;
+
         public ProductsPage()
         {
             this.InitializeComponent();
             Loaded += ProductPage_Loaded;
-            //GridContent.DataContext = IncomeViewModel;
         }
-        public async void ProductPage_Loaded(object sender, RoutedEventArgs e)
+
+        private async void ProductPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await ProductViewModel.LoadData(); // Tải trang đầu tiên
-            UpdatePageList();
+            await LoadDataWithProgress();
+        }
+
+        private async Task LoadDataWithProgress(int page = 1)
+        {
+            try
+            {
+                IsLoading = true;
+                ProgressRing.IsActive = true;
+                await ProductViewModel.LoadData(page);
+                UpdatePageList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading products: {ex.Message}");
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = $"Không thể tải dữ liệu sản phẩm: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+                ProgressRing.IsActive = false;
+            }
         }
 
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -50,10 +65,14 @@ namespace Kohi.Views
             if (sender is TableView tableView && tableView.SelectedItem is ProductModel selected)
             {
                 SelectedProduct = selected;
+                editButton.IsEnabled = true;
+                deleteButton.IsEnabled = true;
             }
             else
             {
                 SelectedProduct = null;
+                editButton.IsEnabled = false;
+                deleteButton.IsEnabled = false;
             }
         }
 
@@ -61,9 +80,7 @@ namespace Kohi.Views
         {
             Frame rootFrame = new Frame();
             this.Content = rootFrame;
-
             rootFrame.Navigate(typeof(AddNewProductPage), null);
-            // Logic thêm khách hàng
         }
 
         public async void showDeleteProductDialog_Click(object sender, RoutedEventArgs e)
@@ -98,13 +115,12 @@ namespace Kohi.Views
             {
                 try
                 {
-                    // 1. Lấy tất cả ProductVariants liên quan đến SelectedProduct.Id
-                    var allVariants = await ProductVariantViewModel.GetByProductId(SelectedProduct.Id);
+                    IsLoading = true;
+                    ProgressRing.IsActive = true;
 
-                    // 2. Xóa tất cả RecipeDetails liên quan đến từng ProductVariant
+                    var allVariants = await ProductVariantViewModel.GetByProductId(SelectedProduct.Id);
                     foreach (var variant in allVariants)
                     {
-                        // Giả định có phương thức GetByProductVariantId để lấy RecipeDetails
                         var recipeDetails = await RecipeDetailViewModel.GetByProductVariantId(variant.Id);
                         foreach (var recipeDetail in recipeDetails)
                         {
@@ -114,7 +130,6 @@ namespace Kohi.Views
                     }
                     Debug.WriteLine("Đã xóa hết RecipeDetails");
 
-                    // 3. Xóa từng ProductVariant
                     foreach (var variant in allVariants)
                     {
                         await ProductVariantViewModel.Delete(variant.Id.ToString());
@@ -122,18 +137,28 @@ namespace Kohi.Views
                     }
                     Debug.WriteLine("Đã xóa hết ProductVariants");
 
-                    // 4. Xóa Product sau khi đã xóa hết ProductVariants
                     await ProductViewModel.Delete(SelectedProduct.Id.ToString());
                     Debug.WriteLine($"Đã xóa sản phẩm ID: {SelectedProduct.Id}");
 
-                    // 5. Cập nhật lại danh sách sản phẩm và đặt lại SelectedProduct
-                    await ProductViewModel.LoadData(ProductViewModel.CurrentPage);
+                    await LoadDataWithProgress(ProductViewModel.CurrentPage);
                     SelectedProduct = null;
-                    UpdatePageList();
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = $"Không thể xóa sản phẩm: {ex.Message}",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                }
+                finally
+                {
+                    IsLoading = false;
+                    ProgressRing.IsActive = false;
                 }
             }
             else
@@ -142,7 +167,7 @@ namespace Kohi.Views
             }
         }
 
-        public async void showEditProduct_Click(object sender, RoutedEventArgs e)
+        public void showEditProduct_Click(object sender, RoutedEventArgs e)
         {
             if (SelectedProduct == null)
             {
@@ -154,7 +179,7 @@ namespace Kohi.Views
                     XamlRoot = this.XamlRoot
                 };
 
-                await noSelectionDialog.ShowAsync();
+                noSelectionDialog.ShowAsync();
                 return;
             }
 
@@ -177,8 +202,7 @@ namespace Kohi.Views
             var selectedPage = (int)pageList.SelectedItem;
             if (selectedPage != ProductViewModel.CurrentPage)
             {
-                await ProductViewModel.LoadData(selectedPage);
-                UpdatePageList();
+                await LoadDataWithProgress(selectedPage);
             }
         }
     }
