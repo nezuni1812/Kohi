@@ -1,0 +1,12 @@
+Product,DayOfWeek,Month,Temperature,SalesCount
+Latte,1,1,10.5,34
+Latte,2,1,11.0,37
+Latte,3,1,13.0,40
+Muffin,4,1,14.0,22
+Latte,5,1,16.5,45
+Muffin,6,1,17.5,25
+Muffin,0,1,8.0,20
+Latte,1,2,12.5,38
+Muffin,2,2,9.5,18
+Latte,3,2,15.0,42
+

@@ -200,6 +200,7 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="Trang chủ" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <Button Click="trainAndPredict">Train and predict</Button>
 
             <TextBlock Grid.Row="1" Text="Danh mục" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
