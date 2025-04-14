@@ -155,5 +155,63 @@ namespace Kohi.ViewModels
                 // Xử lý lỗi (tùy chọn)
             }
         }
+
+        public async Task<List<InvoiceModel>> GetAllWithDetails()
+        {
+            try
+            {
+                var invoices = _dao.Invoices.GetAll(1, 1000); // Đồng bộ
+                if (invoices == null || !invoices.Any())
+                {
+                    Debug.WriteLine("GetAll: No invoices found.");
+                    return new List<InvoiceModel>();
+                }
+                Debug.WriteLine($"GetAll: Loaded {invoices.Count} invoices");
+
+                var allInvoiceDetails = _dao.InvoiceDetails.GetAll(1, 1000); // Đồng bộ
+                if (allInvoiceDetails == null || !allInvoiceDetails.Any())
+                {
+                    Debug.WriteLine("GetAll: No invoice details found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetAll: Loaded {allInvoiceDetails.Count} invoice details");
+                }
+
+                var allProductVariants = _dao.ProductVariants.GetAll(1, 1000); // Đồng bộ
+                if (allProductVariants == null || !allProductVariants.Any())
+                {
+                    Debug.WriteLine("GetAll: No product variants found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetAll: Loaded {allProductVariants.Count} product variants");
+                }
+
+                foreach (var invoice in invoices)
+                {
+                    var detailsForInvoice = allInvoiceDetails?.Where(d => d.InvoiceId == invoice.Id).ToList() ?? new List<InvoiceDetailModel>();
+                    invoice.InvoiceDetails = detailsForInvoice;
+
+                    foreach (var detail in invoice.InvoiceDetails)
+                    {
+                        detail.ProductVariant = allProductVariants?.FirstOrDefault(pv => pv.Id == detail.ProductId);
+                        if (detail.ProductVariant == null)
+                        {
+                            Debug.WriteLine($"InvoiceDetail {detail.Id} has no matching ProductVariant for ProductId {detail.ProductId}");
+                        }
+                    }
+
+                    Debug.WriteLine($"Invoice {invoice.Id} has {invoice.InvoiceDetails.Count} details");
+                }
+
+                return invoices;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetAll: {ex.Message}");
+                return new List<InvoiceModel>(); 
+            }
+        }
     }
 }
