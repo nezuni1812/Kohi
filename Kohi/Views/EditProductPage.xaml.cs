@@ -409,7 +409,7 @@ namespace Kohi.Views
 
                     if (variant.Id <= 0)
                     {
-                        throw new Exception($"ProductVariant Size = {variant.Size} không được lưu đúng, Id = {variant.Id}");
+                        Debug.WriteLine($"ProductVariant Size = {variant.Size} không được lưu đúng, Id = {variant.Id}");
                     }
                     _currentProduct.ProductVariants.Add(variant);
                 }
