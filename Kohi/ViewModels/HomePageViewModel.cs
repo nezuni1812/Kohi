@@ -14,12 +14,12 @@ namespace Kohi.ViewModels
     {
         public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel(1000);
-        public OrderToppingViewModel OrderToppingViewModel { get; set; } = new OrderToppingViewModel();
-        public InvoiceDetailViewModel InvoiceDetailViewModel { get; set; } = new InvoiceDetailViewModel();
+        // public OrderToppingViewModel OrderToppingViewModel { get; set; } = new OrderToppingViewModel();
+        // public InvoiceDetailViewModel InvoiceDetailViewModel { get; set; } = new InvoiceDetailViewModel();
         public CustomerViewModel CustomerViewModel { get; set; } = new CustomerViewModel();
-        public PaymentViewModel PaymentViewModel { get; set; } = new PaymentViewModel();
+        // public PaymentViewModel PaymentViewModel { get; set; } = new PaymentViewModel();
         public InvoiceViewModel InvoiceViewModel { get; set; } = new InvoiceViewModel();
-        public InvoiceTaxViewModel InvoiceTaxViewModel { get; set; } = new InvoiceTaxViewModel();
+        // public InvoiceTaxViewModel InvoiceTaxViewModel { get; set; } = new InvoiceTaxViewModel();
         private FullObservableCollection<ProductModel> _allProducts => new FullObservableCollection<ProductModel>(
             ProductViewModel.Products.Where(p => p.IsTopping != true));
         public FullObservableCollection<ProductModel> FilteredProducts { get; set; }
@@ -35,23 +35,29 @@ namespace Kohi.ViewModels
 
         public FullObservableCollection<InvoiceModel> Invoice = new FullObservableCollection<InvoiceModel>();
 
+        private IEnumerable<ProductModel> GetAllProducts()
+        {
+            return ProductViewModel.Products.Where(p => p.IsTopping != true);
+        }
+
         public HomePageViewModel()
         {
             FilteredProducts = new FullObservableCollection<ProductModel>(_allProducts);
         }
+
         public void FilterProductsByCategory(int? categoryId)
         {
             FilteredProducts.Clear();
             if (categoryId == null)
             {
-                foreach (var product in _allProducts)
+                foreach (var product in GetAllProducts())
                 {
                     FilteredProducts.Add(product);
                 }
             }
             else
             {
-                var filtered = _allProducts.Where(p => p.CategoryId == categoryId);
+                var filtered = GetAllProducts().Where(p => p.CategoryId == categoryId);
                 foreach (var product in filtered)
                 {
                     FilteredProducts.Add(product);

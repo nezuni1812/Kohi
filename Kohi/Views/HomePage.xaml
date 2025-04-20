@@ -206,7 +206,7 @@
                     HorizontalScrollMode="Enabled" 
                     VerticalScrollMode="Disabled"
                     Padding="0,0,0,15">
-                    <Grid HorizontalAlignment="Stretch" MinWidth="500" Padding="0,0,50,0" VerticalAlignment="Center">
+                    <Grid HorizontalAlignment="Left" MaxWidth="500" Padding="0,0,50,0" VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
