@@ -54,7 +54,7 @@ namespace Kohi
         protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             SyncfusionLicenseProvider.RegisterLicense("");
-            m_window = MainWindow;
+            m_window = new MainWindow();
             m_window.Activate();
 
             await CheckDatabaseConnectionAsync();
@@ -86,7 +86,7 @@ namespace Kohi
                 Content = message,
                 CloseButtonText = "Xác nhận",
                 DefaultButton = ContentDialogButton.Close,
-                XamlRoot = MainWindow.Content.XamlRoot
+                XamlRoot = m_window.Content.XamlRoot
             };
 
             await dialog.ShowAsync();
