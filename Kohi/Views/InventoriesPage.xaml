@@ -286,14 +286,14 @@
                     </Button>
                     <Button x:Name="importButton" Click="ImportButton_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
                         <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="" FontSize="14"/>
-                            <TextBlock Text="Nhập từ Excel" Margin="5,0,0,0"/>
+                            <FontIcon Glyph="&#xE8B6;" FontSize="14"/>
+                            <TextBlock Text="Nhập lô hàng từ Excel" Margin="5,0,0,0"/>
                         </StackPanel>
                     </Button>
                     <Button x:Name="importOutboundButton" Click="ImportOutboundButton_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
                         <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="" FontSize="14"/>
-                            <TextBlock Text="Nhập xuất kho từ Excel" Margin="5,0,0,0"/>
+                            <FontIcon Glyph="&#xEA53;" FontSize="14"/>
+                            <TextBlock Text="Xuất lô hàng từ Excel" Margin="5,0,0,0"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

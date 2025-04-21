@@ -382,7 +382,7 @@ namespace Kohi.Views
 
                 var newItem = new InvoiceDetailModel
                 {
-                    ProductId = product.Id,
+                    ProductId = selectedVariant.Id,
                     ProductVariant = selectedVariant,
                     SugarLevel = int.Parse(selectedSugar.Replace("%", "")),
                     IceLevel = int.Parse(selectedIce.Replace("%", "")),
@@ -401,8 +401,8 @@ namespace Kohi.Views
                             int toppingQuantity = toppingQuantities.ContainsKey(topping) ? (int)toppingQuantities[topping].Value : 1;
                             newItem.Toppings.Add(new OrderToppingModel
                             {
-                                ProductId = topping.Id,
-                                ProductVariant = topping.ProductVariants[0],
+                                ProductId = topping.ProductVariants[0].Id,
+                                ProductVariant = topping.ProductVariants[0], 
                                 Quantity = toppingQuantity
                             });
                         }
