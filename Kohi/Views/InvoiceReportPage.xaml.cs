@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using Kohi.ViewModels;
@@ -23,7 +23,7 @@ namespace Kohi.Views
         {
             if (ViewModel.SelectedTimeRange is string selectedRange)
             {
-                bool isCustom = selectedRange?.Trim() == "Tu chinh";
+                bool isCustom = selectedRange?.Trim() == "Tùy chỉnh";
                 StartDatePicker.Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed;
                 EndDatePicker.Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed;
                 ApplyButton.Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed;
@@ -37,7 +37,7 @@ namespace Kohi.Views
 
         private void ApplyCustomDateRange_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.UpdateChartData("Tuy chinh");
+            ViewModel.UpdateChartData("Tùy chỉnh");
         }
 
         private async void InvoiceListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -53,7 +53,7 @@ namespace Kohi.Views
                     }
                     else
                     {
-                        await ShowErrorContentDialog(this.XamlRoot, "Hoa don chi tiet bi loi.");
+                        await ShowErrorContentDialog(this.XamlRoot, "Hóa đơn chi tiết bị lỗi.");
                     }
                 }
                 catch (Exception ex)
@@ -66,9 +66,9 @@ namespace Kohi.Views
         {
             ContentDialog errorDialog = new ContentDialog
             {
-                Title = "Loi",
+                Title = "Lỗi",
                 Content = errorMessage,
-                CloseButtonText = "Dong",
+                CloseButtonText = "Đóng",
                 XamlRoot = xamlRoot
             };
 
