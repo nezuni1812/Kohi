@@ -27,13 +27,12 @@
                        Style="{StaticResource TitleTextBlockStyle}"
                        Margin="0,0,0,10"/>
 
-            <!-- Ingredient Selection
-            -->
+            <!-- Ingredient Selection -->
             <editors:SfComboBox Grid.Row="1"
                                 IsEditable="True"
                                 IsFilteringEnabled="True"
                                 TextSearchMode="StartsWith"
-                                ItemsSource="{x:Bind ViewModel.IngredientNames, Mode=TwoWay}"
+                                ItemsSource="{x:Bind ViewModel.IngredientNames, Mode=OneWay}"
                                 SelectedItem="{x:Bind ViewModel.SelectedIngredientName, Mode=TwoWay}"
                                 PlaceholderText="Select Ingredient"
                                 Width="300"
@@ -62,9 +61,21 @@
                     </chart:NumericalAxis>
                 </chart:SfCartesianChart.YAxes>
 
+                <!-- Inbound Series -->
                 <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.Data, Mode=OneWay}"
                                         XBindingPath="XValue"
-                                        YBindingPath="YValue"/>
+                                        YBindingPath="YValue"
+                                        Label="Inbound"
+                                        />
+                <!-- Blue -->
+
+                <!-- Outbound Series -->
+                <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.OutboundData, Mode=OneWay}"
+                                        XBindingPath="XValue"
+                                        YBindingPath="YValue"
+                                        Label="Outbound"
+                                  />
+                <!-- Orange -->
             </chart:SfCartesianChart>
         </Grid>
     </ScrollViewer>
