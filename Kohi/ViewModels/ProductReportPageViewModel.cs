@@ -12,6 +12,7 @@ using Syncfusion.UI.Xaml.Chat;
 using Google.Api;
 using Microsoft.UI.Xaml.Controls;
 using static Google.Rpc.Context.AttributeContext.Types;
+using System.Collections.Generic;
 
 namespace Kohi.ViewModels
 {
@@ -20,40 +21,31 @@ namespace Kohi.ViewModels
         private IDao _dao;
 
         private ObservableCollection<object> chats;
-        private Author currentUser;
+        private IEnumerable<string> suggestion;
+        public IEnumerable<string> Suggestion
+        {
+            get => this.suggestion;
+            set
+            {
+                this.suggestion = value;
+                RaisePropertyChanged("Suggestion");
+            }
+        }
 
-        //string apiKey = Environment.GetEnvironmentVariable("GOOGLE_GEMINI_API_KEY");
+        private Author currentUser;
         static string apiKey = "AIzaSyD39bsb7FdniVP0yvGB83tPhnFtSYiwusw";
 
         MiddlewareStreamingAgent<GeminiChatAgent> geminiAgent = new GeminiChatAgent(
             name: "gemini",
-            model: "gemini-1.5-flash-001",
+            model: "gemini-2.0-flash",
             apiKey: apiKey,
-            systemMessage: "You are a helpful assisstant for a POS coffee shop Application, if the user asked for something you have no knowlege nor data of, please just straight out say you don't know")
+            systemMessage: "You are a helpful assistant for a POS coffee shop application. There will be a text version of what the user is seeing on the screen included in the prompt, please make use of it as much as you can")
         .RegisterMessageConnector()
         .RegisterPrintMessage();
 
-        private async void GenerateMessages()
-        {
-            if (apiKey is null)
-            {
-                Console.WriteLine("Please set GOOGLE_GEMINI_API_KEY environment variable.");
-                return;
-            }
-            //var reply = await geminiAgent.SendAsync("Can you write a piece of C# code to calculate 100th of fibonacci?");
-            //Debug.WriteLine(reply);
-
-            //this.Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage { Author = CurrentUser, Text = "What is WinUI?" });
-            //await Task.Delay(1000);
-            //this.Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage { Author = new Author { Name = "Bot" }, Text = "WinUI is a user interface layer that contains modern controls and styles for building Windows apps." });
-        }
-
         public ObservableCollection<object> Chats
         {
-            get
-            {
-                return this.chats;
-            }
+            get => this.chats;
             set
             {
                 this.chats = value;
@@ -63,10 +55,7 @@ namespace Kohi.ViewModels
 
         public Author CurrentUser
         {
-            get
-            {
-                return this.currentUser;
-            }
+            get => this.currentUser;
             set
             {
                 this.currentUser = value;
@@ -74,13 +63,9 @@ namespace Kohi.ViewModels
             }
         }
 
-
         public void RaisePropertyChanged(string propName)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
         public class Model
@@ -123,9 +108,27 @@ namespace Kohi.ViewModels
             Debug.WriteLine("Added data");
 
             this.Chats = new ObservableCollection<object>();
+            Suggestion = new ObservableCollection<string> { "Identify potential issues based on inbound/outbound trends", "Other insights?" };
+
             this.CurrentUser = new Author { Name = "John" };
             this.Chats.CollectionChanged += Chats_CollectionChanged;
-            this.GenerateMessages();
+
+            if (apiKey is null)
+            {
+                Console.WriteLine("Please set GOOGLE_GEMINI_API_KEY environment variable.");
+                return;
+            }
+        }
+
+        public void HandleSuggestionClicked(string suggestionText)
+        {
+            // Add the suggestion as a user message to the Chats collection
+            Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage
+            {
+                Author = CurrentUser,
+                DateTime = DateTime.Now,
+                Text = suggestionText
+            });
         }
 
         private async void Chats_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -133,34 +136,172 @@ namespace Kohi.ViewModels
             var item = e.NewItems?[0] as ITextMessage;
             if (item != null)
             {
-                if (item.Author.Name == currentUser.Name)
+                if (item.Author.Name == CurrentUser.Name)
                 {
                     Debug.WriteLine("user text: " + item.Text);
-                    //ShowTypingIndicator = true;
                     string Response = string.Empty;
-                    //var response = await gpt.GetChatMessageContentAsync(line);
                     Debug.WriteLine("Generating...");
-                    var reply = await geminiAgent.SendAsync(item.Text);
+
+                    string chartDataText = await GetChartDataAsText();
+                    string messageWithData = $"{item.Text}\n\nHere is the chart data the user is seeing, please answer according to the data in it:\n{chartDataText}";
+                    var reply = await geminiAgent.SendAsync(messageWithData);
                     Debug.WriteLine("Response: " + reply.GetContent());
                     Response = reply.GetContent();
 
-                    //await service.NonStreamingChat(item.Text);
                     Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage
                     {
                         Author = new Author { Name = "Bot" },
                         DateTime = DateTime.Now,
                         Text = Response
                     });
-                    //ShowTypingIndicator = false;
                 }
             }
         }
 
+        private async Task<string> GetChartDataAsText()
+        {
+            var text = new System.Text.StringBuilder();
+
+            // Fetch all inbound data grouped by ingredient
+            var allInboundsByIngredient = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<(DateTime Date, double Quantity)>>();
+            const int pageSize = 100;
+            int currentPage = 1;
+            int totalItems = _dao.Inbounds.GetCount();
+
+            while ((currentPage - 1) * pageSize < totalItems)
+            {
+                var inbounds = await Task.Run(() => _dao.Inbounds.GetAll(
+                    pageNumber: currentPage,
+                    pageSize: pageSize
+                ));
+
+                if (inbounds == null || !inbounds.Any())
+                {
+                    break;
+                }
+
+                foreach (var inbound in inbounds)
+                {
+                    var ingredient = await Task.Run(() => _dao.Ingredients.GetById(inbound.IngredientId + ""));
+                    if (ingredient != null && !string.IsNullOrEmpty(ingredient.Name))
+                    {
+                        if (!allInboundsByIngredient.ContainsKey(ingredient.Name))
+                        {
+                            allInboundsByIngredient[ingredient.Name] = new System.Collections.Generic.List<(DateTime, double)>();
+                        }
+                        allInboundsByIngredient[ingredient.Name].Add((inbound.InboundDate, inbound.Quantity));
+                    }
+                }
+
+                currentPage++;
+            }
+
+            // Fetch all outbound data grouped by ingredient
+            var allOutboundsByIngredient = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<(DateTime Date, double Quantity)>>();
+            currentPage = 1;
+            totalItems = _dao.Outbounds.GetCount();
+
+            while ((currentPage - 1) * pageSize < totalItems)
+            {
+                var outbounds = await Task.Run(() => _dao.Outbounds.GetAll(
+                    pageNumber: currentPage,
+                    pageSize: pageSize
+                ));
+
+                if (outbounds == null || !outbounds.Any())
+                {
+                    break;
+                }
+
+                foreach (var outbound in outbounds)
+                {
+                    var inventory = await Task.Run(() => _dao.Inventories.GetById(outbound.InventoryId + ""));
+                    if (inventory == null) continue;
+
+                    var inbound = await Task.Run(() => _dao.Inbounds.GetById(inventory.InboundId + ""));
+                    if (inbound == null) continue;
+
+                    var ingredient = await Task.Run(() => _dao.Ingredients.GetById(inbound.IngredientId + ""));
+                    if (ingredient != null && !string.IsNullOrEmpty(ingredient.Name))
+                    {
+                        if (!allOutboundsByIngredient.ContainsKey(ingredient.Name))
+                        {
+                            allOutboundsByIngredient[ingredient.Name] = new System.Collections.Generic.List<(DateTime, double)>();
+                        }
+                        allOutboundsByIngredient[ingredient.Name].Add((outbound.OutboundDate, (double)outbound.Quantity));
+                    }
+                }
+
+                currentPage++;
+            }
+
+            // Combine all ingredients
+            var allIngredients = allInboundsByIngredient.Keys.Union(allOutboundsByIngredient.Keys).OrderBy(k => k).ToList();
+
+            // Format the data for each ingredient
+            foreach (var ingredient in allIngredients)
+            {
+                text.AppendLine($"\nIngredient: {ingredient}");
+
+                // Inbound data for this ingredient
+                text.AppendLine("  Inbound Data:");
+                if (allInboundsByIngredient.ContainsKey(ingredient) && allInboundsByIngredient[ingredient].Any())
+                {
+                    var aggregatedInbounds = allInboundsByIngredient[ingredient]
+                        .GroupBy(i => i.Date.Date)
+                        .Select(g => new { Date = g.Key, TotalQuantity = g.Sum(x => x.Quantity) })
+                        .OrderBy(x => x.Date)
+                        .ToList();
+
+                    foreach (var item in aggregatedInbounds)
+                    {
+                        text.AppendLine($"    {item.Date:yyyy-MM-dd}: {item.TotalQuantity}");
+                    }
+                }
+                else
+                {
+                    text.AppendLine("    No inbound data available.");
+                }
+
+                // Outbound data for this ingredient
+                text.AppendLine("  Outbound Data:");
+                if (allOutboundsByIngredient.ContainsKey(ingredient) && allOutboundsByIngredient[ingredient].Any())
+                {
+                    var aggregatedOutbounds = allOutboundsByIngredient[ingredient]
+                        .GroupBy(i => i.Date.Date)
+                        .Select(g => new { Date = g.Key, TotalQuantity = g.Sum(x => x.Quantity) })
+                        .OrderBy(x => x.Date)
+                        .ToList();
+
+                    foreach (var item in aggregatedOutbounds)
+                    {
+                        text.AppendLine($"    {item.Date:yyyy-MM-dd}: {item.TotalQuantity}");
+                    }
+                }
+                else
+                {
+                    text.AppendLine("    No outbound data available.");
+                }
+            }
+
+            // Add selected ingredient if applicable
+            if (!string.IsNullOrEmpty(SelectedIngredientName))
+            {
+                text.AppendLine($"\nCurrently Selected Ingredient: {SelectedIngredientName}");
+            }
+            else
+            {
+                text.AppendLine("\nNo ingredient currently selected.");
+            }
+
+            return text.ToString();
+        }
+
         private async Task LoadDataAsync()
         {
-            LoadIngredientNamesAsync();
-            LoadInboundDataAsync();
-            LoadOutboundDataAsync();
+            await LoadIngredientNamesAsync();
+            await LoadInboundDataAsync();
+            await LoadOutboundDataAsync();
         }
 
         private async Task LoadInboundDataAsync(string ingredientName = null)
@@ -297,7 +438,7 @@ namespace Kohi.ViewModels
                             OutboundDate = g.Key,
                             TotalQuantity = g.Sum(x => x.Quantity)
                         })
-                        .OrderBy(x => x.OutboundDate)
+                .OrderBy(x => x.OutboundDate)
                         .ToList();
 
                     foreach (var item in aggregatedData)

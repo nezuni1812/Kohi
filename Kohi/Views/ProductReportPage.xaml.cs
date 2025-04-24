@@ -47,5 +47,11 @@ namespace Kohi.Views
             //Data.Add(new Model() { XValue = 40, YValue = 230 });
             Debug.WriteLine("After viewmodel");
         }
+
+        private void SfAIAssistView_SuggestionSelected(object sender, Syncfusion.UI.Xaml.Chat.SuggestionClickedEventArgs e)
+        {
+            ViewModel.HandleSuggestionClicked(e.Item.ToString());
+            //Debug.WriteLine(e.Item.ToString());
+        }
     }
 }
