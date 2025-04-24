@@ -4,9 +4,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoGen.Gemini;
 using Kohi.Services;
 using Kohi.Utils;
+using AutoGen.Core;
 using Syncfusion.UI.Xaml.Chat;
+using Google.Api;
+using Microsoft.UI.Xaml.Controls;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace Kohi.ViewModels
 {
@@ -17,11 +22,30 @@ namespace Kohi.ViewModels
         private ObservableCollection<object> chats;
         private Author currentUser;
 
+        //string apiKey = Environment.GetEnvironmentVariable("GOOGLE_GEMINI_API_KEY");
+        static string apiKey = "AIzaSyD39bsb7FdniVP0yvGB83tPhnFtSYiwusw";
+
+        MiddlewareStreamingAgent<GeminiChatAgent> geminiAgent = new GeminiChatAgent(
+            name: "gemini",
+            model: "gemini-1.5-flash-001",
+            apiKey: apiKey,
+            systemMessage: "You are a helpful assisstant for a POS coffee shop Application, if the user asked for something you have no knowlege nor data of, please just straight out say you don't know")
+        .RegisterMessageConnector()
+        .RegisterPrintMessage();
+
         private async void GenerateMessages()
         {
-            this.Chats.Add(new TextMessage { Author = CurrentUser, Text = "What is WinUI?" });
-            await Task.Delay(1000);
-            this.Chats.Add(new TextMessage { Author = new Author { Name = "Bot" }, Text = "WinUI is a user interface layer that contains modern controls and styles for building Windows apps." });
+            if (apiKey is null)
+            {
+                Console.WriteLine("Please set GOOGLE_GEMINI_API_KEY environment variable.");
+                return;
+            }
+            //var reply = await geminiAgent.SendAsync("Can you write a piece of C# code to calculate 100th of fibonacci?");
+            //Debug.WriteLine(reply);
+
+            //this.Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage { Author = CurrentUser, Text = "What is WinUI?" });
+            //await Task.Delay(1000);
+            //this.Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage { Author = new Author { Name = "Bot" }, Text = "WinUI is a user interface layer that contains modern controls and styles for building Windows apps." });
         }
 
         public ObservableCollection<object> Chats
@@ -90,7 +114,7 @@ namespace Kohi.ViewModels
 
         public ProductReportPageViewModel()
         {
-            _dao = Service.GetKeyedSingleton<IDao>();
+            _dao = Services.Service.GetKeyedSingleton<IDao>();
             Data = new ObservableCollection<Model>();
             OutboundData = new ObservableCollection<Model>();
             IngredientNames = new ObservableCollection<string>();
@@ -100,7 +124,36 @@ namespace Kohi.ViewModels
 
             this.Chats = new ObservableCollection<object>();
             this.CurrentUser = new Author { Name = "John" };
+            this.Chats.CollectionChanged += Chats_CollectionChanged;
             this.GenerateMessages();
+        }
+
+        private async void Chats_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            var item = e.NewItems?[0] as ITextMessage;
+            if (item != null)
+            {
+                if (item.Author.Name == currentUser.Name)
+                {
+                    Debug.WriteLine("user text: " + item.Text);
+                    //ShowTypingIndicator = true;
+                    string Response = string.Empty;
+                    //var response = await gpt.GetChatMessageContentAsync(line);
+                    Debug.WriteLine("Generating...");
+                    var reply = await geminiAgent.SendAsync(item.Text);
+                    Debug.WriteLine("Response: " + reply.GetContent());
+                    Response = reply.GetContent();
+
+                    //await service.NonStreamingChat(item.Text);
+                    Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage
+                    {
+                        Author = new Author { Name = "Bot" },
+                        DateTime = DateTime.Now,
+                        Text = Response
+                    });
+                    //ShowTypingIndicator = false;
+                }
+            }
         }
 
         private async Task LoadDataAsync()

@@ -19,6 +19,7 @@
                 <!-- ComboBox -->
                 <RowDefinition Height="Auto"/>
                 <!-- Chart -->
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Title -->
@@ -78,7 +79,7 @@
                 <!-- Orange -->
             </chart:SfCartesianChart>
 
-            <syncfusion:SfAIAssistView   CurrentUser="{x:Bind ViewModel.CurrentUser}"  
+            <syncfusion:SfAIAssistView Grid.Row="3"  CurrentUser="{x:Bind ViewModel.CurrentUser}"  
                                    Messages="{x:Bind ViewModel.Chats}"/>
         </Grid>
     </ScrollViewer>
