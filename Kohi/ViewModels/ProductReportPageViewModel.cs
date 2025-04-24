@@ -6,12 +6,59 @@ using System.Linq;
 using System.Threading.Tasks;
 using Kohi.Services;
 using Kohi.Utils;
+using Syncfusion.UI.Xaml.Chat;
 
 namespace Kohi.ViewModels
 {
     internal class ProductReportPageViewModel : INotifyPropertyChanged
     {
         private IDao _dao;
+
+        private ObservableCollection<object> chats;
+        private Author currentUser;
+
+        private async void GenerateMessages()
+        {
+            this.Chats.Add(new TextMessage { Author = CurrentUser, Text = "What is WinUI?" });
+            await Task.Delay(1000);
+            this.Chats.Add(new TextMessage { Author = new Author { Name = "Bot" }, Text = "WinUI is a user interface layer that contains modern controls and styles for building Windows apps." });
+        }
+
+        public ObservableCollection<object> Chats
+        {
+            get
+            {
+                return this.chats;
+            }
+            set
+            {
+                this.chats = value;
+                RaisePropertyChanged("Messages");
+            }
+        }
+
+        public Author CurrentUser
+        {
+            get
+            {
+                return this.currentUser;
+            }
+            set
+            {
+                this.currentUser = value;
+                RaisePropertyChanged("CurrentUser");
+            }
+        }
+
+
+        public void RaisePropertyChanged(string propName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propName));
+            }
+        }
+
         public class Model
         {
             public DateTime XValue { get; set; }
@@ -50,6 +97,10 @@ namespace Kohi.ViewModels
 
             LoadDataAsync();
             Debug.WriteLine("Added data");
+
+            this.Chats = new ObservableCollection<object>();
+            this.CurrentUser = new Author { Name = "John" };
+            this.GenerateMessages();
         }
 
         private async Task LoadDataAsync()

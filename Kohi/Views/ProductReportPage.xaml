@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:chart="using:Syncfusion.UI.Xaml.Charts"
-    xmlns:editors="using:Syncfusion.UI.Xaml.Editors"
+    xmlns:editors="using:Syncfusion.UI.Xaml.Editors" xmlns:syncfusion="using:Syncfusion.UI.Xaml.Chat"
     mc:Ignorable="d">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -62,7 +62,7 @@
                 </chart:SfCartesianChart.YAxes>
 
                 <!-- Inbound Series -->
-                <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.Data, Mode=OneWay}"
+                <chart:AreaSeries ItemsSource="{x:Bind ViewModel.Data, Mode=OneWay}"
                                         XBindingPath="XValue"
                                         YBindingPath="YValue"
                                         Label="Inbound"
@@ -70,13 +70,16 @@
                 <!-- Blue -->
 
                 <!-- Outbound Series -->
-                <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.OutboundData, Mode=OneWay}"
+                <chart:AreaSeries ItemsSource="{x:Bind ViewModel.OutboundData, Mode=OneWay}"
                                         XBindingPath="XValue"
                                         YBindingPath="YValue"
                                         Label="Outbound"
                                   />
                 <!-- Orange -->
             </chart:SfCartesianChart>
+
+            <syncfusion:SfAIAssistView   CurrentUser="{x:Bind ViewModel.CurrentUser}"  
+                                   Messages="{x:Bind ViewModel.Chats}"/>
         </Grid>
     </ScrollViewer>
 </Page>
