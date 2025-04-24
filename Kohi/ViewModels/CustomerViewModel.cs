@@ -122,16 +122,17 @@ namespace Kohi.ViewModels
             }
         }
 
-        public async Task Delete(string id)
+        public async Task<int> Delete(string id)
         {
             try
             {
                 int result = _dao.Customers.DeleteById(id);
                 await LoadData(CurrentPage);
+                return result;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error deleting customer: {ex.Message}");
+                return 0; 
             }
         }
 

@@ -254,14 +254,30 @@ namespace Kohi.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                await IngredientViewModel.Delete(selectedIngredientId.ToString());
+                int res = await IngredientViewModel.Delete(selectedIngredientId.ToString());
                 Debug.WriteLine($"Đã xóa nguyên vật liệu ID: {selectedIngredientId}");
-                await LoadDataWithProgress(IngredientViewModel.CurrentPage);
+                if (res == 0)
+                {
+                    await ShowErrorDialog("Lỗi", "Không thể xóa nguyên liệu vì có sản phẩm hoặc kho còn dùng thông tin này");
+                    return;
+                }
+                else
+                {
+                    await LoadDataWithProgress(IngredientViewModel.CurrentPage);
+                }
             }
-            else
+        }
+        private async Task ShowErrorDialog(string title, string message)
+        {
+            var errorDialog = new ContentDialog
             {
-                Debug.WriteLine("Hủy xóa nguyên vật liệu");
-            }
+                Title = title,
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+
+            await errorDialog.ShowAsync();
         }
     }
 }

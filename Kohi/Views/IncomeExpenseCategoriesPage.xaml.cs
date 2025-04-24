@@ -132,17 +132,39 @@ namespace Kohi.Views
                 XamlRoot = this.XamlRoot
             };
 
-            var result = await deleteDialog.ShowAsync();
+            try
+            {
+                var result = await deleteDialog.ShowAsync();
 
-            if (result == ContentDialogResult.Primary)
-            {
-                await ExpenseCategoryViewModel.Delete(SelectedExpenseCategory.Id.ToString());
-                Debug.WriteLine("Đã xóa danh mục");
-                await LoadDataWithProgress(ExpenseCategoryViewModel.CurrentPage);
+                if (result == ContentDialogResult.Primary)
+                {
+                    int res = await ExpenseCategoryViewModel.Delete(SelectedExpenseCategory.Id.ToString());
+                    if(res == 0)
+                    {
+                        var noSelectionDialog = new ContentDialog
+                        {
+                            Title = "Lỗi",
+                            Content = "Tồn tại phiếu thu chi thuộc danh mục này",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        await noSelectionDialog.ShowAsync();
+                        return;
+                    }
+                    else
+                    {
+                        await LoadDataWithProgress(ExpenseCategoryViewModel.CurrentPage);
+                        SelectedExpenseCategory = null;
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Hủy xóa danh mục");
+                }
             }
-            else
+            catch
             {
-                Debug.WriteLine("Hủy xóa danh mục");
+
             }
         }
 

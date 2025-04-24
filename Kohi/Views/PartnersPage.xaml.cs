@@ -481,10 +481,27 @@ namespace Kohi.Views
                         IsLoading = true;
                         ProgressRing.IsActive = true;
 
-                        await SupplierViewModel.Delete(selectedSupplier.Id.ToString());
+                        int res = await SupplierViewModel.Delete(selectedSupplier.Id.ToString());
+
+                        if (res == 0)
+                        {
+                            var errorDialog = new ContentDialog
+                            {
+                                Title = "Lỗi",
+                                Content = "Không thể xóa nhà cung cấp này vì có nguyên liệu liên quan.",
+                                CloseButtonText = "OK",
+                                XamlRoot = this.XamlRoot
+                            };
+                            await errorDialog.ShowAsync();
+                            return;
+                        }
+                        else
+                        {
+                            await LoadDataWithProgress(false, SupplierViewModel.CurrentPage);
+                            Debug.WriteLine("Đã xóa nhà cung cấp");
+                        }
                         selectedSupplier = null;
-                        await LoadDataWithProgress(false, SupplierViewModel.CurrentPage);
-                        Debug.WriteLine("Đã xóa nhà cung cấp");
+
                     }
                     catch (Exception ex)
                     {
@@ -545,22 +562,29 @@ namespace Kohi.Views
                         IsLoading = true;
                         ProgressRing.IsActive = true;
 
-                        await CustomerViewModel.Delete(selectedCustomer.Id.ToString());
+                        int res = await CustomerViewModel.Delete(selectedCustomer.Id.ToString());
+                        if (res == 0)
+                        {
+                            var errorDialog = new ContentDialog
+                            {
+                                Title = "Lỗi",
+                                Content = "Không thể xóa khách hàng này vì có hóa đơn liên quan.",
+                                CloseButtonText = "OK",
+                                XamlRoot = this.XamlRoot
+                            };
+                            await errorDialog.ShowAsync();
+                            return;
+                        }
+                        else
+                        {
+                            await LoadDataWithProgress(true, CustomerViewModel.CurrentPage);
+                            Debug.WriteLine("Đã xóa khách hàng");
+                        }
                         selectedCustomer = null;
-                        await LoadDataWithProgress(true, CustomerViewModel.CurrentPage);
-                        Debug.WriteLine("Đã xóa khách hàng");
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error deleting customer: {ex.Message}");
-                        var errorDialog = new ContentDialog
-                        {
-                            Title = "Lỗi",
-                            Content = $"Không thể xóa khách hàng: {ex.Message}",
-                            CloseButtonText = "OK",
-                            XamlRoot = this.XamlRoot
-                        };
-                        await errorDialog.ShowAsync();
+
                     }
                     finally
                     {

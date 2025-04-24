@@ -142,17 +142,24 @@ namespace Kohi.Views
                 XamlRoot = this.XamlRoot
             };
 
-            var result = await deleteDialog.ShowAsync();
+            try
+            {
+                var result = await deleteDialog.ShowAsync();
 
-            if (result == ContentDialogResult.Primary)
-            {
-                await ExpenseViewModel.Delete(SelectedExpense.Id.ToString());
-                Debug.WriteLine($"Đã xóa phiếu chi ID: {SelectedExpense.Id}");
-                await LoadDataWithProgress(ExpenseViewModel.CurrentPage);
+                if (result == ContentDialogResult.Primary)
+                {
+                    await ExpenseViewModel.Delete(SelectedExpense.Id.ToString());
+                    Debug.WriteLine($"Đã xóa phiếu chi ID: {SelectedExpense.Id}");
+                    await LoadDataWithProgress(ExpenseViewModel.CurrentPage);
+                }
+                else
+                {
+                    Debug.WriteLine("Hủy xóa phiếu");
+                }
             }
-            else
+            catch
             {
-                Debug.WriteLine("Hủy xóa phiếu");
+
             }
         }
 

@@ -20,7 +20,7 @@ namespace Kohi.Views
         public ProductVariantViewModel ProductVariantViewModel { get; set; } = new ProductVariantViewModel();
         public RecipeDetailViewModel RecipeDetailViewModel { get; set; } = new RecipeDetailViewModel();
         public bool IsLoading { get; set; } = false;
-
+        public int checkedId {get; set; } = 0;
         public ProductsPage()
         {
             this.InitializeComponent();
@@ -98,6 +98,7 @@ namespace Kohi.Views
                 await noSelectionDialog.ShowAsync();
                 return;
             }
+            checkedId = SelectedProduct.Id;
 
             var deleteDialog = new ContentDialog
             {
@@ -145,15 +146,20 @@ namespace Kohi.Views
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}\nStackTrace: {ex.StackTrace}");
                     var errorDialog = new ContentDialog
                     {
                         Title = "Lỗi",
-                        Content = $"Không thể xóa sản phẩm: {ex.Message}",
+                        Content = $"Không thể xóa sản phẩm vì hóa đơn còn sử dụng thông tin này.",
                         CloseButtonText = "OK",
                         XamlRoot = this.XamlRoot
                     };
-                    await errorDialog.ShowAsync();
+                    var product = await ProductViewModel.GetById(checkedId.ToString());
+                    if(product == null)
+                    {
+                        
+                    }
+                    else await errorDialog.ShowAsync();
+
                 }
                 finally
                 {
