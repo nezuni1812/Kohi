@@ -108,9 +108,9 @@ namespace Kohi.ViewModels
             Debug.WriteLine("Added data");
 
             this.Chats = new ObservableCollection<object>();
-            Suggestion = new ObservableCollection<string> { "Identify potential issues based on inbound/outbound trends", "Other insights?" };
+            Suggestion = new ObservableCollection<string> { "Identify potential issues based on inbound/outbound trends", "Other insights?", "Cho những vấn đề tôi cần quan tâm", "Lịch sử nhập kho và xuất kho có ổn không" };
 
-            this.CurrentUser = new Author { Name = "John" };
+            this.CurrentUser = new Author { Name = "User" };
             this.Chats.CollectionChanged += Chats_CollectionChanged;
 
             if (apiKey is null)
