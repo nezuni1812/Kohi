@@ -19,7 +19,7 @@ namespace Kohi.Views
 {
     public sealed partial class InventoriesPage : Page
     {
-        public IngredientViewModel IngredientViewModel { get; set; } = new IngredientViewModel();
+        public IngredientViewModel IngredientViewModel { get; set; } = new IngredientViewModel(true);
         public SupplierViewModel SupplierViewModel { get; set; } = new SupplierViewModel();
         public InboundViewModel InboundViewModel { get; set; } = new InboundViewModel();
         public InventoryViewModel InventoryViewModel { get; set; } = new InventoryViewModel();

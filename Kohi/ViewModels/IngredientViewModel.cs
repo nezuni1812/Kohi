@@ -25,6 +25,14 @@ namespace Kohi.ViewModels
             LoadData();
         }
 
+        public IngredientViewModel(bool flag)
+        {
+            _dao = Service.GetKeyedSingleton<IDao>();
+            Ingredients = new FullObservableCollection<IngredientModel>();
+            PageSize = 1000;
+            LoadData();
+        }
+
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;

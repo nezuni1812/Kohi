@@ -79,7 +79,7 @@
                 <!-- Orange -->
             </chart:SfCartesianChart>
 
-            <syncfusion:SfAIAssistView Grid.Row="3"  CurrentUser="{x:Bind ViewModel.CurrentUser}"  
+            <syncfusion:SfAIAssistView Grid.Row="3"  CurrentUser="{x:Bind ViewModel.CurrentUser}" Suggestions="{x:Bind ViewModel.Suggestion}" SuggestionSelected="SfAIAssistView_SuggestionSelected"
                                    Messages="{x:Bind ViewModel.Chats}"/>
         </Grid>
     </ScrollViewer>
