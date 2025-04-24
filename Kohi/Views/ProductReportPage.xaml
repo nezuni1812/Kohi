@@ -6,10 +6,66 @@
     xmlns:local="using:Kohi.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    xmlns:chart="using:Syncfusion.UI.Xaml.Charts"
+    xmlns:editors="using:Syncfusion.UI.Xaml.Editors"
+    mc:Ignorable="d">
 
-    <Grid>
-        <TextBlock Text="Hàng hóa"></TextBlock>
-    </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid RowSpacing="10" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- TextBlock -->
+                <RowDefinition Height="Auto"/>
+                <!-- ComboBox -->
+                <RowDefinition Height="Auto"/>
+                <!-- Chart -->
+            </Grid.RowDefinitions>
+
+            <!-- Title -->
+            <TextBlock Grid.Row="0"
+                       Text="Hàng hóa"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Margin="0,0,0,10"/>
+
+            <!-- Ingredient Selection
+            -->
+            <editors:SfComboBox Grid.Row="1"
+                                IsEditable="True"
+                                IsFilteringEnabled="True"
+                                TextSearchMode="StartsWith"
+                                ItemsSource="{x:Bind ViewModel.IngredientNames, Mode=TwoWay}"
+                                SelectedItem="{x:Bind ViewModel.SelectedIngredientName, Mode=TwoWay}"
+                                PlaceholderText="Select Ingredient"
+                                Width="300"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,10"/>
+
+            <!-- Chart -->
+            <chart:SfCartesianChart Grid.Row="2"
+                                    Height="400"
+                                    Margin="0,0,0,10">
+                <chart:SfCartesianChart.XAxes>
+                    <chart:DateTimeAxis IntervalType="Days" Interval="1">
+                        <chart:DateTimeAxis.LabelStyle>
+                            <chart:LabelStyle LabelFormat="dd MMM"/>
+                        </chart:DateTimeAxis.LabelStyle>
+                    </chart:DateTimeAxis>
+                </chart:SfCartesianChart.XAxes>
+
+                <chart:SfCartesianChart.YAxes>
+                    <chart:NumericalAxis Minimum="0" 
+                                         Interval="25"
+                                         ShowMajorGridLines="True">
+                        <chart:NumericalAxis.LabelStyle>
+                            <chart:LabelStyle LabelFormat="N0"/>
+                        </chart:NumericalAxis.LabelStyle>
+                    </chart:NumericalAxis>
+                </chart:SfCartesianChart.YAxes>
+
+                <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.Data, Mode=OneWay}"
+                                        XBindingPath="XValue"
+                                        YBindingPath="YValue"/>
+            </chart:SfCartesianChart>
+        </Grid>
+    </ScrollViewer>
 </Page>
