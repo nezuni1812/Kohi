@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Syncfusion.UI.Xaml.Charts;
 using Kohi.ViewModels;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -50,9 +51,38 @@ namespace Kohi.Views
             }
         }
 
-        private void ApplyCustomDateRange_Click(object sender, RoutedEventArgs e)
+        private async void ApplyCustomDateRange_Click(object sender, RoutedEventArgs e)
         {
+            if (!StartDatePicker.Date.HasValue || !EndDatePicker.Date.HasValue)
+            {
+                await ShowErrorContentDialog(this.XamlRoot, "Vui lòng chọn cả ngày bắt đầu và ngày kết thúc.");
+                return;
+            }
+
+            DateTime startDate = StartDatePicker.Date.Value.Date;
+            DateTime endDate = EndDatePicker.Date.Value.Date;
+
+            if (endDate < startDate)
+            {
+                await ShowErrorContentDialog(this.XamlRoot, "Ngày kết thúc không thể trước ngày bắt đầu.");
+                return;
+            }
+
             ViewModel.UpdateChartData("Tùy chỉnh");
         }
+
+        private async Task ShowErrorContentDialog(XamlRoot xamlRoot, string errorMessage)
+        {
+            ContentDialog errorDialog = new ContentDialog
+            {
+                Title = "Lỗi",
+                Content = errorMessage,
+                CloseButtonText = "Đóng",
+                XamlRoot = this.XamlRoot
+            };
+
+            await errorDialog.ShowAsync();
+        }
+
     }
 }
