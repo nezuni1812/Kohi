@@ -61,7 +61,7 @@
                            TextTrimming="CharacterEllipsis"
                            TextWrapping="Wrap"
                            Width="145"/>
-                    <TextBlock Grid.Column="0" Grid.Row="2" Text="{Binding ProductVariants[0].Price, Converter={StaticResource vnmoney}}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="{Binding ProductVariants[0].Price, Converter={StaticResource vnmoney}, FallbackValue='N/A'}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                     <Button Grid.Column="2" Grid.Row="2" Style="{StaticResource AccentButtonStyle}" Click="ShowProductDialog_Click">
                         <FontIcon Glyph="&#xE710;" FontSize="14"/>
                     </Button>
@@ -81,7 +81,7 @@
                             VerticalAlignment="Center"  
                             Width="250"/>
                         <TextBlock Grid.Column="1" 
-                            Text="{Binding Price, Converter={StaticResource vnmoney}}" 
+                            Text="{Binding Price, Converter={StaticResource vnmoney}, FallbackValue='N/A'}"
                             VerticalAlignment="Center" 
                             HorizontalAlignment="Right" 
                             Margin="15,0,0,0"/>
@@ -102,7 +102,7 @@
                            VerticalAlignment="Center"  
                            Width="250"/>
                         <TextBlock Grid.Column="1" 
-                            Text="{Binding ProductVariants[0].Price, Converter={StaticResource vnmoney}}" 
+                            Text="{Binding ProductVariants[0].Price, Converter={StaticResource vnmoney}, FallbackValue='N/A'}"
                             VerticalAlignment="Center" 
                             HorizontalAlignment="Right" 
                             Margin="15,0,0,0"/>
@@ -127,7 +127,7 @@
                        FontWeight="SemiBold"
                        VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1" 
-                       Text="{Binding ProductVariant.Price, Converter={StaticResource vnmoney}}" 
+                       Text="{Binding ProductVariant.Price, Converter={StaticResource vnmoney}, FallbackValue='N/A'}"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Right"/>
                     <Button Grid.Column="2" 
@@ -164,7 +164,7 @@
                                         <Run Text=" x"/>
                                     </TextBlock>
                                     <TextBlock Grid.Column="1" 
-                                       Text="{Binding ProductVariant.Price, Converter={StaticResource vnmoney}}" 
+                                       Text="{Binding ProductVariant.Price, Converter={StaticResource vnmoney}, FallbackValue='N/A'}" 
                                        Style="{StaticResource CaptionTextBlockStyle}"/>
                                 </Grid>
                             </DataTemplate>

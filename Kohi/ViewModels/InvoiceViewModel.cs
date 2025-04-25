@@ -178,6 +178,16 @@ namespace Kohi.ViewModels
                     Debug.WriteLine($"GetAll: Loaded {allInvoiceDetails.Count} invoice details");
                 }
 
+                var allOrderToppings = _dao.OrderToppings.GetAll(1, 1000); // Đồng bộ
+                if (allOrderToppings == null || !allOrderToppings.Any())
+                {
+                    Debug.WriteLine("GetAll: No order toppings found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetAll: Loaded {allOrderToppings.Count} order toppings");
+                }
+
                 var allProductVariants = _dao.ProductVariants.GetAll(1, 1000); // Đồng bộ
                 if (allProductVariants == null || !allProductVariants.Any())
                 {
@@ -186,6 +196,16 @@ namespace Kohi.ViewModels
                 else
                 {
                     Debug.WriteLine($"GetAll: Loaded {allProductVariants.Count} product variants");
+                }
+
+                var allProducts = _dao.Products.GetAll(1, 1000); // Đồng bộ
+                if (allProducts == null || !allProducts.Any())
+                {
+                    Debug.WriteLine("GetAll: No products found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetAll: Loaded {allProducts.Count} products");
                 }
 
                 foreach (var invoice in invoices)
@@ -200,6 +220,34 @@ namespace Kohi.ViewModels
                         {
                             Debug.WriteLine($"InvoiceDetail {detail.Id} has no matching ProductVariant for ProductId {detail.ProductId}");
                         }
+                        else
+                        {
+                            detail.ProductVariant.Product = allProducts?.FirstOrDefault(p => p.Id == detail.ProductVariant.ProductId);
+                            if (detail.ProductVariant.Product == null)
+                            {
+                                Debug.WriteLine($"ProductVariant {detail.ProductVariant.Id} has no matching Product for ProductId {detail.ProductVariant.ProductId}");
+                            }
+                        }
+
+                        detail.Toppings = allOrderToppings?.Where(t => t.InvoiceDetailId == detail.Id).ToList() ?? new List<OrderToppingModel>();
+                        foreach (var topping in detail.Toppings)
+                        {
+                            topping.ProductVariant = allProductVariants?.FirstOrDefault(pv => pv.Id == topping.ProductId);
+                            if (topping.ProductVariant == null)
+                            {
+                                Debug.WriteLine($"OrderTopping {topping.Id} has no matching ProductVariant for ProductId {topping.ProductId}");
+                            }
+                            else
+                            {
+                                topping.ProductVariant.Product = allProducts?.FirstOrDefault(p => p.Id == topping.ProductVariant.ProductId);
+                                if (topping.ProductVariant.Product == null)
+                                {
+                                    Debug.WriteLine($"ProductVariant {topping.ProductVariant.Id} has no matching Product for ProductId {topping.ProductVariant.ProductId}");
+                                }
+                            }
+                        }
+
+                        Debug.WriteLine($"InvoiceDetail {detail.Id} has {detail.Toppings.Count} toppings");
                     }
 
                     Debug.WriteLine($"Invoice {invoice.Id} has {invoice.InvoiceDetails.Count} details");
@@ -237,9 +285,18 @@ namespace Kohi.ViewModels
                     return invoice;
                 }
 
-                var detailsForInvoice = allInvoiceDetails.Where(d => d.InvoiceId == invoice.Id).ToList();
-                invoice.InvoiceDetails = detailsForInvoice;
-                Debug.WriteLine($"GetDetailsById: Invoice {invoice.Id} has {invoice.InvoiceDetails.Count} details");
+                var allOrderToppings = await Task.Run(() => _dao.OrderToppings.GetAll(
+                    pageNumber: 1,
+                    pageSize: 1000
+                ));
+                if (allOrderToppings == null || !allOrderToppings.Any())
+                {
+                    Debug.WriteLine($"GetDetailsById: No order toppings found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetDetailsById: Loaded {allOrderToppings.Count} order toppings");
+                }
 
                 var allProductVariants = await Task.Run(() => _dao.ProductVariants.GetAll(
                     pageNumber: 1,
@@ -267,6 +324,10 @@ namespace Kohi.ViewModels
                     Debug.WriteLine($"GetDetailsById: Loaded {allProducts.Count} products");
                 }
 
+                var detailsForInvoice = allInvoiceDetails.Where(d => d.InvoiceId == invoice.Id).ToList();
+                invoice.InvoiceDetails = detailsForInvoice;
+                Debug.WriteLine($"GetDetailsById: Invoice {invoice.Id} has {invoice.InvoiceDetails.Count} details");
+
                 foreach (var detail in invoice.InvoiceDetails)
                 {
                     detail.ProductVariant = allProductVariants?.FirstOrDefault(pv => pv.Id == detail.ProductId);
@@ -282,6 +343,26 @@ namespace Kohi.ViewModels
                             Debug.WriteLine($"GetDetailsById: ProductVariant {detail.ProductVariant.Id} has no matching Product for ProductId {detail.ProductVariant.ProductId}");
                         }
                     }
+
+                    detail.Toppings = allOrderToppings?.Where(t => t.InvoiceDetailId == detail.Id).ToList() ?? new List<OrderToppingModel>();
+                    foreach (var topping in detail.Toppings)
+                    {
+                        topping.ProductVariant = allProductVariants?.FirstOrDefault(pv => pv.Id == topping.ProductId);
+                        if (topping.ProductVariant == null)
+                        {
+                            Debug.WriteLine($"GetDetailsById: OrderTopping {topping.Id} has no matching ProductVariant for ProductId {topping.ProductId}");
+                        }
+                        else
+                        {
+                            topping.ProductVariant.Product = allProducts?.FirstOrDefault(p => p.Id == topping.ProductVariant.ProductId);
+                            if (topping.ProductVariant.Product == null)
+                            {
+                                Debug.WriteLine($"GetDetailsById: ProductVariant {topping.ProductVariant.Id} has no matching Product for ProductId {topping.ProductVariant.ProductId}");
+                            }
+                        }
+                    }
+
+                    Debug.WriteLine($"GetDetailsById: InvoiceDetail {detail.Id} has {detail.Toppings.Count} toppings");
                 }
 
                 return invoice;
