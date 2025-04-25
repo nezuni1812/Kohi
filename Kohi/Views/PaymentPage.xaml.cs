@@ -17,6 +17,8 @@ using System.Diagnostics;
 using Kohi.Models.BankingAPI;
 using Newtonsoft.Json;
 using RestSharp;
+using Windows.Storage;
+
 
 using Microsoft.UI.Xaml.Media.Imaging;
 using System.Text;
@@ -70,6 +72,7 @@ namespace Kohi.Views
 
                 // Gọi phương thức Base64ToImageAsync một cách bất đồng bộ
                 pictureBox1.Source = await Base64ToImageAsync(dataResult.data.qrDataURL.Replace("data:image/png;base64,", ""));
+                SaveUserPaymentSettings(); // 🔐 Lưu lại thông tin người dùng
             }
             catch (Exception ex)
             {
@@ -102,6 +105,7 @@ namespace Kohi.Views
                     }
 
                     cb_template.SelectedIndex = 0;
+                    RestoreUserPaymentSettings();
                 }
             }
             catch (Exception ex)
@@ -156,6 +160,59 @@ namespace Kohi.Views
                 throw new Exception($"Lỗi chuyển đổi Base64 thành hình ảnh: {ex.Message}", ex);
             }
         }
+        // ✅ Hàm lưu thông tin người dùng
+        private void SaveUserPaymentSettings()
+        {
+            var info = new UserPaymentSettings
+            {
+                AccountNo = txtSTK.Text,
+                AccountName = txtTenTaiKhoan.Text,
+                BankBin = (cb_nganhang.SelectedItem as Datum)?.bin,
+                Template = ((ComboBoxItem)cb_template.SelectedItem)?.Content?.ToString(),
+                Address = txtDiaChi.Text // ✅ Lưu địa chỉ
+            };
 
+            string json = JsonConvert.SerializeObject(info);
+            var settings = ApplicationData.Current.LocalSettings;
+            settings.Values["UserPayment"] = json;
+        }
+
+        // ✅ Hàm khôi phục thông tin người dùng
+        private void RestoreUserPaymentSettings()
+        {
+            var settings = ApplicationData.Current.LocalSettings;
+            if (settings.Values.ContainsKey("UserPayment"))
+            {
+                try
+                {
+                    string json = settings.Values["UserPayment"]?.ToString();
+                    var saved = JsonConvert.DeserializeObject<UserPaymentSettings>(json);
+
+                    txtSTK.Text = saved.AccountNo;
+                    txtTenTaiKhoan.Text = saved.AccountName;
+                    txtDiaChi.Text = saved.Address; 
+
+
+                    var foundBank = cb_nganhang.Items.Cast<Datum>().FirstOrDefault(x => x.bin == saved.BankBin);
+                    if (foundBank != null)
+                    {
+                        cb_nganhang.SelectedItem = foundBank;
+                    }
+
+                    foreach (ComboBoxItem item in cb_template.Items)
+                    {
+                        if (item.Content.ToString() == saved.Template)
+                        {
+                            cb_template.SelectedItem = item;
+                            break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Lỗi khôi phục dữ liệu: " + ex.Message);
+                }
+            }
+        }
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Kohi.View.Converter
+namespace Kohi.Views.Converter
 {
     class AbsolutePathConverter : Microsoft.UI.Xaml.Data.IValueConverter
     {

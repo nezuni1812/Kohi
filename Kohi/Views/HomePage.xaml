@@ -7,10 +7,13 @@
     xmlns:converter="using:Kohi.Views.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
+    NavigationCacheMode="Required"
     Loaded="Page_Loaded">
 
     <Page.Resources>
+        <!-- Giữ nguyên các DataTemplate và Resource -->
         <converter:MoneyFormatConverter x:Key="vnmoney"/>
         <converter:PercentageConverter x:Key="PercentageConverter"/>
 
@@ -73,12 +76,10 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-
                         <TextBlock Grid.Column="0" 
                             Text="{Binding Size}" 
                             VerticalAlignment="Center"  
                             Width="250"/>
-
                         <TextBlock Grid.Column="1" 
                             Text="{Binding Price, Converter={StaticResource vnmoney}}" 
                             VerticalAlignment="Center" 
@@ -96,12 +97,10 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-
                         <TextBlock Grid.Column="0" 
                            Text="{Binding Name}" 
                            VerticalAlignment="Center"  
                            Width="250"/>
-
                         <TextBlock Grid.Column="1" 
                             Text="{Binding ProductVariants[0].Price, Converter={StaticResource vnmoney}}" 
                             VerticalAlignment="Center" 
@@ -111,12 +110,10 @@
                 </CheckBox.Content>
             </CheckBox>
         </DataTemplate>
-
         <DataTemplate x:Key="RadioButtonTemplate" x:DataType="x:String">
             <RadioButton Content="{x:Bind}" 
                      Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"/>
         </DataTemplate>
-        
         <DataTemplate x:Key="InvoiceDetailTemplate" x:DataType="model:InvoiceDetailModel">
             <StackPanel Orientation="Vertical" Margin="0,0,0,10">
                 <Grid>
@@ -125,29 +122,27 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
                     <TextBlock Grid.Column="0" 
                        Text="{Binding ProductVariant.Product.Name}" 
                        FontWeight="SemiBold"
                        VerticalAlignment="Center"/>
-
                     <TextBlock Grid.Column="1" 
                        Text="{Binding ProductVariant.Price, Converter={StaticResource vnmoney}}" 
                        VerticalAlignment="Center"
                        HorizontalAlignment="Right"/>
-
                     <Button Grid.Column="2" 
-                        Tag="{Binding}" 
-                        Click="DeleteInvoiceDetail_Click"
-                        Margin="10,0,0,0">
+                    Tag="{Binding}" 
+                    Click="DeleteInvoiceDetail_Click"
+                    Margin="10,0,0,0">
                         <FontIcon Glyph="&#xE74D;" FontSize="14" Foreground="Red"/>
                     </Button>
                 </Grid>
-
                 <StackPanel Margin="0,0,0,0">
                     <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
                         <Run Text="{Binding ProductVariant.Size}"/>
                         <Run Text=" - "/>
+                        <Run Text="{Binding Quantity}"/>
+                        <Run Text=" x "/>
                         <Run Text="{Binding SugarLevel, Converter={StaticResource PercentageConverter}}"/>
                         <Run Text=" Đường"/>
                         <Run Text=" - "/>
@@ -162,173 +157,243 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding ProductVariant.Product.Name}" Style="{StaticResource CaptionTextBlockStyle}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding ProductVariant.Price, Converter={StaticResource vnmoney}}" Style="{StaticResource CaptionTextBlockStyle}"/>
+                                    <TextBlock Grid.Column="0" Style="{StaticResource CaptionTextBlockStyle}">
+                                        <Run Text="{Binding ProductVariant.Product.Name}"/>
+                                        <Run Text=" - "/>
+                                        <Run Text="{Binding Quantity}"/>
+                                        <Run Text=" x"/>
+                                    </TextBlock>
+                                    <TextBlock Grid.Column="1" 
+                                       Text="{Binding ProductVariant.Price, Converter={StaticResource vnmoney}}" 
+                                       Style="{StaticResource CaptionTextBlockStyle}"/>
                                 </Grid>
-                                
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
-
     </Page.Resources>
 
-    <Grid ColumnSpacing="0">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.7*"></ColumnDefinition>
-            <ColumnDefinition Width="0.3*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <Grid Grid.Column="0" CornerRadius="10" RowSpacing="10" Padding="0,0,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-            </Grid.RowDefinitions>
+        <Grid ColumnSpacing="0" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.7*"/>
+                <ColumnDefinition Width="0.3*"/>
+            </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Row="0" Text="Trang chủ" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <Grid Grid.Column="0" CornerRadius="10" RowSpacing="10" Padding="0,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="1" Text="Danh mục" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                <TextBlock Grid.Row="0" Text="Trang chủ" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <Button Click="trainAndPredict">Train and predict</Button>
 
-            <ItemsView Grid.Row="2" Width="1000" HorizontalAlignment="Left" x:Name="categoriesList"
-                ItemsSource="{x:Bind ViewModel.CategoryViewModel.Categories}" 
-                ItemTemplate="{StaticResource ItemsViewTemplate}"
-                SelectionMode="Single"
-                SelectionChanged="onCategorySelectionChanged">
-                <ItemsView.Layout >
-                    <LinedFlowLayout ItemsStretch="None" LineSpacing="5" LineHeight="38" MinItemSpacing="10" />
-                </ItemsView.Layout>
-            </ItemsView>
+                <TextBlock Grid.Row="1" Text="Danh mục" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
-            <TextBlock Grid.Row="3" Text="Mặt hàng" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                <ScrollViewer Grid.Row="2" 
+                    HorizontalScrollBarVisibility="Auto" 
+                    VerticalScrollBarVisibility="Hidden" 
+                    HorizontalScrollMode="Enabled" 
+                    VerticalScrollMode="Disabled"
+                    Padding="0,0,0,15">
+                    <Grid HorizontalAlignment="Left" MaxWidth="500" Padding="0,0,50,0" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Tất cả" Click="ShowAllProducts_Click" Margin="0,0,10,0"/>
+                        <ItemsView Grid.Column="1" x:Name="categoriesList" Width="1000"
+                            ItemsSource="{x:Bind ViewModel.CategoryViewModel.Categories}" 
+                            ItemTemplate="{StaticResource ItemsViewTemplate}"
+                            SelectionMode="Single"
+                            SelectionChanged="onCategorySelectionChanged"
+                            HorizontalAlignment="Left">
+                            <ItemsView.Layout>
+                                <LinedFlowLayout ItemsStretch="None" LineSpacing="5" LineHeight="33" MinItemSpacing="10"/>
+                            </ItemsView.Layout>
+                        </ItemsView>
+                    </Grid>
+                </ScrollViewer>
 
-            <ScrollView Grid.Row="4">
-                <GridView x:Name="productsList"
-                    ItemsSource="{x:Bind ViewModel.Products}" 
-                    ItemTemplate="{StaticResource GridViewTemplate}"
-                    SelectionMode="None"
-                    IsItemClickEnabled="True">
-                    <GridView.ItemContainerStyle>
-                        <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
-                            <Setter Property="Margin" Value="0, 0, 10, 10"/>
-                        </Style>
-                    </GridView.ItemContainerStyle>
+                <TextBlock Grid.Row="3" Text="Mặt hàng" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
-                </GridView>
-            </ScrollView>
-
-        </Grid>
-
-        <Grid Grid.Column="1" Padding="0" CornerRadius="10" Background="{StaticResource CardBackgroundFillColorDefaultBrush}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!--TextBlock Grid.Row="0" 
-               Text="Không có sản phẩm nào trong đơn" 
-               Foreground="Gray" 
-               HorizontalAlignment="Center"
-               Margin="0,10,0,0"
-               Visibility="{Binding OrderItems.Count, Converter={StaticResource ZeroCountToVisibilityConverter}}"/-->
-            <Grid Grid.Row="0" Margin="10">
-                <AutoSuggestBox PlaceholderText="Nhập tên hoặc SĐT khách hàng"
-                    TextChanged="Control2_TextChanged"
-                    QueryIcon="Find"
-                    QuerySubmitted="Control2_QuerySubmitted"
-                    SuggestionChosen="Control2_SuggestionChosen"/>
+                <ScrollViewer Grid.Row="4">
+                    <GridView x:Name="productsList"
+                        ItemsSource="{x:Bind ViewModel.FilteredProducts}"
+                        ItemTemplate="{StaticResource GridViewTemplate}"
+                        SelectionMode="None"
+                        IsItemClickEnabled="True">
+                        <GridView.ItemContainerStyle>
+                            <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                                <Setter Property="Margin" Value="0, 0, 10, 10"/>
+                            </Style>
+                        </GridView.ItemContainerStyle>
+                    </GridView>
+                </ScrollViewer>
             </Grid>
 
-            <Grid Grid.Row="1" Margin="15,10,10,0">
-                <StackPanel Orientation="Horizontal">
-                    <FontIcon Glyph="&#xE77B;" />
-                    <TextBlock Text="Uyển Nhi - 098XXXXXXX" Margin="10,0,0,0"/>
-                </StackPanel>
-            </Grid>
-            
-            <Grid Grid.Row="2" 
-      Margin="0,10,0,0">
-                <ScrollView HorizontalAlignment="Stretch">
-                    <ListView ItemsSource="{x:Bind ViewModel.OrderItems}"
-                  ItemTemplate="{StaticResource InvoiceDetailTemplate}"
-                  SelectionMode="None"
-                  HorizontalAlignment="Stretch"
-                              Padding="0"/>
-                </ScrollView>
-            </Grid>
+            <Grid Grid.Column="1" Padding="0" CornerRadius="10" Background="{StaticResource CardBackgroundFillColorDefaultBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <!-- Tạm tính -->
-            <Grid Grid.Row="3" Padding="10" Margin="0,10,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0">
-                    <Run x:Name="TotalItemsTextBlock" Text="0"/> món
-                </TextBlock>
-                <TextBlock x:Name="TotalPriceTextBlock" Grid.Column="1" 
-                           Text="{x:Bind ViewModel.TotalPrice}"/>
-            </Grid>
+                <Grid Grid.Row="0" Margin="10">
+                    <AutoSuggestBox x:Name="CustomerSearchBox"
+                        PlaceholderText="Nhập tên hoặc SĐT khách hàng"
+                        TextChanged="CustomerSearch_TextChanged"
+                        QueryIcon="Find"
+                        QuerySubmitted="CustomerSearch_QuerySubmitted"
+                        SuggestionChosen="CustomerSearch_SuggestionChosen">
+                        <AutoSuggestBox.ItemTemplate>
+                            <DataTemplate x:DataType="model:CustomerModel">
+                                <TextBlock>
+                                    <Run Text="{x:Bind Name}"/>
+                                    <Run Text=" - "/>
+                                    <Run Text="{x:Bind Phone}"/>
+                                </TextBlock>
+                            </DataTemplate>
+                        </AutoSuggestBox.ItemTemplate>
+                    </AutoSuggestBox>
+                </Grid>
 
-            <Grid Grid.Row="4" Padding="10,0,10,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <CheckBox Content="Giao hàng" Grid.Column="0"
-                      Checked="DeliveryCheckBox_Checked"
-                      Unchecked="DeliveryCheckBox_Unchecked" />
-                <TextBox x:Name="DeliveryFee"
-                     IsEnabled="False"
-                     Grid.Column="1"
-                     Width="100"
-                     HorizontalAlignment="Right"
-                     Text="{Binding ViewModel.Invoice.DeliveryFee, Mode=TwoWay, Converter={StaticResource vnmoney}, UpdateSourceTrigger=PropertyChanged}"/>
-            </Grid>
+                <Grid Grid.Row="1" Margin="0,10,0,0">
+                    <ScrollViewer HorizontalAlignment="Stretch">
+                        <ListView ItemsSource="{x:Bind ViewModel.OrderItems}"
+                            ItemTemplate="{StaticResource InvoiceDetailTemplate}"
+                            SelectionMode="None"
+                            HorizontalAlignment="Stretch"
+                            Padding="0"/>
+                    </ScrollViewer>
+                </Grid>
 
-            <!-- Thuế hóa đơn -->
-            <Grid Grid.Row="5" Padding="10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Thuế"/>
-                <TextBlock Grid.Column="1" Text="0"/>
-            </Grid>
+                <Grid Grid.Row="2" Padding="10,5,10,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0">
+                        <Run x:Name="TotalItemsTextBlock" Text="0"/> món
+                    </TextBlock>
+                    <TextBlock x:Name="TotalPriceTextBlock" Grid.Column="1" 
+                        Text="{x:Bind ViewModel.TotalPrice}"/>
+                </Grid>
 
-            <!-- Thanh toán -->
-            <Grid Grid.Row="6" Padding="10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Button >
-                    <StackPanel Grid.Column="0" Orientation="Horizontal">
-                        <FontIcon Glyph="&#xE749;" Margin="0,0,10,0" FontSize="16"/>
-                        <TextBlock Text="In Tạm Tính"/>
+                <Grid Grid.Row="3" Padding="10,0,10,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="checkBoxDelivery"
+                        Content="Giao hàng"
+                        Grid.Column="0"
+                        Checked="DeliveryCheckBox_Checked"
+                        Unchecked="DeliveryCheckBox_Unchecked"/>
+                    <TextBlock Grid.Column="1"
+                        Text="Phí giao:"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        Margin="10,0"/>
+                    <NumberBox x:Name="DeliveryFee"
+                        IsEnabled="False"
+                        Grid.Column="2"
+                        Width="100"
+                        HorizontalAlignment="Right"
+                        ValueChanged="DeliveryFee_ValueChanged"
+                        Minimum="0"
+                        SpinButtonPlacementMode="Hidden"/>
+                </Grid>
+
+                <Grid x:Name="AddressDisplay" Grid.Row="4" Padding="10,0,10,0" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Địa chỉ:" Margin="0,0,2,0"/>
+                        <TextBlock x:Name="CustomerAddressTextBlock"
+                            Text="{Binding ViewModel.CustomerViewModel.SelectedCustomer.Address}"/>
                     </StackPanel>
-                </Button>
-                
-                <TextBlock Grid.Column="1" Text="0" FontWeight="Bold"/>
-            </Grid>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <TextBlock Text="Khoảng cách giao hàng:" Margin="0,0,2,0"/>
+                        <TextBlock>
+                            <Run x:Name="DeliveryDistance" Text="-"/>
+                            <Run Text="km"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
 
-            <!-- Nút Thanh toán -->
-            <Button Grid.Row="7" 
-        Content="Thanh toán" 
-        Style="{ThemeResource AccentButtonStyle}"
-        HorizontalAlignment="Stretch" 
-        Padding="10" 
-        Margin="10"/>
+                <Grid Grid.Row="6" Padding="10,5,10,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Click="PrintInvoice_Click">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <FontIcon Glyph="&#xE749;" Margin="0,0,10,0" FontSize="16"/>
+                            <TextBlock Text="In Tạm Tính"/>
+                        </StackPanel>
+                    </Button>
+                    <TextBlock x:Name="totalAmount" Grid.Column="1" Text="0" FontWeight="Bold"/>
+                </Grid>
+
+                <Grid Grid.Row="7" Padding="10,0,10,0" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" 
+                        Text="Phương thức thanh toán:" 
+                        VerticalAlignment="Center" 
+                        Margin="0,0,10,0"/>
+                    <DropDownButton x:Name="PaymentMethodDropDown" 
+                        Grid.Column="1" 
+                        Content="Tiền mặt" 
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Right">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <MenuFlyoutItem Text="Tiền mặt" Tag="Tiền mặt" Click="PaymentMethodMenuItem_Click"/>
+                                <MenuFlyoutItem Text="Chuyển khoản" Tag="Chuyển khoản" Click="PaymentMethodMenuItem_Click"/>
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+                </Grid>
+
+                <Button Grid.Row="8" 
+                    Content="Thanh toán" 
+                    Style="{ThemeResource AccentButtonStyle}"
+                    HorizontalAlignment="Stretch" 
+                    Padding="10" 
+                    Margin="10"
+                    Click="CheckoutButton_Click"/>
+            </Grid>
         </Grid>
+
+        <muxc:ProgressRing x:Name="ProgressRing" 
+            IsActive="False"
+            Width="50"
+            Height="50"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Grid.Row="0"/>
     </Grid>
 </Page>

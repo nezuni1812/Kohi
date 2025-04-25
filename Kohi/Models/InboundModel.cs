@@ -15,7 +15,7 @@ namespace Kohi.Models
         public DateTime InboundDate { get; set; } // Ngày nhập kho
         public DateTime ExpiryDate { get; set; }  // Ngày hết hạn của lô hàng nhập
         public int SupplierId { get; set; }     // Nhà cung cấp (tùy chọn)
-        public string Notes { get; set; }        // Ghi chú (tùy chọn)
+        public string? Notes { get; set; }        // Ghi chú (tùy chọn)
         public float TotalCost { get; set; }
         public float CostPerUnit => Quantity != 0 ? TotalCost / Quantity : 0; // Computed property
 

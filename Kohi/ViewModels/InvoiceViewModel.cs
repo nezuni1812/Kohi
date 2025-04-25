@@ -57,6 +57,65 @@ namespace Kohi.ViewModels
             }
         }
 
+        public async Task Add(InvoiceModel invoice)
+        {
+            if (invoice == null)
+            {
+                Debug.WriteLine("Add failed: Invoice is null.");
+                throw new ArgumentNullException(nameof(invoice), "Hóa đơn không được null.");
+            }
+
+            if (invoice.InvoiceDetails == null || !invoice.InvoiceDetails.Any())
+            {
+                Debug.WriteLine("Add failed: InvoiceDetails is null or empty.");
+                throw new ArgumentException("Hóa đơn phải có ít nhất một chi tiết.", nameof(invoice.InvoiceDetails));
+            }
+
+            try
+            {
+                int invoiceId = _dao.Invoices.Insert(invoice);
+                if (invoiceId <= 0)
+                {
+                    Debug.WriteLine("Add failed: Could not insert invoice.");
+                    throw new Exception("Không thể tạo hóa đơn. Vui lòng thử lại.");
+                }
+
+                foreach (var detail in invoice.InvoiceDetails)
+                {
+                    detail.InvoiceId = invoiceId;
+                    int detailResult = _dao.InvoiceDetails.Insert(detail);
+                    if (detailResult <= 0)
+                    {
+                        Debug.WriteLine($"Add failed: Could not insert InvoiceDetail for ProductId: {detail.ProductId}.");
+                        throw new Exception($"Lỗi khi lưu chi tiết hóa đơn cho sản phẩm {detail.ProductId}.");
+                    }
+
+                    if (detail.Toppings != null && detail.Toppings.Any())
+                    {
+                        foreach (var topping in detail.Toppings)
+                        {
+                            topping.InvoiceDetailId = detailResult; // Gán InvoiceDetailId
+                            int toppingId = _dao.OrderToppings.Insert(topping);
+                            if (toppingId <= 0)
+                            {
+                                Debug.WriteLine($"Add failed: Could not insert OrderTopping for ProductId: {topping.ProductId}.");
+                                throw new Exception($"Lỗi khi lưu topping cho chi tiết hóa đơn {detail.Id}.");
+                            }
+                            topping.Id = toppingId;
+                        }
+                    }
+                }
+
+                // Tải lại dữ liệu sau khi lưu thành công
+                await LoadData(CurrentPage);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error adding invoice: {ex.Message}");
+                throw;
+            }
+        }
+
         // Phương thức để chuyển đến trang tiếp theo
         public async Task NextPage()
         {
@@ -81,6 +140,156 @@ namespace Kohi.ViewModels
             if (page >= 1 && page <= TotalPages)
             {
                 await LoadData(page);
+            }
+        }
+        public async Task<List<InvoiceModel>> GetAll()
+        {
+            try
+            {
+                var Invoices = _dao.Invoices.GetAll(1, 1000); // Đồng bộ
+                return Invoices;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
+
+        public async Task<List<InvoiceModel>> GetAllWithDetails()
+        {
+            try
+            {
+                var invoices = _dao.Invoices.GetAll(1, 1000); // Đồng bộ
+                if (invoices == null || !invoices.Any())
+                {
+                    Debug.WriteLine("GetAll: No invoices found.");
+                    return new List<InvoiceModel>();
+                }
+                Debug.WriteLine($"GetAll: Loaded {invoices.Count} invoices");
+
+                var allInvoiceDetails = _dao.InvoiceDetails.GetAll(1, 1000); // Đồng bộ
+                if (allInvoiceDetails == null || !allInvoiceDetails.Any())
+                {
+                    Debug.WriteLine("GetAll: No invoice details found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetAll: Loaded {allInvoiceDetails.Count} invoice details");
+                }
+
+                var allProductVariants = _dao.ProductVariants.GetAll(1, 1000); // Đồng bộ
+                if (allProductVariants == null || !allProductVariants.Any())
+                {
+                    Debug.WriteLine("GetAll: No product variants found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetAll: Loaded {allProductVariants.Count} product variants");
+                }
+
+                foreach (var invoice in invoices)
+                {
+                    var detailsForInvoice = allInvoiceDetails?.Where(d => d.InvoiceId == invoice.Id).ToList() ?? new List<InvoiceDetailModel>();
+                    invoice.InvoiceDetails = detailsForInvoice;
+
+                    foreach (var detail in invoice.InvoiceDetails)
+                    {
+                        detail.ProductVariant = allProductVariants?.FirstOrDefault(pv => pv.Id == detail.ProductId);
+                        if (detail.ProductVariant == null)
+                        {
+                            Debug.WriteLine($"InvoiceDetail {detail.Id} has no matching ProductVariant for ProductId {detail.ProductId}");
+                        }
+                    }
+
+                    Debug.WriteLine($"Invoice {invoice.Id} has {invoice.InvoiceDetails.Count} details");
+                }
+
+                return invoices;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetAll: {ex.Message}");
+                return new List<InvoiceModel>();
+            }
+        }
+
+        public async Task<InvoiceModel> GetDetailsById(int invoiceId)
+        {
+            try
+            {
+                var invoice = _dao.Invoices.GetById(invoiceId.ToString());
+                if (invoice == null)
+                {
+                    Debug.WriteLine($"GetDetailsById: No invoice found for Id {invoiceId}.");
+                    return null;
+                }
+                Debug.WriteLine($"GetDetailsById: Found invoice {invoice.Id}");
+
+                var allInvoiceDetails = await Task.Run(() => _dao.InvoiceDetails.GetAll(
+                    pageNumber: 1,
+                    pageSize: 1000
+                ));
+                if (allInvoiceDetails == null || !allInvoiceDetails.Any())
+                {
+                    Debug.WriteLine($"GetDetailsById: No invoice details found.");
+                    invoice.InvoiceDetails = new List<InvoiceDetailModel>();
+                    return invoice;
+                }
+
+                var detailsForInvoice = allInvoiceDetails.Where(d => d.InvoiceId == invoice.Id).ToList();
+                invoice.InvoiceDetails = detailsForInvoice;
+                Debug.WriteLine($"GetDetailsById: Invoice {invoice.Id} has {invoice.InvoiceDetails.Count} details");
+
+                var allProductVariants = await Task.Run(() => _dao.ProductVariants.GetAll(
+                    pageNumber: 1,
+                    pageSize: 1000
+                ));
+                if (allProductVariants == null || !allProductVariants.Any())
+                {
+                    Debug.WriteLine($"GetDetailsById: No product variants found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetDetailsById: Loaded {allProductVariants.Count} product variants");
+                }
+
+                var allProducts = await Task.Run(() => _dao.Products.GetAll(
+                    pageNumber: 1,
+                    pageSize: 1000
+                ));
+                if (allProducts == null || !allProducts.Any())
+                {
+                    Debug.WriteLine($"GetDetailsById: No products found.");
+                }
+                else
+                {
+                    Debug.WriteLine($"GetDetailsById: Loaded {allProducts.Count} products");
+                }
+
+                foreach (var detail in invoice.InvoiceDetails)
+                {
+                    detail.ProductVariant = allProductVariants?.FirstOrDefault(pv => pv.Id == detail.ProductId);
+                    if (detail.ProductVariant == null)
+                    {
+                        Debug.WriteLine($"GetDetailsById: InvoiceDetail {detail.Id} has no matching ProductVariant for ProductId {detail.ProductId}");
+                    }
+                    else
+                    {
+                        detail.ProductVariant.Product = allProducts?.FirstOrDefault(p => p.Id == detail.ProductVariant.ProductId);
+                        if (detail.ProductVariant.Product == null)
+                        {
+                            Debug.WriteLine($"GetDetailsById: ProductVariant {detail.ProductVariant.Id} has no matching Product for ProductId {detail.ProductVariant.ProductId}");
+                        }
+                    }
+                }
+
+                return invoice;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetDetailsById for InvoiceId {invoiceId}: {ex.Message}");
+                return null;
             }
         }
     }

@@ -18,6 +18,8 @@ namespace Kohi.Models
 
         public string OrderType { get; set; }
 
+        public string PaymentMethod { get; set; }
+
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 

@@ -23,170 +23,179 @@
     </Page.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <ContentDialog x:Name="IngredientDialog"
-            Title="Thêm nguyên vật liệu"
-            CloseButtonText="Đóng"
-            PrimaryButtonText="Xác nhận"
-            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-            CloseButtonClick="AddIngredientDialog_CloseButtonClick"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <Grid ColumnSpacing="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.6*"/>
-                    <ColumnDefinition Width="0.4*"/>
-                </Grid.ColumnDefinitions>
+            <ContentDialog x:Name="IngredientDialog"
+                Title="Thêm nguyên vật liệu"
+                CloseButtonText="Đóng"
+                PrimaryButtonText="Xác nhận"
+                PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+                CloseButtonClick="AddIngredientDialog_CloseButtonClick"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <Grid ColumnSpacing="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.6*"/>
+                        <ColumnDefinition Width="0.4*"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Tên sản phẩm"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <TextBox x:Name="IngredientNameTextBox" PlaceholderText="Nhập tên nguyên vật liệu"/>
-                </StackPanel>
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Tên sản phẩm"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <TextBox x:Name="IngredientNameTextBox" PlaceholderText="Nhập tên nguyên vật liệu"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Đơn vị"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <TextBox x:Name="UnitTextBox" PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
-                </StackPanel>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Đơn vị"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <TextBox x:Name="UnitTextBox" PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
-                    <TextBlock Text="Mô tả" Margin="0,0,0,5"/>
-                    <TextBox
+                    <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                        <TextBlock Text="Mô tả" Margin="0,0,0,5"/>
+                        <TextBox
                             x:Name="DescriptionTextBox"
                             AcceptsReturn="True" 
                             Height="50" 
                             TextWrapping="Wrap" 
                             PlaceholderText="Nhập mô tả nguyên vật liệu"/>
-                </StackPanel>
-            </Grid>
-        </ContentDialog>
+                    </StackPanel>
+                </Grid>
+            </ContentDialog>
 
-        <ContentDialog x:Name="EditIngredientDialog"
-            Title="Chỉnh sửa nguyên vật liệu"
-            CloseButtonText="Đóng"
-            PrimaryButtonText="Xác nhận"
-            PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
-            CloseButtonClick="EditIngredientDialog_CloseButtonClick"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-            <Grid ColumnSpacing="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.6*"/>
-                    <ColumnDefinition Width="0.4*"/>
-                </Grid.ColumnDefinitions>
+            <ContentDialog x:Name="EditIngredientDialog"
+                Title="Chỉnh sửa nguyên vật liệu"
+                CloseButtonText="Đóng"
+                PrimaryButtonText="Xác nhận"
+                PrimaryButtonStyle="{StaticResource PrimaryButtonStyle}"
+                CloseButtonClick="EditIngredientDialog_CloseButtonClick"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <Grid ColumnSpacing="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.6*"/>
+                        <ColumnDefinition Width="0.4*"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Tên sản phẩm"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <TextBox x:Name="EditIngredientNameTextBox" PlaceholderText="Nhập tên nguyên vật liệu"/>
-                </StackPanel>
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Tên sản phẩm"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <TextBox x:Name="EditIngredientNameTextBox" PlaceholderText="Nhập tên nguyên vật liệu"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
-                    <TextBlock Margin="0,0,0,5">
-                        <Run Text="Đơn vị"/>
-                        <Run Text="*" Foreground="Red"/>
-                    </TextBlock>
-                    <TextBox x:Name="EditUnitTextBox" PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
-                </StackPanel>
-                
-                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
-                    <TextBlock Text="Mô tả" Margin="0,0,0,5"/>
-                    <TextBox
-                        x:Name="EditDescriptionTextBox"
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
+                        <TextBlock Margin="0,0,0,5">
+                            <Run Text="Đơn vị"/>
+                            <Run Text="*" Foreground="Red"/>
+                        </TextBlock>
+                        <TextBox x:Name="EditUnitTextBox" PlaceholderText="Nhập đơn vị (Kg, Lít, Cái,...)"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
+                        <TextBlock Text="Mô tả" Margin="0,0,0,5"/>
+                        <TextBox
+                            x:Name="EditDescriptionTextBox"
                             AcceptsReturn="True" 
                             Height="50" 
                             TextWrapping="Wrap" 
                             PlaceholderText="Nhập mô tả nguyên vật liệu"/>
-                </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </ContentDialog>
+
+            <TextBlock Grid.Row="0" Text="Danh sách nguyên vật liệu" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+            <Border Grid.Row="1" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top"/>
+
+            <Grid Grid.Row="2" Margin="0,10,0,10">
+                <tableView:TableView x:Name="MyTableView"
+                    ItemsSource="{x:Bind IngredientViewModel.Ingredients}"
+                    AutoGenerateColumns="False"           
+                    SelectionMode="Single"
+                    CanFilterColumns="True"
+                    CanSortColumns="True"
+                    CornerButtonMode="Options"
+                    ShowExportOptions="True"
+                    HeaderGridLinesVisibility="All"
+                    GridLinesVisibility="Horizontal"
+                    SelectionChanged="OnSelectionChanged"
+                    IsReadOnly="True">
+                    <tableView:TableView.Columns>
+                        <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}"/>
+                        <tableView:TableViewTextColumn Header="Tên sản phẩm" Binding="{Binding Name}"/>
+                        <tableView:TableViewTextColumn Header="Đơn vị" Binding="{Binding Unit}"/>
+                        <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Description}"/>
+                    </tableView:TableView.Columns>
+                </tableView:TableView>
             </Grid>
-        </ContentDialog>
 
-        <TextBlock Grid.Row="0" Text="Danh sách nguyên vật liệu" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
+            <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
+                CornerRadius="{ThemeResource ControlCornerRadius}">
+                <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </Border>
 
-        <Border Grid.Row="1" Grid.Column="0" Height="1" Background="LightGray" Margin="0,43,0,0" VerticalAlignment="Top" />
-
-        <Grid Grid.Row="2" Margin="0,10,0,10">
-            <tableView:TableView x:Name="MyTableView"
-                 ItemsSource="{x:Bind IngredientViewModel.Ingredients}"
-                 AutoGenerateColumns="False"           
-                 SelectionMode="Single"
-                 CanFilterColumns="True"
-                 CanSortColumns="True"
-                 CornerButtonMode="Options"
-                 ShowExportOptions="True"
-                 HeaderGridLinesVisibility="All"
-                 GridLinesVisibility="Horizontal"
-                 SelectionChanged="OnSelectionChanged"
-                 IsReadOnly="True">
-                <tableView:TableView.Columns>
-                    
-                    <tableView:TableViewNumberColumn Header="Id" Binding="{Binding Id}"/>
-                    
-                    <tableView:TableViewTextColumn Header="Tên sản phẩm" Binding="{Binding Name}" />
-
-                    <tableView:TableViewTextColumn Header="Đơn vị" Binding="{Binding Unit}" />
-
-                    <!--tableView:TableViewNumberColumn Header="Giá mỗi đơn vị" Binding="{Binding CostPerUnit, Converter={StaticResource vnmoney}}" /-->
-
-                    <tableView:TableViewTextColumn Header="Mô tả" Binding="{Binding Description }" />
-                </tableView:TableView.Columns>
-            </tableView:TableView>
+            <StackPanel Grid.Row="4" Orientation="Horizontal">
+                <Button x:Name="editButton" Click="showEditIngredientDialog_Click" Style="{ThemeResource AccentButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE70F;" FontSize="14"/>
+                        <TextBlock x:Name="editButtonTextBlock" Text="Chỉnh sửa nguyên vật liệu" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="deleteButton" Click="showDeleteIngredientDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                        <TextBlock x:Name="deleteButtonTextBlock" Text="Xóa nguyên vật liệu" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="addButton" Click="showAddIngredientDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE710;" FontSize="14"/>
+                        <TextBlock x:Name="addButtonTextBlock" Text="Thêm nguyên vật liệu" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Grid>
-        <Border Grid.Row="3" Margin="0,10,0,0" HorizontalAlignment="Right"
-            CornerRadius="{ThemeResource ControlCornerRadius}">
-            <ListBox x:Name="pageList" SelectionChanged="OnPageSelectionChanged">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-            </ListBox>
-        </Border>
-        <StackPanel Grid.Row="4" Orientation="Horizontal">
-            <Button x:Name="editButton" Click="showEditIngredientDialog_Click" Style="{StaticResource AccentButtonStyle}">
-                <StackPanel Orientation="Horizontal">
-                    <FontIcon Glyph="&#xE70F;" FontSize="14"/>
-                    <TextBlock x:Name="editButtonTextBlock" Text="Chỉnh sửa nguyên vật liệu" Margin="5,0,0,0"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="deleteButton" Click="showDeleteIngredientDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0"> 
-                <StackPanel Orientation="Horizontal">
-                    <FontIcon Glyph="&#xE74D;" FontSize="14"/>
-                    <TextBlock x:Name="deleteButtonTextBlock" Text="Xóa nguyên vật liệu" Margin="5,0,0,0"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="addButton" Click="showAddIngredientDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
-                <StackPanel Orientation="Horizontal">
-                    <FontIcon Glyph="&#xE710;" FontSize="14"/>
-                    <TextBlock x:Name="addButtonTextBlock" Text="Thêm nguyên vật liệu" Margin="5,0,0,0"/>
-                </StackPanel>
-            </Button>
-        </StackPanel>
+
+        <muxc:ProgressRing x:Name="ProgressRing" 
+            IsActive="False"
+            Width="50"
+            Height="50"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Grid.Row="0"/>
     </Grid>
 </Page>

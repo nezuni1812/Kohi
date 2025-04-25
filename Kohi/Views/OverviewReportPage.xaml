@@ -6,45 +6,221 @@
     xmlns:local="using:Kohi.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:chart="using:Syncfusion.UI.Xaml.Charts"
+    xmlns:charts="using:Syncfusion.UI.Xaml.Charts"
     xmlns:viewModel="using:Kohi.ViewModels"
+    xmlns:converter="using:Kohi.Views.Converter"
     mc:Ignorable="d">
 
-    <Grid>
-        <!--TextBlock Text="Tổng quan"></TextBlock>
+    <Page.Resources>
+        <converter:MoneyFormatConverter x:Key="MoneyFormatConverter"/>
+        <BrushCollection x:Key="ChartPalette">
+            <SolidColorBrush Color="{ThemeResource SystemAccentColor}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorLight3}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorDark1}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorDark2}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorDark3}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorLight2}"/>
+        </BrushCollection>
+    </Page.Resources>
 
-        <chart:SfCircularChart x:Name="Chart" Header="Sales by a Salesperson">
-            <chart:SfCircularChart.Legend>
-                <chart:ChartLegend IconWidth="15" IconHeight="15"/>
-            </chart:SfCircularChart.Legend>
+    <ScrollView>
+        <Grid RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Tổng quan" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
+            <Grid Grid.Row="1" ColumnSpacing="15" Width="700" HorizontalAlignment="Left">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Padding="10" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10">
+                    <TextBlock Text="Doanh thu" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{x:Bind ViewModel.TotalRevenue, Mode=OneWay, Converter={StaticResource MoneyFormatConverter}}" 
+                               Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Padding="10" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10">
+                    <TextBlock Text="Lợi nhuận" Style="{StaticResource BodyTextBlockStyle}"></TextBlock>
+                    <TextBlock Text="{x:Bind ViewModel.TotalProfit, Mode=OneWay, Converter={StaticResource MoneyFormatConverter}}" 
+                               Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Padding="10" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10">
+                    <TextBlock Text="Chi phí" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{x:Bind ViewModel.TotalExpense, Mode=OneWay, Converter={StaticResource MoneyFormatConverter}}" 
+                               Style="{StaticResource SubtitleTextBlockStyle}"/>
+                </StackPanel>
+                <!--StackPanel Grid.Column="3" Padding="10" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10">
+                    <TextBlock Text="Nhập kho" Style="{StaticResource BodyTextBlockStyle}"></TextBlock>
+                    <TextBlock Text="10.000 đ" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
+                </StackPanel-->
+            </Grid>
 
-            <chart:SfCircularChart.Resources>
-                <BrushCollection x:Key="ChartPalette">
-                    <SolidColorBrush Color="#4dd0e1"/>
-                    <SolidColorBrush Color="#26c6da"/>
-                    <SolidColorBrush Color="#00bcd4"/>
-                    <SolidColorBrush Color="#00acc1"/>
-                    <SolidColorBrush Color="#0097a7"/>
-                    <SolidColorBrush Color="#00838f"/>
-                </BrushCollection>
-            </chart:SfCircularChart.Resources>
+            <StackPanel Grid.Row="2" Spacing="10">
+                <!-- Bộ lọc thời gian -->
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <ComboBox x:Name="TimeRangeComboBox" 
+                  SelectedItem="{x:Bind ViewModel.SelectedTimeRange, Mode=TwoWay}" 
+                  SelectionChanged="TimeRangeComboBox_SelectionChanged">
+                        <x:String>Hôm nay</x:String>
+                        <x:String>Tuần này</x:String>
+                        <x:String>Tháng này</x:String>
+                        <x:String>Năm này</x:String>
+                        <x:String>Tùy chỉnh</x:String>
+                    </ComboBox>
+                    <CalendarDatePicker x:Name="StartDatePicker" Visibility="Collapsed" Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}" />
+                    <CalendarDatePicker x:Name="EndDatePicker" Visibility="Collapsed" Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}" />
+                    <Button Content="Áp dụng" Click="ApplyCustomDateRange_Click" Visibility="Collapsed" x:Name="ApplyButton"/>
+                </StackPanel>
 
-            <chart:PieSeries ItemsSource="{Binding Data}" 
-                          XBindingPath="Product" 
-                          YBindingPath="SalesRate" 
-                          PaletteBrushes="{ThemeResource ChartPalette}"
-                          EnableAnimation="True" 
-                          ShowDataLabels="True"
-                          Stroke="White"
-                          StrokeWidth="2"
-                          LegendIcon="Circle">
+                <!-- Biểu đồ -->
+                <charts:SfCartesianChart x:Name="ProfitChart" 
+                     Header="Lợi nhuận theo thời gian"
+                     PaletteBrushes="{StaticResource ChartPalette}">
+                    <!-- Legend -->
+                    <charts:SfCartesianChart.Legend>
+                        <charts:ChartLegend IconWidth="13" IconHeight="13"/>
+                    </charts:SfCartesianChart.Legend>
 
-                <chart:PieSeries.DataLabelSettings>
-                    <chart:CircularDataLabelSettings ShowConnectorLine="True" Format="0.0'%" 
+                    <!-- Trục X -->
+                    <charts:SfCartesianChart.XAxes>
+                        <charts:CategoryAxis Interval="1" 
+                         PlotOffsetStart="10" 
+                         PlotOffsetEnd="10" 
+                         ShowMajorGridLines="False" 
+                         AxisLineOffset="10"
+                         LabelPlacement="OnTicks"/>
+                    </charts:SfCartesianChart.XAxes>
+
+                    <!-- Trục Y -->
+                    <charts:SfCartesianChart.YAxes>
+                        <charts:NumericalAxis Maximum="{x:Bind ViewModel.MaxProfit, Mode=OneWay}" 
+                          Minimum="0" 
+                          Interval="{x:Bind ViewModel.ProfitInterval, Mode=OneWay}"
+                          TickLineSize="10">
+                            <charts:NumericalAxis.LabelStyle>
+                                <charts:LabelStyle LabelFormat="#,##0 'đ'" FontSize="13"/>
+                            </charts:NumericalAxis.LabelStyle>
+                        </charts:NumericalAxis>
+                    </charts:SfCartesianChart.YAxes>
+
+                    <!-- Biểu đồ cột Doanh thu -->
+                    <charts:ColumnSeries ItemsSource="{x:Bind ViewModel.ChartData, Mode=OneWay}"
+                        XBindingPath="Label"
+                        YBindingPath="Revenue"
+                        Label="Doanh thu"
+                        EnableAnimation="True"
+                        EnableTooltip="True"
+                        SegmentSpacing="0.2"
+                        LegendIcon="Circle">
+                        <!-- Tooltip cho cột Doanh thu -->
+                        <charts:ColumnSeries.TooltipTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Item.Revenue, Converter={StaticResource MoneyFormatConverter}}" 
+                                            Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                            </DataTemplate>
+                        </charts:ColumnSeries.TooltipTemplate>
+                    </charts:ColumnSeries>
+
+                    <!-- Biểu đồ cột Lợi nhuận -->
+                    <charts:ColumnSeries ItemsSource="{x:Bind ViewModel.ChartData, Mode=OneWay}"
+                        XBindingPath="Label"
+                        YBindingPath="Profit"
+                        Label="Lợi nhuận"
+                        EnableAnimation="True"
+                        EnableTooltip="True"
+                        SegmentSpacing="0.2"
+                        LegendIcon="Circle">
+                        <!-- Tooltip cho cột Lợi nhuận -->
+                        <charts:ColumnSeries.TooltipTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Item.Profit, Converter={StaticResource MoneyFormatConverter}}" 
+                                            Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                            </DataTemplate>
+                        </charts:ColumnSeries.TooltipTemplate>
+                    </charts:ColumnSeries>
+
+
+                </charts:SfCartesianChart>
+            </StackPanel>
+            <!-- Biểu đồ tròn Chi phí theo danh mục -->
+            <Grid Grid.Row="3" ColumnSpacing="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+                <charts:SfCircularChart Grid.Column="0" 
+                                        Header="Chi phí theo danh mục">
+                    <!-- Legend -->
+                    <charts:SfCircularChart.Legend>
+                        <charts:ChartLegend IconWidth="13" IconHeight="13"/>
+                    </charts:SfCircularChart.Legend>
+
+                    <!-- Biểu đồ tròn -->
+                    <charts:PieSeries ItemsSource="{x:Bind ViewModel.ExpenseCategoryData, Mode=OneWay}"
+                                      XBindingPath="CategoryName"
+                                      YBindingPath="Amount"
+                                      Label="Chi phí"
+                                      PaletteBrushes="{StaticResource ChartPalette}"
+                                      EnableAnimation="True"
+                                      EnableTooltip="True"
+                                      ShowDataLabels="True">
+                        <!-- Tooltip cho biểu đồ tròn -->
+                        <charts:PieSeries.TooltipTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Item.CategoryName}" 
+                                           Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                            </DataTemplate>
+                        </charts:PieSeries.TooltipTemplate>
+                        <!-- Nhãn dữ liệu -->
+                        <charts:PieSeries.DataLabelSettings>
+                            <charts:CircularDataLabelSettings ShowConnectorLine="True" Format="#,##0 'đ'" 
                                        Position="OutsideExtended" Background="Transparent" 
                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                </chart:PieSeries.DataLabelSettings>
-            </chart:PieSeries>
-        </chart:SfCircularChart-->
-    </Grid>
+                        </charts:PieSeries.DataLabelSettings>
+                    </charts:PieSeries>
+                </charts:SfCircularChart>
+            </Grid>
+
+            <!--TextBlock Text="Tổng quan"></TextBlock>
+
+            <charts:SfCircularChart x:Name="charts" Header="Sales by a Salesperson">
+                <charts:SfCircularChart.Legend>
+                    <charts:ChartLegend IconWidth="15" IconHeight="15"/>
+                </charts:SfCircularChart.Legend>
+
+                <charts:SfCircularChart.Resources>
+                    <BrushCollection x:Key="ChartPalette">
+                        <SolidColorBrush Color="#4dd0e1"/>
+                        <SolidColorBrush Color="#26c6da"/>
+                        <SolidColorBrush Color="#00bcd4"/>
+                        <SolidColorBrush Color="#00acc1"/>
+                        <SolidColorBrush Color="#0097a7"/>
+                        <SolidColorBrush Color="#00838f"/>
+                    </BrushCollection>
+                </charts:SfCircularChart.Resources>
+
+                <charts:PieSeries ItemsSource="{Binding Data}" 
+                              XBindingPath="Product" 
+                              YBindingPath="SalesRate" 
+                              PaletteBrushes="{ThemeResource ChartPalette}"
+                              EnableAnimation="True" 
+                              ShowDataLabels="True"
+                              Stroke="White"
+                              StrokeWidth="2"
+                              LegendIcon="Circle">
+
+                    <charts:PieSeries.DataLabelSettings>
+                        <charts:CircularDataLabelSettings ShowConnectorLine="True" Format="0.0'%" 
+                                           Position="OutsideExtended" Background="Transparent" 
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    </charts:PieSeries.DataLabelSettings>
+                </charts:PieSeries>
+            </charts:SfCircularChart-->
+        </Grid>
+    </ScrollView>
 </Page>

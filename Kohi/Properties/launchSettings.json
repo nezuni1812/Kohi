@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Kohi (Package)": {
-      "commandName": "MsixPackage"
+      "commandName": "MsixPackage",
+      "nativeDebugging": true
     },
     "Kohi (Unpackaged)": {
       "commandName": "Project"

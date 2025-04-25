@@ -18,7 +18,9 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Kohi.Views;
 using Kohi.Services;
-//using Syncfusion.Licensing;
+using Syncfusion.Licensing;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -49,11 +51,46 @@ namespace Kohi
         /// Invoked when the application is launched.
         /// </summary>
         /// <param name="args">Details about the launch request and process.</param>
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            //SyncfusionLicenseProvider.RegisterLicense("Mzc3MDU4OEAzMjM4MmUzMDJlMzBsZ211SjlybUsyRzl4UlZ2a2cxMEFVWVZ4MkkvcG9kU1hWYXJaUDhsbDhjPQ==");
+            SyncfusionLicenseProvider.RegisterLicense("");
             m_window = new MainWindow();
             m_window.Activate();
+
+            await CheckDatabaseConnectionAsync();
+        }
+
+        private async Task CheckDatabaseConnectionAsync()
+        {
+            try
+            {
+                using var client = new HttpClient();
+                var response = await client.GetAsync("http://localhost:3000/categories");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    await ShowErrorDialogAndExit("Không thể kết nối cơ sở dữ liệu.");
+                }
+            }
+            catch
+            {
+                await ShowErrorDialogAndExit("Không thể kết nối cơ sở dữ liệu.");
+            }
+        }
+
+        private async Task ShowErrorDialogAndExit(string message)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Lỗi",
+                Content = message,
+                CloseButtonText = "Xác nhận",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = m_window.Content.XamlRoot
+            };
+
+            await dialog.ShowAsync();
+            Exit();
         }
 
         private Window? m_window;

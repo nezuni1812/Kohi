@@ -16,35 +16,63 @@ using Kohi.Models;
 using Kohi.ViewModels;
 using System.Diagnostics;
 using WinUI.TableView;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Kohi.Errors;
+using System.Threading.Tasks;
 
 namespace Kohi.Views
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class IngredientsPage : Page
     {
         public IngredientViewModel IngredientViewModel { get; set; } = new IngredientViewModel();
-
         public IngredientModel? selectedIngredient { get; set; }
-
         public int selectedIngredientId = -1;
+        private readonly IErrorHandler _errorHandler;
+        public bool IsLoading { get; set; } = false;
+
         public IngredientsPage()
         {
             this.InitializeComponent();
             selectedIngredientId = -1;
             selectedIngredient = null;
+            var emptyInputHandler = new EmptyInputErrorHandler();
+            _errorHandler = emptyInputHandler;
             Loaded += IngredientsPage_Loaded;
         }
 
-        public async void IngredientsPage_Loaded(object sender, RoutedEventArgs e)
+        private async void IngredientsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await IngredientViewModel.LoadData();
-            UpdatePageList();
+            await LoadDataWithProgress();
         }
+
+        private async Task LoadDataWithProgress(int page = 1)
+        {
+            try
+            {
+                IsLoading = true;
+                ProgressRing.IsActive = true;
+
+                await IngredientViewModel.LoadData(page);
+                UpdatePageList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading ingredients: {ex.Message}");
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = $"Không thể tải dữ liệu: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+                ProgressRing.IsActive = false;
+            }
+        }
+
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is TableView tableView && tableView.SelectedItem is IngredientModel ingredientModel)
@@ -75,18 +103,41 @@ namespace Kohi.Views
             var selectedPage = (int)pageList.SelectedItem;
             if (selectedPage != IngredientViewModel.CurrentPage)
             {
-                await IngredientViewModel.LoadData(selectedPage);
-                UpdatePageList();
+                await LoadDataWithProgress(selectedPage);
             }
         }
 
         public async void showAddIngredientDialog_Click(object sender, RoutedEventArgs e)
         {
+            IngredientNameTextBox.Text = string.Empty;
+            UnitTextBox.Text = string.Empty;
+            DescriptionTextBox.Text = string.Empty;
+
             Debug.WriteLine("showAddIngredientDialog_Click triggered");
             var result = await IngredientDialog.ShowAsync();
 
             if (result == ContentDialogResult.Primary)
             {
+                var fields = new Dictionary<string, string>
+                {
+                    { "Tên nguyên vật liệu", IngredientNameTextBox.Text },
+                    { "Đơn vị", UnitTextBox.Text }
+                };
+
+                List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                if (errors.Any())
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
                 var newIngredient = new IngredientModel
                 {
                     Name = IngredientNameTextBox.Text,
@@ -95,13 +146,7 @@ namespace Kohi.Views
                 };
 
                 await IngredientViewModel.Add(newIngredient);
-                IngredientNameTextBox.Text = "";
-                UnitTextBox.Text = "";
-                DescriptionTextBox.Text = "";
-            }
-            else
-            {
-
+                await LoadDataWithProgress();
             }
         }
 
@@ -113,7 +158,6 @@ namespace Kohi.Views
 
         private void AddIngredientDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-
         }
 
         public async void showEditIngredientDialog_Click(object sender, RoutedEventArgs e)
@@ -125,29 +169,52 @@ namespace Kohi.Views
                     Title = "Lỗi",
                     Content = "Không có nguyên vật liệu nào được chọn",
                     CloseButtonText = "OK",
-                    XamlRoot = base.XamlRoot
+                    XamlRoot = this.XamlRoot
                 };
                 await noSelectionDialog.ShowAsync();
                 return;
             }
 
-            Debug.WriteLine("showEditInfoDialog_Click triggered");
+            Debug.WriteLine("showEditIngredientDialog_Click triggered");
             EditIngredientNameTextBox.Text = selectedIngredient.Name;
             EditUnitTextBox.Text = selectedIngredient.Unit;
             EditDescriptionTextBox.Text = selectedIngredient.Description;
 
             if (await EditIngredientDialog.ShowAsync() == ContentDialogResult.Primary)
             {
+                var fields = new Dictionary<string, string>
+                {
+                    { "Tên nguyên vật liệu", EditIngredientNameTextBox.Text },
+                    { "Đơn vị", EditUnitTextBox.Text }
+                };
+
+                List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                if (errors.Any())
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Lỗi nhập liệu",
+                        Content = string.Join("\n", errors),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
                 IngredientModel editedIngredient = new IngredientModel
                 {
-                    Id = selectedIngredient.Id, // Giữ nguyên Id của mục đang chỉnh sửa
+                    Id = selectedIngredient.Id,
                     Name = EditIngredientNameTextBox.Text,
                     Unit = EditUnitTextBox.Text,
                     Description = EditDescriptionTextBox.Text
                 };
+
                 await IngredientViewModel.Update(selectedIngredient.Id.ToString(), editedIngredient);
+                await LoadDataWithProgress(IngredientViewModel.CurrentPage);
             }
         }
+
         private void EditIngredientDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             args.Cancel = true;
@@ -156,9 +223,7 @@ namespace Kohi.Views
 
         private void EditIngredientDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-
         }
-
 
         public async void showDeleteIngredientDialog_Click(object sender, RoutedEventArgs e)
         {
@@ -171,7 +236,6 @@ namespace Kohi.Views
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
-
                 await noSelectionDialog.ShowAsync();
                 return;
             }
@@ -192,6 +256,7 @@ namespace Kohi.Views
             {
                 await IngredientViewModel.Delete(selectedIngredientId.ToString());
                 Debug.WriteLine($"Đã xóa nguyên vật liệu ID: {selectedIngredientId}");
+                await LoadDataWithProgress(IngredientViewModel.CurrentPage);
             }
             else
             {

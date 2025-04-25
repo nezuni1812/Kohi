@@ -32,6 +32,8 @@ namespace Kohi.Views
         public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
         public IngredientViewModel IngredientViewModel { get; set; } = new IngredientViewModel();
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel();
+        public RecipeDetailViewModel RecipeDetailViewModel { get; set; } = new RecipeDetailViewModel();
+        public ProductVariantViewModel ProductVariantViewModel { get; set; } = new ProductVariantViewModel();
         public AddNewProductViewModel ViewModel { get; set; } = new AddNewProductViewModel();
 
         private StorageFile selectedImageFile;
@@ -120,35 +122,82 @@ namespace Kohi.Views
 
         private async void saveButton_click(object sender, RoutedEventArgs e)
         {
-            string imgName = await SaveImage();
-
-            var selectedCategory = CategoryProductComboBox.SelectedItem as CategoryModel;
             List<string> errors = new List<string>();
+
+            // Bước 1: Thu thập và kiểm tra dữ liệu Product
+            string imgName = await SaveImage();
+            var selectedCategory = CategoryProductComboBox.SelectedItem as CategoryModel;
             string categoryName = selectedCategory?.Name ?? "";
 
-            var fields = new Dictionary<string, string>
+            var productFields = new Dictionary<string, string>
+    {
+        { "Tên danh mục", categoryName },
+        { "Hình sản phẩm", imgName },
+        { "Tên sản phẩm", ProductNameTextBox.Text }
+    };
+
+            errors.AddRange(_errorHandler?.HandleError(productFields) ?? new List<string>());
+
+            // Bước 2: Thu thập và kiểm tra dữ liệu ProductVariants và RecipeDetails
+            var productVariants = new List<ProductVariantModel>();
+            foreach (var variantVM in ViewModel.Variants)
             {
-                { "Tên danh mục", categoryName },
-                { "Hình sản phẩm", imgName },
-                { "Tên sản phẩm", ProductNameTextBox.Text },
+                var variantFields = new Dictionary<string, string>
+        {
+            { "Size", variantVM.Size ?? "" },
+            { "Price", variantVM.Price.ToString(System.Globalization.CultureInfo.InvariantCulture) },
+            { "Cost", variantVM.Cost.ToString(System.Globalization.CultureInfo.InvariantCulture) }
+        };
+
+                errors.AddRange(_errorHandler?.HandleError(variantFields)?.Select(err => $"Biến thể: {err}") ?? new List<string>());
+
+                var variant = new ProductVariantModel
+                {
+                    Size = variantVM.Size,
+                    Price = variantVM.Price,
+                    Cost = variantVM.Cost,
+                    RecipeDetails = new List<RecipeDetailModel>()
+                };
+
+                // Kiểm tra RecipeDetails
+                foreach (var recipeVM in variantVM.RecipeDetails)
+                {
+                    var recipeFields = new Dictionary<string, string>
+            {
+                { "Nguyên liệu", recipeVM.Ingredient?.Name ?? "" },
+                { "Số lượng", recipeVM.Quantity.ToString(System.Globalization.CultureInfo.InvariantCulture) }
             };
 
-            Debug.WriteLine("hoang" + imgName);
+                    errors.AddRange(_errorHandler?.HandleError(recipeFields)?.Select(err => $"Biến thể {variant.Size}, Công thức: {err}") ?? new List<string>());
 
-            List<string> validationErrors = _errorHandler?.HandleError(fields) ?? new List<string>();
-            errors.AddRange(validationErrors);
+                    var recipe = new RecipeDetailModel
+                    {
+                        IngredientId = recipeVM.Ingredient?.Id ?? 0,
+                        Quantity = recipeVM.Quantity,
+                        Unit = recipeVM.Unit ?? recipeVM.Ingredient?.Unit ?? ""
+                    };
 
-            if (HasErrors(errors))
+                    variant.RecipeDetails.Add(recipe);
+                }
+
+                productVariants.Add(variant);
+            }
+
+            // Bước 3: Hiển thị lỗi nếu có
+            if (errors.Any())
             {
+                outtext.Text = $"Lỗi nhập liệu:\n{string.Join("\n", errors)}";
                 return;
             }
 
+            // Bước 4: Lưu dữ liệu nếu không có lỗi
             try
             {
+                // Tạo Product
                 var product = new ProductModel
                 {
                     Name = ProductNameTextBox.Text,
-                    ImageUrl = imgName, // Lưu tên tệp vào ImageUrl (bao gồm timestamp)
+                    ImageUrl = imgName,
                     CategoryId = selectedCategory?.Id ?? 0,
                     IsActive = IsActiveCheckBox.IsChecked == true,
                     IsTopping = IsToppingCheckBox.IsChecked == true,
@@ -157,84 +206,43 @@ namespace Kohi.Views
                     ProductVariants = new List<ProductVariantModel>()
                 };
 
-                if (ViewModel.Variants.Any())
-                {
-                    foreach (var variantVM in ViewModel.Variants)
-                    {
-                        var variantFields = new Dictionary<string, string>
-                        {
-                            { "Size", variantVM.Size ?? "" },
-                            { "Price", variantVM.Price.ToString() },
-                            { "Cost", variantVM.Cost.ToString() }
-                        };
-
-                        List<string> variantErrors = _errorHandler?.HandleError(variantFields) ?? new List<string>();
-                        errors.AddRange(variantErrors);
-
-                        if (HasErrors(errors))
-                        {
-                            return;
-                        }
-
-                        var variant = new ProductVariantModel
-                        {
-                            Size = variantVM.Size,
-                            Price = variantVM.Price,
-                            Cost = variantVM.Cost,
-                            Product = product,
-                            RecipeDetails = new List<RecipeDetailModel>(),
-                            InvoiceDetails = new List<InvoiceDetailModel>(),
-                            Toppings = new List<OrderToppingModel>()
-                        };
-
-                        if (variantVM.RecipeDetails.Any())
-                        {
-                            foreach (var recipeVM in variantVM.RecipeDetails)
-                            {
-                                var recipeFields = new Dictionary<string, string>
-                                {
-                                    { "Ingredient", recipeVM.Ingredient?.Name ?? "" },
-                                    { "Quantity", recipeVM.Quantity.ToString() }
-                                };
-
-                                List<string> recipeErrors = _errorHandler?.HandleError(recipeFields) ?? new List<string>();
-                                errors.AddRange(recipeErrors);
-
-                                if (HasErrors(errors))
-                                {
-                                    return;
-                                }
-
-                                var recipe = new RecipeDetailModel
-                                {
-                                    IngredientId = recipeVM.Ingredient?.Id ?? 0,
-                                    Quantity = recipeVM.Quantity,
-                                    Unit = recipeVM.Unit,
-                                    ProductVariant = variant,
-                                    Ingredient = recipeVM.Ingredient
-                                };
-                                variant.RecipeDetails.Add(recipe);
-                            }
-                        }
-
-                        product.ProductVariants.Add(variant);
-                    }
-                }
-
+                // Lưu Product
+                Debug.WriteLine("Bắt đầu thêm Product...");
                 await ProductViewModel.Add(product);
+                Debug.WriteLine($"Đã thêm Product, Id = {product.Id}");
 
-                foreach (var variant in product.ProductVariants)
+                // Lưu ProductVariants và RecipeDetails
+                foreach (var variant in productVariants)
                 {
                     variant.ProductId = product.Id;
-                    Service.GetKeyedSingleton<IDao>().ProductVariants.Insert(variant);
+                    Debug.WriteLine($"Thêm mới ProductVariant: Size = {variant.Size}");
+                    await ProductVariantViewModel.Add(variant);
+                    Debug.WriteLine($"Đã thêm ProductVariant, Id = {variant.Id}");
+                    product.ProductVariants.Add(variant);
 
                     foreach (var recipe in variant.RecipeDetails)
                     {
                         recipe.ProductVariantId = variant.Id;
-                        Service.GetKeyedSingleton<IDao>().RecipeDetails.Insert(recipe);
+                        Debug.WriteLine($"Trước khi thêm RecipeDetail: ProductVariantId = {recipe.ProductVariantId}, IngredientId = {recipe.IngredientId}, Quantity = {recipe.Quantity}, Unit = {recipe.Unit}");
+                        int recipeId = await RecipeDetailViewModel.Add(recipe);
+                        recipe.Id = recipeId;
+                        Debug.WriteLine($"Đã thêm RecipeDetail, Id = {recipe.Id}, ProductVariantId = {recipe.ProductVariantId}");
                     }
                 }
 
+                // Log kết quả
+                Debug.WriteLine("Dữ liệu sau khi thêm:");
+                Debug.WriteLine($"Product: Id = {product.Id}, Name = {product.Name}, Variants = {product.ProductVariants.Count}");
+                foreach (var variant in product.ProductVariants)
+                {
+                    Debug.WriteLine($"  Variant: Id = {variant.Id}, Size = {variant.Size}");
+                    foreach (var recipe in variant.RecipeDetails)
+                    {
+                        Debug.WriteLine($"    Recipe: Id = {recipe.Id}, ProductVariantId = {recipe.ProductVariantId}, IngredientId = {recipe.IngredientId}, Quantity = {recipe.Quantity}, Unit = {recipe.Unit}");
+                    }
+                }
+
+                // Cập nhật UI
                 outtext.Text = "✅ Đã thêm sản phẩm thành công!";
                 ProductNameTextBox.Text = string.Empty;
                 CategoryProductComboBox.SelectedItem = null;
@@ -242,6 +250,7 @@ namespace Kohi.Views
                 IsToppingCheckBox.IsChecked = false;
                 DescriptionTextBox.Text = string.Empty;
                 ViewModel.Variants.Clear();
+                ViewModel.Variants.Add(new AddNewProductViewModel.ProductVariantViewModel());
                 mypic.Source = null;
                 selectedImageFile = null;
             }

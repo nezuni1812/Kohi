@@ -14,12 +14,20 @@ namespace Kohi.Views.Converter
 
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is float floatValue)
+            if (value == null)
             {
-                // Định dạng số tiền với culture "vi-VN" và thêm "đ"
-                return floatValue.ToString("#,### đ", culture.NumberFormat);
+                return "0 đ";
             }
-            return value?.ToString() ?? string.Empty;
+
+            try
+            {
+                float floatValue = System.Convert.ToSingle(value);
+                return floatValue.ToString("#,##0 đ", culture.NumberFormat);
+            }
+            catch
+            {
+                return "0 đ";
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

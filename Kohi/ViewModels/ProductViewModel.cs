@@ -79,6 +79,15 @@ namespace Kohi.ViewModels
         {
             _dao = Service.GetKeyedSingleton<IDao>();
             Products = new FullObservableCollection<ProductModel>();
+            PageSize = 10;
+            LoadData();
+        }
+
+        public ProductViewModel(int sl)
+        {
+            _dao = Service.GetKeyedSingleton<IDao>();
+            Products = new FullObservableCollection<ProductModel>();
+            PageSize = sl;
             LoadData();
         }
 
@@ -139,15 +148,6 @@ namespace Kohi.ViewModels
                 Products.Add(item);
             }
         }
-        public async void AddProduct()
-        {
-            Debug.WriteLine(NewProductName);
-            ProductModel newProduct = new ProductModel { Name = NewProductName };
-
-            Add(newProduct);
-
-            LoadData();
-        }
 
         // Phương thức để chuyển đến trang tiếp theo
         public async Task NextPage()
@@ -193,60 +193,60 @@ namespace Kohi.ViewModels
         {
             try
             {
-                _dao.Products.GetAll();
+                //_dao.Products.GetAll();
 
-                ProductModel product = _dao.Products.GetById(id);
-                if (product == null)
-                {
-                    Debug.WriteLine("Không tìm thấy sản phẩm cần xóa");
-                    await LoadData(CurrentPage);
-                    return;
-                }
-                var variantList = product.ProductVariants;
-                var variantIdList = variantList.Select(v => v.Id).ToList();
-                Debug.WriteLine("Variant count: " + variantIdList.Count);
+                //ProductModel product = _dao.Products.GetById(id);
+                //if (product == null)
+                //{
+                //    Debug.WriteLine("Không tìm thấy sản phẩm cần xóa");
+                //    //await LoadData(CurrentPage);
+                //    return;
+                //}
+                //var variantList = product.ProductVariants;
+                //var variantIdList = variantList.Select(v => v.Id).ToList();
+                //Debug.WriteLine("Variant count: " + variantIdList.Count);
 
-                if (product.IsTopping == false)
-                {
-                    var invoiceDetailList = _dao.InvoiceDetails.GetAll();
-                    foreach (var invoiceDetail in invoiceDetailList)
-                    {
-                        if (variantIdList.Contains(invoiceDetail.ProductId))
-                        {
-                            Debug.WriteLine("Không thể xóa sản phẩm này vì đã có hóa đơn sử dụng");
-                            await LoadData(CurrentPage);
-                            return;
-                        }
-                    }
-                }
-                else
-                {
-                    var orderToppingList = _dao.OrderToppings.GetAll();
-                    foreach (var orderTopping in orderToppingList)
-                    {
-                        if (variantIdList.Contains(orderTopping.ProductVariant.Id))
-                        {
-                            Debug.WriteLine("Không thể xóa sản phẩm này vì đã sử dụng thành topping");
-                            await LoadData(CurrentPage);
-                            return;
-                        }
-                    }
-                }
+                //if (product.IsTopping == false)
+                //{
+                //    var invoiceDetailList = _dao.InvoiceDetails.GetAll();
+                //    foreach (var invoiceDetail in invoiceDetailList)
+                //    {
+                //        if (variantIdList.Contains(invoiceDetail.ProductId))
+                //        {
+                //            Debug.WriteLine("Không thể xóa sản phẩm này vì đã có hóa đơn sử dụng");
+                //            //await LoadData(CurrentPage);
+                //            return;
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    var orderToppingList = _dao.OrderToppings.GetAll();
+                //    foreach (var orderTopping in orderToppingList)
+                //    {
+                //        if (variantIdList.Contains(orderTopping.ProductVariant.Id))
+                //        {
+                //            Debug.WriteLine("Không thể xóa sản phẩm này vì đã sử dụng thành topping");
+                //            //await LoadData(CurrentPage);
+                //            return;
+                //        }
+                //    }
+                //}
 
-                var recipeDetailList = _dao.RecipeDetails.GetAll();
-                var recipeDetailIdList = new List<int>();
-                foreach (var recipeDetail in recipeDetailList)
-                {
-                    if (variantIdList.Contains(recipeDetail.ProductVariantId))
-                    {
-                        recipeDetailIdList.Add(recipeDetail.Id);
-                    }
-                }
+                //var recipeDetailList = _dao.RecipeDetails.GetAll();
+                //var recipeDetailIdList = new List<int>();
+                //foreach (var recipeDetail in recipeDetailList)
+                //{
+                //    if (variantIdList.Contains(recipeDetail.ProductVariantId))
+                //    {
+                //        recipeDetailIdList.Add(recipeDetail.Id);
+                //    }
+                //}
 
-                recipeDetailIdList.ForEach(id => _dao.RecipeDetails.DeleteById(id + ""));
-                Debug.WriteLine("Đã xóa recipeDetails");
-                variantIdList.ForEach(id => _dao.ProductVariants.DeleteById(id + ""));
-                Debug.WriteLine("Đã xóa product variants");
+                //recipeDetailIdList.ForEach(id => _dao.RecipeDetails.DeleteById(id + ""));
+                //Debug.WriteLine("Đã xóa recipeDetails");
+                //variantIdList.ForEach(id => _dao.ProductVariants.DeleteById(id + ""));
+                //Debug.WriteLine("Đã xóa product variants");
 
                 int result = _dao.Products.DeleteById(id);
 
@@ -275,6 +275,19 @@ namespace Kohi.ViewModels
             {
                 var product = _dao.Products.GetById(id); // Đồng bộ
                 return product;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
+        public async Task<List<ProductModel>> GetAll()
+        {
+            try
+            {
+                var products = _dao.Products.GetAll(1, 1000); // Đồng bộ
+                return products;
             }
             catch (Exception ex)
             {

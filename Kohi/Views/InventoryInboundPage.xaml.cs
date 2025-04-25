@@ -16,6 +16,8 @@ using Kohi.Models;
 using Kohi.ViewModels;
 using System.Diagnostics;
 using WinUI.TableView;
+using System.Threading.Tasks;
+
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,16 +34,50 @@ namespace Kohi.Views
         public InboundViewModel InboundViewModel { get; set; } = new InboundViewModel();
         public InboundModel? SelectedInbound { get; set; }
         public int SelectedInboundId = -1;
+        public bool IsLoading { get; set; } = false;
+
         public InventoryInboundPage()
         {
             this.InitializeComponent();
-            Loaded += InboundsPage_Loaded;
+            Loaded += InventoryInboundPage_Loaded;
             this.DataContext = this;
         }
-        public async void InboundsPage_Loaded(object sender, RoutedEventArgs e)
+        private async void InventoryInboundPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await InboundViewModel.LoadData();
-            UpdatePageList();
+            await LoadDataWithProgress();
+        }
+
+        private async Task LoadDataWithProgress(int page = 1)
+        {
+            try
+            {
+                IsLoading = true;
+                ProgressRing.IsActive = true;
+
+                await Task.WhenAll(
+                    IngredientViewModel.LoadData(),
+                    SupplierViewModel.LoadData(),
+                    InboundViewModel.LoadData(page)
+                );
+                UpdatePageList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading inbound data: {ex.Message}");
+                var errorDialog = new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = $"Không thể tải dữ liệu: {ex.Message}",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+            finally
+            {
+                IsLoading = false;
+                ProgressRing.IsActive = false;
+            }
         }
 
         public void UpdatePageList()
@@ -58,8 +94,7 @@ namespace Kohi.Views
             var selectedPage = (int)pageList.SelectedItem;
             if (selectedPage != InboundViewModel.CurrentPage)
             {
-                await InboundViewModel.LoadData(selectedPage);
-                UpdatePageList();
+                await LoadDataWithProgress(selectedPage);
             }
         }
 
@@ -158,7 +193,7 @@ namespace Kohi.Views
         {
 
         }
-
+ 
         private void IngredientComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (IngredientComboBox.SelectedItem is IngredientModel selectedIngredient)

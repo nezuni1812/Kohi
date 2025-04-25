@@ -105,5 +105,18 @@ namespace Kohi.ViewModels
 
             }
         }
+        public async Task<List<ExpenseModel>> GetAll()
+        {
+            try
+            {
+                var Expenses = _dao.Expenses.GetAll(1, 1000); // Đồng bộ
+                return Expenses;
+            }
+            catch (Exception ex)
+            {
+                return null; // Trả về null khi có lỗi
+                // Xử lý lỗi (tùy chọn)
+            }
+        }
     }
 }

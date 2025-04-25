@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,7 +12,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-//using Syncfusion.UI.Xaml.Charts;
+using Syncfusion.UI.Xaml.Charts;
 using Kohi.ViewModels;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -25,15 +25,34 @@ namespace Kohi.Views
     /// </summary>
     public sealed partial class OverviewReportPage : Page
     {
-        public ChartViewModel chartViewModel { get; set; } = new ChartViewModel();
+        public OverviewReportViewModel ViewModel { get; set; }
+
         public OverviewReportPage()
         {
             this.InitializeComponent();
+            ViewModel = new OverviewReportViewModel();
+            TimeRangeComboBox.SelectedIndex = 0;
+        }
 
-            //SfCircularChart chart = new SfCircularChart();
+        private void TimeRangeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel.SelectedTimeRange is string selectedRange)
+            {
+                bool isCustom = selectedRange?.Trim() == "Tùy chỉnh";
+                StartDatePicker.Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed;
+                EndDatePicker.Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed;
+                ApplyButton.Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed;
 
-            //chart.DataContext = chartViewModel;
-            this.DataContext = chartViewModel;
+                if (!isCustom)
+                {
+                    ViewModel.UpdateChartData(selectedRange);
+                }
+            }
+        }
+
+        private void ApplyCustomDateRange_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.UpdateChartData("Tùy chỉnh");
         }
     }
 }

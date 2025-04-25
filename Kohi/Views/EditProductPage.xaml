@@ -173,7 +173,7 @@
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
                                                         <ComboBox Grid.Column="0" 
-                                                            ItemsSource="{Binding DataContext.Ingredients, ElementName=EditProductPageWithDetails}"
+                                                            ItemsSource="{Binding DataContext.Ingredients, ElementName=VariantsListView}"
                                                             DisplayMemberPath="Name"
                                                             SelectedItem="{Binding Ingredient, Mode=TwoWay}"
                                                             SelectionChanged="ComboBox_SelectionChanged"
@@ -184,7 +184,8 @@
                                                                PlaceholderText="Số lượng"
                                                                HorizontalAlignment="Left"/>
                                                         <TextBox Grid.Column="2" 
-                                                                 x:Name="IngredientUnit"            
+                                                                 x:Name="IngredientUnit" 
+                                                                 Text="{Binding Unit, Mode=TwoWay}"
                                                                  IsEnabled="False" 
                                                                  HorizontalAlignment="Left"/>
                                                         <Button Grid.Column="3" 
@@ -205,8 +206,10 @@
                                 <TextBlock Text="Thêm kích cỡ sản phẩm"/>
                             </StackPanel>
                         </Button>
+
                     </StackPanel>
                 </StackPanel>
+                
             </Grid>
         </ScrollViewer>
     </Grid>

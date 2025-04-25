@@ -32,6 +32,8 @@ namespace Kohi.Views
 
         public int selectedCategoryId = -1;
         public CategoryViewModel CategoryViewModel { get; set; } = new CategoryViewModel();
+        public bool IsLoading { get; set; } = false;
+
         public CategoriesPage()
         {
             this.InitializeComponent();
@@ -39,10 +41,24 @@ namespace Kohi.Views
         }
         public async void CategoriesPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await CategoryViewModel.LoadData(); // Tải trang đầu tiên
-            UpdatePageList();
+            await LoadDataWithProgress();
         }
+        private async Task LoadDataWithProgress(int page = 1)
+        {
+            try
+            {
+                IsLoading = true;
+                ProgressRing.IsActive = true;
 
+                await CategoryViewModel.LoadData(page);
+                UpdatePageList();
+            }
+            finally
+            {
+                IsLoading = false;
+                ProgressRing.IsActive = false;
+            }
+        }
         public void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is TableView tableView && tableView.SelectedItem is CategoryModel selectedId)
@@ -146,8 +162,7 @@ namespace Kohi.Views
             var selectedPage = (int)pageList.SelectedItem;
             if (selectedPage != CategoryViewModel.CurrentPage)
             {
-                await CategoryViewModel.LoadData(selectedPage);
-                UpdatePageList();
+                await LoadDataWithProgress(selectedPage);
             }
         }
     }

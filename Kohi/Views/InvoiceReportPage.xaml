@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="Kohi.Views.InvoiceReportPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,10 +5,159 @@
     xmlns:local="using:Kohi.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    xmlns:charts="using:Syncfusion.UI.Xaml.Charts"
+    xmlns:viewModel="using:Kohi.ViewModels"
+    xmlns:converter="using:Kohi.Views.Converter"
+    xmlns:models="using:Kohi.Models"
+    mc:Ignorable="d">
 
-    <Grid>
-        <TextBlock Text="Báo cáo hóa đơn"></TextBlock>
-    </Grid>
+    <Page.Resources>
+        <converter:MoneyFormatConverter x:Key="MoneyFormatConverter"/>
+        <converter:DateTimeConverter x:Key="DateTimeConverter"/>
+        <BrushCollection x:Key="ChartPalette">
+            <SolidColorBrush Color="{ThemeResource SystemAccentColor}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorLight3}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorDark1}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorDark2}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorDark3}"/>
+            <SolidColorBrush Color="{ThemeResource SystemAccentColorLight2}"/>
+        </BrushCollection>
+    </Page.Resources>
+
+    <ScrollView>
+        <Grid RowSpacing="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Báo cáo hóa đơn" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+            <StackPanel Grid.Row="1" Spacing="10">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <ComboBox x:Name="TimeRangeComboBox" 
+                              SelectedItem="{x:Bind ViewModel.SelectedTimeRange, Mode=TwoWay}" 
+                              SelectionChanged="TimeRangeComboBox_SelectionChanged">
+                        <x:String>Hôm nay</x:String>
+                        <x:String>Tuần này</x:String>
+                        <x:String>Tháng này</x:String>
+                        <x:String>Năm này</x:String>
+                        <x:String>Tùy chỉnh</x:String>
+                    </ComboBox>
+                    <CalendarDatePicker x:Name="StartDatePicker" Visibility="Collapsed" Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"/>
+                    <CalendarDatePicker x:Name="EndDatePicker" Visibility="Collapsed" Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"/>
+                    <Button Content="Áp dụng" Click="ApplyCustomDateRange_Click" Visibility="Collapsed" x:Name="ApplyButton"/>
+                </StackPanel>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.15*"/>
+                        <ColumnDefinition Width="0.45*"/>
+                        <ColumnDefinition Width="0.45*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="10">
+                        <StackPanel Padding="10" Background="{ThemeResource AccentAcrylicBackgroundFillColorBaseBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10">
+                            <TextBlock Text="Tổng hóa đơn" Style="{StaticResource BodyTextBlockStyle}"/>
+                            <TextBlock Text="{x:Bind ViewModel.FilteredInvoices.Count, Mode=OneWay}" 
+                               Style="{StaticResource SubtitleTextBlockStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <charts:SfCircularChart Grid.Column="1" 
+                        Header="Hóa đơn theo phương thức thanh toán">
+                        <charts:SfCircularChart.Legend>
+                            <charts:ChartLegend IconWidth="13" IconHeight="13"/>
+                        </charts:SfCircularChart.Legend>
+
+                        <charts:PieSeries ItemsSource="{x:Bind ViewModel.PaymentMethodData, Mode=OneWay}"
+                      XBindingPath="PaymentMethod"
+                      YBindingPath="Count"
+                      Label="Hóa đơn"
+                      PaletteBrushes="{StaticResource ChartPalette}"
+                      EnableAnimation="True"
+                      EnableTooltip="True"
+                      ShowDataLabels="True">
+                            <charts:PieSeries.TooltipTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Item.PaymentMethod}" 
+                           Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                                </DataTemplate>
+                            </charts:PieSeries.TooltipTemplate>
+                            <charts:PieSeries.DataLabelSettings>
+                                <charts:CircularDataLabelSettings ShowConnectorLine="True"
+                                              Position="OutsideExtended"
+                                              Background="Transparent"
+                                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            </charts:PieSeries.DataLabelSettings>
+                        </charts:PieSeries>
+                    </charts:SfCircularChart>
+
+                    <charts:SfCircularChart Grid.Column="2" 
+                                            Header="Hóa đơn theo loại đơn hàng">
+                        <charts:SfCircularChart.Legend>
+                            <charts:ChartLegend IconWidth="13" IconHeight="13"/>
+                        </charts:SfCircularChart.Legend>
+                        <charts:PieSeries ItemsSource="{x:Bind ViewModel.OrderTypeData, Mode=OneWay}"
+                                          XBindingPath="OrderType"
+                                          YBindingPath="Count"
+                                          Label="Loại đơn hàng"
+                                          PaletteBrushes="{StaticResource ChartPalette}"
+                                          EnableAnimation="True"
+                                          EnableTooltip="True"
+                                          ShowDataLabels="True">
+                            <charts:PieSeries.TooltipTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Item.OrderType}" 
+                                               Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                                </DataTemplate>
+                            </charts:PieSeries.TooltipTemplate>
+                            <charts:PieSeries.DataLabelSettings>
+                                <charts:CircularDataLabelSettings ShowConnectorLine="True"
+                                       Position="OutsideExtended" Background="Transparent" 
+                                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            </charts:PieSeries.DataLabelSettings>
+                        </charts:PieSeries>
+                    </charts:SfCircularChart>
+                </Grid>
+            </StackPanel>
+            <StackPanel Grid.Row="2"
+                        Padding="5,10,0,0">
+                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}">
+                    <Run Text="Danh sách Hóa đơn"/>
+                    <!--Run Text="{x:Bind ViewModel.FilteredInvoices.Count, Mode=OneWay}" />
+                    <Run Text="hóa đơn )"/-->
+                </TextBlock>
+            </StackPanel>
+            <ListView Grid.Row="3" 
+                      ItemsSource="{x:Bind ViewModel.FilteredInvoices, Mode=OneWay}"
+                      SelectionChanged="InvoiceListView_SelectionChanged"
+                      SelectionMode="Single"
+                      Padding="0,0,0,0">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:InvoiceModel">
+                        <Grid Margin="0,0" Padding="10" BorderBrush="{ThemeResource TextFillColorPrimaryBrush}" BorderThickness="0,1,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Vertical">
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}">
+                                    <Run Text="ID:"/>
+                                    <Run Text="{x:Bind Id}"/>
+                                </TextBlock>
+                                <TextBlock Text="{x:Bind OrderType}"/>
+                                <TextBlock Text="{x:Bind CreatedAt, Converter={StaticResource DateTimeConverter}, FallbackValue='Không có ngày'}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Vertical">
+                                <TextBlock Text="{x:Bind TotalAmount, Converter={StaticResource MoneyFormatConverter}}" 
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           HorizontalAlignment="Right"/>
+                                <TextBlock Text="{x:Bind PaymentMethod}" HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </ScrollView>
 </Page>
