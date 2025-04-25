@@ -218,7 +218,10 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="3" Margin="0,0,0,10">
-                            <TextBlock Text="Nhà cung cấp" Margin="0,0,0,5"/>
+                            <TextBlock Margin="0,0,0,5">
+                                <Run Text="Nhà cung cấp"/>
+                                <Run Text="*" Foreground="Red"/>
+                            </TextBlock>
                             <ComboBox x:Name="InboudSupplierComboBox" ItemsSource="{Binding SupplierViewModel.Suppliers}" DisplayMemberPath="Name" PlaceholderText="-- Chọn nhà cung cấp --"/>
                         </StackPanel>
                     </Grid>
