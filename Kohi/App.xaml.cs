@@ -55,7 +55,8 @@ namespace Kohi
         /// <param name="args">Details about the launch request and process.</param>
         protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            SyncfusionLicenseProvider.RegisterLicense("");
+            SyncfusionLicenseProvider.RegisterLicense(AppConfig.Configuration["SyncfussionAPIKey"]);
+            Debug.WriteLine("Syncfussion api key: " + AppConfig.Configuration["SyncfussionAPIKey"]);
             m_window = new MainWindow();
             m_window.Activate();
 

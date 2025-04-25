@@ -33,7 +33,7 @@ namespace Kohi.ViewModels
         }
 
         private Author currentUser;
-        static string apiKey = AppConfig.Configuration["ApiUrl"];
+        static string apiKey = AppConfig.Configuration["GeminiAPIKey"];
 
         MiddlewareStreamingAgent<GeminiChatAgent> geminiAgent = new GeminiChatAgent(
             name: "gemini",
