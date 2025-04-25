@@ -68,7 +68,21 @@ namespace Kohi.Services
 
             public List<CategoryModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/categories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/categories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -239,7 +253,21 @@ namespace Kohi.Services
             }
             public List<ProductModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/products?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/products?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -409,7 +437,21 @@ namespace Kohi.Services
 
             public List<InventoryModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/inventories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/inventories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -590,7 +632,21 @@ namespace Kohi.Services
 
             public List<IngredientModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/ingredients?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/ingredients?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -757,7 +813,21 @@ namespace Kohi.Services
 
             public List<SupplierModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/suppliers?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/suppliers?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -926,7 +996,21 @@ namespace Kohi.Services
 
             public List<InboundModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/inbounds?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/inbounds?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -1098,7 +1182,21 @@ namespace Kohi.Services
 
             public List<OutboundModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/outbounds?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/outbounds?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -1269,7 +1367,21 @@ namespace Kohi.Services
 
             public List<CustomerModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/customers?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/customers?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -1443,7 +1555,21 @@ namespace Kohi.Services
 
             public List<ExpenseCategoryModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/expensecategories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/expensecategories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -1613,7 +1739,21 @@ namespace Kohi.Services
 
             public List<CheckInventoryModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/checkinventories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/checkinventories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -1791,7 +1931,21 @@ namespace Kohi.Services
 
             public List<ProductVariantModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/productvariants?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/productvariants?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -1984,7 +2138,22 @@ namespace Kohi.Services
 
             public List<ExpenseModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/expenses?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    Debug.WriteLine("We order");
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/expenses?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                Debug.WriteLine("URL: " + url);
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -2155,7 +2324,21 @@ namespace Kohi.Services
 
             public List<InvoiceModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/invoices?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+                
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+                
+                string url = $"{baseURL}/invoices?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -2329,7 +2512,21 @@ namespace Kohi.Services
 
             public List<InvoiceDetailModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicedetails?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/invoicedetails?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -2509,7 +2706,21 @@ namespace Kohi.Services
 
             public List<RecipeDetailModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/recipedetails?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/recipedetails?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -2685,7 +2896,21 @@ namespace Kohi.Services
 
             public List<PaymentModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/payments?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/payments?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -2857,7 +3082,21 @@ namespace Kohi.Services
 
             public List<OrderToppingModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/ordertoppings?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/ordertoppings?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -3029,7 +3268,21 @@ namespace Kohi.Services
 
             public List<TaxModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/taxes?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/taxes?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;
@@ -3199,7 +3452,21 @@ namespace Kohi.Services
 
             public List<InvoiceTaxModel> GetAll(int pageNumber = 1, int pageSize = 20, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
-                HttpResponseMessage response = client.GetAsync($"{baseURL}/invoicetaxes?limit={pageSize}&offset={(pageNumber - 1) * pageSize}").Result;
+                string orderClause = "";
+                if (!string.IsNullOrEmpty(sortBy))
+                {
+                    orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
+                }
+
+                string filterClause = "";
+                if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
+                {
+                    filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                string url = $"{baseURL}/invoicetaxes?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
+                
+                HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     string jsonResponse = response.Content.ReadAsStringAsync().Result;

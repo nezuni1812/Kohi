@@ -1,0 +1,49 @@
+-- DO $$ 
+-- DECLARE
+--     table_rec RECORD;
+--     column_rec RECORD;
+--     ts_column_name TEXT := 'ingredients_tsv';  -- Set fixed tsvector column name for all tables
+--     columns_to_index TEXT := '';
+-- BEGIN
+--     -- Loop over all user tables in the public schema
+--     FOR table_rec IN 
+--         SELECT table_name 
+--         FROM information_schema.tables 
+--         WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+--     LOOP
+--         -- Check if the tsvector column already exists
+--         IF NOT EXISTS (
+--             SELECT 1 FROM information_schema.columns 
+--             WHERE table_name = table_rec.table_name AND column_name = ts_column_name
+--         ) THEN
+--             -- Add the tsvector column to the table
+--             EXECUTE format('ALTER TABLE %I ADD COLUMN %I tsvector;', table_rec.table_name, ts_column_name);
+--         END IF;
+
+--         -- Build the list of text columns for the tsvector update
+--         columns_to_index := '';
+--         FOR column_rec IN 
+--             SELECT column_name 
+--             FROM information_schema.columns 
+--             WHERE table_name = table_rec.table_name AND data_type IN ('text', 'character varying', 'char')
+--         LOOP
+--             -- Append the column name to the columns_to_index variable with concatenation
+--             IF columns_to_index != '' THEN
+--                 columns_to_index := columns_to_index || ' || '' '' || ';
+--             END IF;
+--             columns_to_index := columns_to_index || 'COALESCE(' || column_rec.column_name || ', '''')';
+--         END LOOP;
+
+--         -- If there are text columns to index, update the tsvector column
+--         IF length(columns_to_index) > 0 THEN
+--             -- Update the tsvector column with the concatenated text columns
+--             EXECUTE format('UPDATE %I SET %I = to_tsvector(''english'', %s);', table_rec.table_name, ts_column_name, columns_to_index);
+--         END IF;
+
+--         -- Create or update the trigger to update the tsvector column on insert/update
+--         EXECUTE format('
+--             CREATE TRIGGER %I_update_tsvector BEFORE INSERT OR UPDATE 
+--             ON %I FOR EACH ROW EXECUTE FUNCTION tsvector_update_trigger(%I, ''pg_catalog.english'', %s);',
+--             table_rec.table_name, table_rec.table_name, ts_column_name, columns_to_index);
+--     END LOOP;
+-- END $$;
