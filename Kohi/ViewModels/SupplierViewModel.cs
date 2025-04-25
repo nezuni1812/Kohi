@@ -96,16 +96,17 @@ namespace Kohi.ViewModels
             }
         }
 
-        public async Task Delete(string id)
+        public async Task<int> Delete(string id)
         {
             try
             {
                 int result = _dao.Suppliers.DeleteById(id);
                 await LoadData(CurrentPage);
+                return result;
             }
             catch (Exception ex)
             {
-
+                return 0;
             }
         }
 

@@ -21,6 +21,8 @@ using Kohi.Services;
 using Syncfusion.Licensing;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using System.Reflection;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -53,7 +55,8 @@ namespace Kohi
         /// <param name="args">Details about the launch request and process.</param>
         protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            SyncfusionLicenseProvider.RegisterLicense("");
+            SyncfusionLicenseProvider.RegisterLicense(AppConfig.Configuration["SyncfussionAPIKey"]);
+            Debug.WriteLine("Syncfussion api key: " + AppConfig.Configuration["SyncfussionAPIKey"]);
             m_window = new MainWindow();
             m_window.Activate();
 
@@ -95,4 +98,35 @@ namespace Kohi
 
         private Window? m_window;
     }
+
+    public static class AppConfig
+    {
+        public static IConfiguration Configuration { get; }
+
+        static AppConfig()
+        {
+            try
+            {
+                var exePath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+                var configFilePath = System.IO.Path.Combine(exePath, "appsettings.json");
+
+                if (!File.Exists(configFilePath))
+                {
+                    Configuration = new ConfigurationBuilder().Build();
+                }
+                else
+                {
+                    Configuration = new ConfigurationBuilder()
+                        .SetBasePath(exePath)
+                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                        .Build();
+                }
+            }
+            catch (Exception ex)
+            {
+                Configuration = new ConfigurationBuilder().Build();
+            }
+        }
+    }
+
 }

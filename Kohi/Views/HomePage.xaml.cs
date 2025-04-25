@@ -523,13 +523,18 @@ namespace Kohi.Views
 
         private async void PrintInvoice_Click(object sender, RoutedEventArgs e)
         {
-            var userPaymentSettings = RestoreUserPaymentSettings();
-            if (userPaymentSettings == null)
-            {
-                await ShowErrorContentDialog(this.XamlRoot, "Chưa có thông tin chuyển khoản. Hãy vào trang Thiết lập để thêm thông tin");
-                return;
-            }
             var invoice = PrepareInvoice();
+
+            if (invoice.PaymentMethod != "Tiền mặt")
+            {
+                var userPaymentSettings = RestoreUserPaymentSettings();
+                if (userPaymentSettings == null)
+                {
+                    await ShowErrorContentDialog(this.XamlRoot, "Chưa có thông tin chuyển khoản. Hãy vào trang Thiết lập để thêm thông tin");
+                    return;
+                }
+            }
+
             Frame.Navigate(typeof(PrintInvoicePage), invoice);
         }
 

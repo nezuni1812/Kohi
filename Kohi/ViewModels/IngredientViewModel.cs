@@ -25,6 +25,14 @@ namespace Kohi.ViewModels
             LoadData();
         }
 
+        public IngredientViewModel(bool flag)
+        {
+            _dao = Service.GetKeyedSingleton<IDao>();
+            Ingredients = new FullObservableCollection<IngredientModel>();
+            PageSize = 1000;
+            LoadData();
+        }
+
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;
@@ -79,16 +87,17 @@ namespace Kohi.ViewModels
             }
         }
 
-        public async Task Delete(string id)
+        public async Task<int> Delete(string id)
         {
             try
             {
                 int result = _dao.Ingredients.DeleteById(id);
                 await LoadData(CurrentPage);
+                return result;
             }
             catch (Exception ex)
             {
-
+                return 0;
             }
         }
 

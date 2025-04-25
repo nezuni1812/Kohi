@@ -45,7 +45,7 @@
             Text="{x:Bind GetAppTitleFromSystem()}"/>
         </Grid>
 
-        <Grid Height="40" Background="{ThemeResource AccentAAFillColorDefaultBrush}" Grid.Row="1">
+        <!--Grid Height="40" Background="{ThemeResource AccentAAFillColorDefaultBrush}" Grid.Row="1">
             <TextBlock
             Text="Thông tin hệ thống: Hoạt động bình thường"
             VerticalAlignment="Center"
@@ -53,7 +53,7 @@
             Margin="12,0,0,0"
             FontSize="14"
             Foreground="White"/>
-        </Grid>
+        </Grid-->
 
         <NavigationView
             x:Name="NavigationViewControl"
