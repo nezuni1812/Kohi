@@ -18,6 +18,9 @@
 	<DebugType>None</DebugType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="AppSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="Assets\kohi.scale-100.png" />
     <Content Remove="Assets\kohi.scale-125.png" />
     <Content Remove="Assets\kohi.scale-150.png" />
@@ -78,6 +81,7 @@
 	<PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
 	<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.2" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="9.0.2" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0-preview.3.25171.5" />
 	<PackageReference Include="Microsoft.ML" Version="4.0.2" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250205002" />
@@ -138,6 +142,9 @@
     <Page Update="Views\EditProductPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="sales_train.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -213,7 +220,7 @@
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Never</AppxBundle>
