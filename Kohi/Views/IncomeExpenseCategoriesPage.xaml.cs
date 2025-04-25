@@ -76,7 +76,15 @@ namespace Kohi.Views
             if (sender is TableView tableView && tableView.SelectedItem is ExpenseCategoryModel expenseCategory)
             {
                 SelectedExpenseCategory = expenseCategory;
-                Debug.WriteLine($"Selected Expense Category ID: {SelectedExpenseCategory.Id}");
+                Debug.WriteLine($"Selected Expense Category ID: {SelectedExpenseCategory.Id}"); 
+                editButton.IsEnabled = true;
+                deleteButton.IsEnabled = true;
+            }
+            else
+            {
+                SelectedExpenseCategory = null;
+                editButton.IsEnabled = false;
+                deleteButton.IsEnabled = false;
             }
         }
 

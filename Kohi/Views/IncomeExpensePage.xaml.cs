@@ -88,6 +88,14 @@ namespace Kohi.Views
             {
                 SelectedExpense = selectedExpense;
                 Debug.WriteLine($"Selected Expense ID: {SelectedExpense.Id}");
+                editButton.IsEnabled = true;
+                deleteButton.IsEnabled = true;
+            }
+            else
+            {
+                SelectedExpense = null;
+                editButton.IsEnabled = false;
+                deleteButton.IsEnabled = false;
             }
         }
 
