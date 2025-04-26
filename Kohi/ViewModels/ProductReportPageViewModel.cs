@@ -29,7 +29,9 @@ namespace Kohi.ViewModels
             name: "gemini",
             model: "gemini-2.0-flash",
             apiKey: apiKey,
-            systemMessage: "You are a helpful assistant for a POS coffee shop application. There will be a text version of what the user is seeing on the screen included in the prompt, please make use of it as much as you can")
+            systemMessage: "You are a helpful assistant for a POS coffee shop application for Vietnamese so most currency data will be in VNĐ." +
+            " There will be a text version of what the user is seeing on the screen included in the prompt, please make use of it as much as you can. "+
+            "Please noted if the user ask for something other than coffeeshop related like creating a programe with any sort of language, decline. If you are sure that the question is out of the scope of the provided data, you can just say you dont know")
         .RegisterMessageConnector()
         .RegisterPrintMessage();
 
@@ -265,7 +267,6 @@ namespace Kohi.ViewModels
                     EndDate = StartDate.Value.AddYears(1);
                     break;
                 case "Tùy chỉnh":
-                    // Keep StartDate and EndDate as set by CalendarDatePicker
                     break;
             }
         }
@@ -685,51 +686,51 @@ namespace Kohi.ViewModels
 
                 //while ((currentPage - 1) * pageSize < totalItems)
                 //{
-                    var invoiceDetails = await Task.Run(() => _dao.InvoiceDetails.GetAll(
-                        pageNumber: currentPage,
-                        pageSize: pageSize
-                    ));
+                var invoiceDetails = await Task.Run(() => _dao.InvoiceDetails.GetAll(
+                    pageNumber: currentPage,
+                    pageSize: pageSize
+                ));
 
-                    //if (invoiceDetails == null || !invoiceDetails.Any())
-                    //{
-                    //    Debug.WriteLine($"No invoice details found for page {currentPage}.");
-                    //    break;
-                    //}
+                //if (invoiceDetails == null || !invoiceDetails.Any())
+                //{
+                //    Debug.WriteLine($"No invoice details found for page {currentPage}.");
+                //    break;
+                //}
 
-                    foreach (var detail in invoiceDetails)
+                foreach (var detail in invoiceDetails)
+                {
+                    var invoice = await Task.Run(() => _dao.Invoices.GetById(detail.InvoiceId + ""));
+                    if (invoice == null)
                     {
-                        var invoice = await Task.Run(() => _dao.Invoices.GetById(detail.InvoiceId + ""));
-                        if (invoice == null)
-                        {
-                            continue;
-                        }
-
-                        if (StartDate.HasValue && EndDate.HasValue &&
-                            (invoice.InvoiceDate.Date < StartDate.Value.Date || invoice.InvoiceDate.Date > EndDate.Value.Date))
-                        {
-                            continue;
-                        }
-
-                        var productVariant = await Task.Run(() => _dao.ProductVariants.GetById(detail.ProductId + ""));
-                        if (productVariant == null)
-                        {
-                            Debug.WriteLine($"No product variant found for ID {detail.ProductId}");
-                            continue;
-                        }
-
-                        var product = await Task.Run(() => _dao.Products.GetById(productVariant.ProductId + ""));
-                        if (product == null)
-                        {
-                            Debug.WriteLine($"No product found for ID {productVariant.ProductId}");
-                            continue;
-                        }
-
-                        var revenue = detail.Quantity * productVariant.Price;
-                        Debug.WriteLine("Add: " + product.Id + " " + product.Name);
-                        productSales.Add((product.Id, product.Name, detail.Quantity, revenue));
+                        continue;
                     }
 
-                    currentPage++;
+                    if (StartDate.HasValue && EndDate.HasValue &&
+                        (invoice.InvoiceDate.Date < StartDate.Value.Date || invoice.InvoiceDate.Date > EndDate.Value.Date))
+                    {
+                        continue;
+                    }
+
+                    var productVariant = await Task.Run(() => _dao.ProductVariants.GetById(detail.ProductId + ""));
+                    if (productVariant == null)
+                    {
+                        Debug.WriteLine($"No product variant found for ID {detail.ProductId}");
+                        continue;
+                    }
+
+                    var product = await Task.Run(() => _dao.Products.GetById(productVariant.ProductId + ""));
+                    if (product == null)
+                    {
+                        Debug.WriteLine($"No product found for ID {productVariant.ProductId}");
+                        continue;
+                    }
+
+                    var revenue = detail.Quantity * productVariant.Price;
+                    Debug.WriteLine("Add: " + product.Id + " " + product.Name);
+                    productSales.Add((product.Id, product.Name, detail.Quantity, revenue));
+                }
+
+                currentPage++;
                 //}
 
                 if (productSales.Any())

@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Syncfusion.UI.Xaml.Charts;
+using System.Diagnostics;
 using Kohi.ViewModels;
 using System.Threading.Tasks;
 
@@ -84,5 +85,10 @@ namespace Kohi.Views
             await errorDialog.ShowAsync();
         }
 
+        private void SfAIAssistView_SuggestionSelected(object sender, Syncfusion.UI.Xaml.Chat.SuggestionClickedEventArgs e)
+        {
+            ViewModel.HandleSuggestionClicked(e.Item.ToString());
+            Debug.WriteLine($"AI Suggestion selected: {e.Item.ToString()}");
+        }
     }
 }

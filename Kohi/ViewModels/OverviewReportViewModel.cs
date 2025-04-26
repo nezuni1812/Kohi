@@ -7,6 +7,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using Windows.Globalization;
+using AutoGen.Gemini;
+using AutoGen.Core;
+using Syncfusion.UI.Xaml.Chat;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Kohi.ViewModels
 {
@@ -24,9 +29,70 @@ namespace Kohi.ViewModels
         private float _profitInterval;
         private List<InvoiceModel>? _invoices;
         private List<ExpenseModel>? _expenses;
+        private ObservableCollection<object> chats;
+        private bool isTrue = false;
+        private TypingIndicator typingIndicator;
+        private IEnumerable<string> suggestion;
+        private Author currentUser;
+        private static string apiKey = AppConfig.Configuration["GeminiAPIKey"];
+
+        private MiddlewareStreamingAgent<GeminiChatAgent> geminiAgent = new GeminiChatAgent(
+            name: "gemini",
+            model: "gemini-2.0-flash",
+            apiKey: apiKey,
+            systemMessage: "You are a helpful assistant for a POS coffee shop application for Vietnamese so most currency data will be in VNĐ." +
+" There will be a text version of what the user is seeing on the screen included in the prompt, please make use of it as much as you can. " +
+"Please noted if the user ask for something other than coffeeshop related like creating a programe with any sort of language, decline. If you are sure that the question is out of the scope of the provided data, you can just say you dont know")
+        .RegisterMessageConnector()
+        .RegisterPrintMessage();
 
         public ObservableCollection<ChartData> ChartData { get; set; }
-        public ObservableCollection<ExpenseCategoryChartData> ExpenseCategoryData { get; set; } // Dữ liệu cho biểu đồ tròn
+        public ObservableCollection<ExpenseCategoryChartData> ExpenseCategoryData { get; set; }
+        public ObservableCollection<object> Chats
+        {
+            get => chats;
+            set
+            {
+                chats = value;
+                OnPropertyChanged(nameof(Chats));
+            }
+        }
+        public bool IsTrue
+        {
+            get => isTrue;
+            set
+            {
+                isTrue = value;
+                OnPropertyChanged(nameof(IsTrue));
+            }
+        }
+        public TypingIndicator TypingIndicator
+        {
+            get => typingIndicator;
+            set
+            {
+                typingIndicator = value;
+                OnPropertyChanged(nameof(TypingIndicator));
+            }
+        }
+        public IEnumerable<string> Suggestion
+        {
+            get => suggestion;
+            set
+            {
+                suggestion = value;
+                OnPropertyChanged(nameof(Suggestion));
+            }
+        }
+        public Author CurrentUser
+        {
+            get => currentUser;
+            set
+            {
+                currentUser = value;
+                OnPropertyChanged(nameof(CurrentUser));
+            }
+        }
         public string SelectedTimeRange
         {
             get => _selectedTimeRange;
@@ -104,7 +170,120 @@ namespace Kohi.ViewModels
             ExpenseCategoryData = new ObservableCollection<ExpenseCategoryChartData>();
             StartDate = DateTimeOffset.Now;
             EndDate = DateTimeOffset.Now;
+            Chats = new ObservableCollection<object>();
+            Suggestion = new ObservableCollection<string>
+            {
+                "Danh mục chi phí lớn nhất là gì?",
+                "Xu hướng lợi nhuận trong khoảng thời gian này?",
+                "Có vấn đề gì cần chú ý trong doanh thu và chi phí không?",
+                "So sánh doanh thu và lợi nhuận theo ngày"
+            };
+            CurrentUser = new Author { Name = "User" };
+            TypingIndicator = new TypingIndicator { Author = new Author { Name = "Bot" } };
+            Chats.CollectionChanged += Chats_CollectionChanged;
+
+            if (apiKey is null)
+            {
+                Debug.WriteLine("Please set GOOGLE_GEMINI_API_KEY environment variable.");
+            }
+
             InitializeData();
+        }
+
+        private async void Chats_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            var item = e.NewItems?[0] as ITextMessage;
+            if (item != null && item.Author.Name == CurrentUser.Name)
+            {
+                Debug.WriteLine("User text: " + item.Text);
+                IsTrue = true;
+
+                try
+                {
+                    string chartDataText = await GetChartDataAsText();
+                    string messageWithData = $"{item.Text}\n\nHere is the chart data the user is seeing, please answer according to the data in it:\n{chartDataText}";
+                    var reply = await geminiAgent.SendAsync(messageWithData);
+                    Debug.WriteLine("Response: " + reply.GetContent());
+
+                    Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage
+                    {
+                        Author = new Author { Name = "Bot" },
+                        DateTime = DateTime.Now,
+                        Text = reply.GetContent()
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error processing AI response: {ex.Message}");
+                    Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage
+                    {
+                        Author = new Author { Name = "Bot" },
+                        DateTime = DateTime.Now,
+                        Text = "Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn."
+                    });
+                }
+                finally
+                {
+                    IsTrue = false;
+                }
+            }
+        }
+
+        public void HandleSuggestionClicked(string suggestionText)
+        {
+            Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage
+            {
+                Author = CurrentUser,
+                DateTime = DateTime.Now,
+                Text = suggestionText
+            });
+        }
+
+        private async Task<string> GetChartDataAsText()
+        {
+            var text = new StringBuilder();
+
+            if (StartDate != null && EndDate != null)
+            {
+                text.AppendLine($"Data Range: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}");
+            }
+            else
+            {
+                text.AppendLine("Data Range: All time");
+            }
+
+            text.AppendLine($"\nSummary:");
+            text.AppendLine($"  Total Revenue: {TotalRevenue:C}");
+            text.AppendLine($"  Total Profit: {TotalProfit:C}");
+            text.AppendLine($"  Total Expense: {TotalExpense:C}");
+
+            text.AppendLine("\nRevenue and Profit Data:");
+            if (ChartData.Any())
+            {
+                foreach (var data in ChartData)
+                {
+                    text.AppendLine($"  {data.Label}: Revenue = {data.Revenue:C}, Profit = {data.Profit:C}");
+                }
+            }
+            else
+            {
+                text.AppendLine("  No revenue or profit data available.");
+            }
+
+            text.AppendLine("\nExpense by Category:");
+            if (ExpenseCategoryData.Any())
+            {
+                foreach (var category in ExpenseCategoryData)
+                {
+                    text.AppendLine($"  {category.CategoryName}: {category.Amount:C}");
+                }
+            }
+            else
+            {
+                text.AppendLine("  No expense data available.");
+            }
+
+            return text.ToString();
         }
 
         private async void InitializeData()
