@@ -16,7 +16,7 @@ namespace Kohi.ViewModels
         public ProductViewModel ProductViewModel { get; set; } = new ProductViewModel(1000);
         // public OrderToppingViewModel OrderToppingViewModel { get; set; } = new OrderToppingViewModel();
         // public InvoiceDetailViewModel InvoiceDetailViewModel { get; set; } = new InvoiceDetailViewModel();
-        public CustomerViewModel CustomerViewModel { get; set; } = new CustomerViewModel();
+        public CustomerViewModel CustomerViewModel { get; set; } = new CustomerViewModel(1000);
         // public PaymentViewModel PaymentViewModel { get; set; } = new PaymentViewModel();
         public InvoiceViewModel InvoiceViewModel { get; set; } = new InvoiceViewModel();
         // public InvoiceTaxViewModel InvoiceTaxViewModel { get; set; } = new InvoiceTaxViewModel();

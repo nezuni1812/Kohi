@@ -196,7 +196,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Text="Trang chủ" Style="{StaticResource SubtitleTextBlockStyle}"/>
-            <Button Click="trainAndPredict">Train and predict</Button>
+                <!--Button Click="trainAndPredict">Train and predict</Button-->
 
                 <TextBlock Grid.Row="1" Text="Danh mục" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
@@ -331,9 +331,11 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="Địa chỉ:" Margin="0,0,2,0"/>
-                        <TextBlock x:Name="CustomerAddressTextBlock"
-                            Text="{Binding ViewModel.CustomerViewModel.SelectedCustomer.Address}"/>
+                        <TextBlock TextWrapping="Wrap" MaxWidth="330">
+                            <Run Text="Địa chỉ:"/>
+                            <Run x:Name="CustomerAddressTextBlock"
+                               Text="{Binding ViewModel.CustomerViewModel.SelectedCustomer.Address}"/>
+                        </TextBlock>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal">
                         <TextBlock Text="Khoảng cách giao hàng:" Margin="0,0,2,0"/>
