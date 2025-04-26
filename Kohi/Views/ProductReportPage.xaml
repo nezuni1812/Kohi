@@ -12,14 +12,16 @@
     xmlns:dataGrid="using:Syncfusion.UI.Xaml.DataGrid"
     mc:Ignorable="d">
 
+    <Page.Resources>
+    </Page.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid RowSpacing="10"
-                Margin="20">
+        <Grid RowSpacing="10" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- TextBlock -->
+                <!-- Title -->  
                 <RowDefinition Height="Auto"/>
-                <!-- ComboBox -->
+                <!-- Ingredient and Date Range -->
                 <RowDefinition Height="Auto"/>
                 <!-- Chart (Inbound/Outbound) -->
                 <RowDefinition Height="Auto"/>
@@ -36,74 +38,95 @@
                        Style="{StaticResource TitleTextBlockStyle}"
                        Margin="0,0,0,10"/>
 
-            <!-- Ingredient Selection -->
-            <editors:SfComboBox Grid.Row="1"
-                                IsEditable="True"
-                                IsFilteringEnabled="True"
-                                TextSearchMode="StartsWith"
-                                ItemsSource="{x:Bind ViewModel.IngredientNames, Mode=OneWay}"
-                                SelectedItem="{x:Bind ViewModel.SelectedIngredientName, Mode=TwoWay}"
-                                PlaceholderText="Select Ingredient"
-                                Width="300"
-                                HorizontalAlignment="Left"
-                                Margin="0,0,0,10"/>
+            <!-- Ingredient Selection and Date Range -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+                <editors:SfComboBox IsEditable="True"
+                                    IsFilteringEnabled="True"
+                                    TextSearchMode="StartsWith"
+                                    ItemsSource="{x:Bind ViewModel.IngredientNames, Mode=OneWay}"
+                                    SelectedItem="{x:Bind ViewModel.SelectedIngredientName, Mode=TwoWay}"
+                                    PlaceholderText="Select Ingredient"
+                                    Width="300"/>
+                <ComboBox x:Name="TimeRangeComboBox"
+                          SelectedItem="{x:Bind ViewModel.SelectedTimeRange, Mode=TwoWay}"
+                          SelectionChanged="TimeRangeComboBox_SelectionChanged">
+                    <x:String>Hôm nay</x:String>
+                    <x:String>Tuần này</x:String>
+                    <x:String>Tháng này</x:String>
+                    <x:String>Năm này</x:String>
+                    <x:String>Tùy chỉnh</x:String>
+                </ComboBox>
+                <CalendarDatePicker x:Name="StartDatePicker"
+                                   Visibility="Collapsed"
+                                   Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"/>
+                <CalendarDatePicker x:Name="EndDatePicker"
+                                   Visibility="Collapsed"
+                                   Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"/>
+                <Button x:Name="ApplyButton"
+                        Content="Áp dụng"
+                        Click="ApplyCustomDateRange_Click"
+                        Visibility="Collapsed"/>
+            </StackPanel>
 
             <!-- Inbound/Outbound Chart -->
             <chart:SfCartesianChart Grid.Row="2"
-                                    Height="400"
-                                    Margin="0,0,0,10">
+                        Header="Nhập kho/xuất kho nguyên liệu"
+                        Height="400"
+                        Margin="0,0,0,10">
                 <chart:SfCartesianChart.XAxes>
-                    <chart:DateTimeAxis IntervalType="Days"
-                            Interval="1">
+                    <chart:DateTimeAxis IntervalType="Days" Interval="1">
                         <chart:DateTimeAxis.LabelStyle>
                             <chart:LabelStyle LabelFormat="dd MMM"/>
                         </chart:DateTimeAxis.LabelStyle>
                     </chart:DateTimeAxis>
                 </chart:SfCartesianChart.XAxes>
-
                 <chart:SfCartesianChart.YAxes>
                     <chart:NumericalAxis Minimum="0"
-                                         Interval="25"
-                                         ShowMajorGridLines="True">
+                             Interval="25"
+                             ShowMajorGridLines="True">
                         <chart:NumericalAxis.LabelStyle>
                             <chart:LabelStyle LabelFormat="N0"/>
                         </chart:NumericalAxis.LabelStyle>
                     </chart:NumericalAxis>
                 </chart:SfCartesianChart.YAxes>
-
                 <chart:SfCartesianChart.Legend>
-                    <chart:ChartLegend IconHeight="13"
-                            IconWidth="13"/>
+                    <chart:ChartLegend IconHeight="13" IconWidth="13"/>
                 </chart:SfCartesianChart.Legend>
-
-                <!-- Inbound Series -->
-                <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.Data, Mode=OneWay}"
-                                        XBindingPath="XValue"
-                                        YBindingPath="YValue"
-                                        Label="Nhập kho"
-                                        LegendIcon="Circle"
-                                        EnableAnimation="True"
-                                        EnableTooltip="True"/>
-
-                <!-- Outbound Series -->
-                <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.OutboundData, Mode=OneWay}"
-                                        XBindingPath="XValue"
-                                        YBindingPath="YValue"
-                                        Label="Xuất kho"
-                                        LegendIcon="Circle"
-                                        EnableAnimation="True"
-                                        EnableTooltip="True"/>
+                <chart:LineSeries ItemsSource="{x:Bind ViewModel.Data, Mode=OneWay}"
+                      XBindingPath="XValue"
+                      YBindingPath="YValue"
+                      Label="Nhập kho"
+                      LegendIcon="Circle"
+                      EnableAnimation="True"
+                      EnableTooltip="True"
+                      ShowDataLabels="True">
+                    <chart:LineSeries.DataLabelSettings>
+                        <chart:CartesianDataLabelSettings Position="Outer"/>
+                    </chart:LineSeries.DataLabelSettings>
+                </chart:LineSeries>
+                <chart:LineSeries ItemsSource="{x:Bind ViewModel.OutboundData, Mode=OneWay}"
+                      XBindingPath="XValue"
+                      YBindingPath="YValue"
+                      Label="Xuất kho"
+                      LegendIcon="Circle"
+                      EnableAnimation="True"
+                      EnableTooltip="True"
+                      ShowDataLabels="True">
+                    <chart:LineSeries.DataLabelSettings>
+                        <chart:CartesianDataLabelSettings Position="Outer"/>
+                    </chart:LineSeries.DataLabelSettings>
+                </chart:LineSeries>
             </chart:SfCartesianChart>
 
             <!-- AI Assist -->
             <syncfusion:SfAIAssistView Grid.Row="3"
-                                       CurrentUser="{x:Bind ViewModel.CurrentUser}"
-                                       Suggestions="{x:Bind ViewModel.Suggestion}"
-                                       SuggestionSelected="SfAIAssistView_SuggestionSelected"
-                                       ShowTypingIndicator="{x:Bind ViewModel.IsTrue, Mode=OneWay}"
-                                       TypingIndicator="{x:Bind ViewModel.TypingIndicator, Mode=OneWay}"
-                                       Messages="{x:Bind ViewModel.Chats}"
-                                       Margin="0,0,0,10"/>
+                                      CurrentUser="{x:Bind ViewModel.CurrentUser}"
+                                      Suggestions="{x:Bind ViewModel.Suggestion}"
+                                      ShowTypingIndicator="{x:Bind ViewModel.IsTrue, Mode=OneWay}"
+                                      TypingIndicator="{x:Bind ViewModel.TypingIndicator, Mode=OneWay}"
+                                      Messages="{x:Bind ViewModel.Chats}"
+                                      SuggestionSelected="SfAIAssistView_SuggestionSelected"
+                                      Margin="0,0,0,10"/>
 
             <!-- Top Products Pie Chart -->
             <chart:SfCircularChart Grid.Row="4"
@@ -111,8 +134,7 @@
                                    Height="300"
                                    Margin="0,0,0,10">
                 <chart:SfCircularChart.Legend>
-                    <chart:ChartLegend IconWidth="13"
-                            IconHeight="13"/>
+                    <chart:ChartLegend IconWidth="13" IconHeight="13"/>
                 </chart:SfCircularChart.Legend>
                 <chart:PieSeries ItemsSource="{x:Bind ViewModel.TopProducts, Mode=OneWay}"
                                  XBindingPath="Name"
@@ -129,9 +151,10 @@
                     </chart:PieSeries.TooltipTemplate>
                     <chart:PieSeries.DataLabelSettings>
                         <chart:CircularDataLabelSettings ShowConnectorLine="True"
-                                                         Position="OutsideExtended"
-                                                         Background="Transparent"
-                                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                                        Position="OutsideExtended"
+                                                        Background="Transparent"
+                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                       />
                     </chart:PieSeries.DataLabelSettings>
                 </chart:PieSeries>
             </chart:SfCircularChart>
@@ -142,17 +165,18 @@
                                  ItemsSource="{x:Bind ViewModel.TopProducts, Mode=OneWay}"
                                  AutoGenerateColumns="False"
                                  AllowSorting="True"
-                                 Width="Auto"
                                  Margin="0,0,0,10">
                 <dataGrid:SfDataGrid.Columns>
-                    <dataGrid:GridTextColumn HeaderText="Tên sản phẩm"
+                    <dataGrid:GridTextColumn HeaderText="Tên Sản Phẩm"
                                              MappingName="Name"/>
-                    <dataGrid:GridTextColumn HeaderText="Số lượng"
+                    <dataGrid:GridTextColumn HeaderText="Số Lượng Bán"
                                              MappingName="TotalQuantity"
-                                             TextAlignment="Right"/>
-                    <dataGrid:GridTextColumn HeaderText="Doanh thu"
+                                             TextAlignment="Right"
+                                             Width="150"/>
+                    <dataGrid:GridTextColumn HeaderText="Tổng Doanh Thu"
                                              MappingName="TotalRevenue"
-                                             TextAlignment="Right"/>
+                                             TextAlignment="Right"
+                                             Width="150"/>
                 </dataGrid:SfDataGrid.Columns>
             </dataGrid:SfDataGrid>
         </Grid>
