@@ -30,6 +30,14 @@ namespace Kohi.ViewModels
             LoadData();
         }
 
+        public CustomerViewModel(int sl)
+        {
+            _dao = Service.GetKeyedSingleton<IDao>();
+            Customers = new FullObservableCollection<CustomerModel>();
+            PageSize = sl;
+            LoadData();
+        }
+
         public async Task LoadData(int page = 1)
         {
             CurrentPage = page;

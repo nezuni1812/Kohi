@@ -76,7 +76,7 @@
                         <Run Text="-"/>
                         <Run x:Name="CustomerPhone" Text="Không có số"/>
                     </TextBlock>
-                    <TextBlock x:Name="DeliveryAddress" Visibility="Collapsed" FontSize="14" HorizontalAlignment="Left">
+                    <TextBlock x:Name="DeliveryAddress" Visibility="Collapsed" FontSize="14" HorizontalAlignment="Left" TextWrapping="Wrap">
                         <Run Text="Địa chỉ:"/>
                         <Run x:Name="CustomerAddress" Text="Không có địa chỉ"/>
                     </TextBlock>

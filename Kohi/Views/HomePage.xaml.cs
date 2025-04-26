@@ -45,7 +45,7 @@ namespace Kohi.Views
     {
         public HomePageViewModel ViewModel { get; set; } = new HomePageViewModel();
         private readonly DistanceService _distanceService = new DistanceService();
-        public class SalesData
+        /*public class SalesData
         {
             [LoadColumn(0)]
             public string Product { get; set; }
@@ -122,7 +122,7 @@ namespace Kohi.Views
         {
             actuallTrainAndPredict();
             Debug.WriteLine("Called to train and predict");
-        }
+        }*/
 
         public bool IsLoading { get; set; } = false;
         public HomePage()
@@ -525,6 +525,12 @@ namespace Kohi.Views
         {
             var invoice = PrepareInvoice();
 
+            if (invoice == null)
+            {
+                await ShowErrorContentDialog(this.XamlRoot, "Hóa đơn trống. Vui lòng kiểm tra lại.");
+                return;
+            }
+
             if (invoice.PaymentMethod != "Tiền mặt")
             {
                 var userPaymentSettings = RestoreUserPaymentSettings();
@@ -576,8 +582,14 @@ namespace Kohi.Views
                 await ShowErrorContentDialog(this.XamlRoot, "Đã xảy ra lỗi trong quá trình thanh toán: " + ex.Message);
             }
         }
+
         private InvoiceModel PrepareInvoice()
         {
+            if (!ViewModel.OrderItems.Any())
+            {
+                return null;
+            }
+
             float deliveryFee = 0f;
             if (DeliveryFee.IsEnabled && !double.IsNaN(DeliveryFee.Value))
             {
