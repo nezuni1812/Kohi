@@ -2575,6 +2575,7 @@ namespace Kohi.Services
 
             public List<InvoiceDetailModel> GetAll(int pageNumber = 1, int pageSize = 1000, string sortBy = null, bool sortDescending = false, string filterField = null, string filterValue = null, string searchKeyword = null)
             {
+                Debug.WriteLine("Pages: " + pageSize);
                 string orderClause = "";
                 if (!string.IsNullOrEmpty(sortBy))
                 {

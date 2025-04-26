@@ -19,17 +19,11 @@
         <Grid RowSpacing="10" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Title -->  
                 <RowDefinition Height="Auto"/>
-                <!-- Ingredient and Date Range -->
                 <RowDefinition Height="Auto"/>
-                <!-- Chart (Inbound/Outbound) -->
                 <RowDefinition Height="Auto"/>
-                <!-- AI Assist -->
                 <RowDefinition Height="Auto"/>
-                <!-- Pie Chart (Top Products) -->
                 <RowDefinition Height="Auto"/>
-                <!-- DataGrid (Top Products) -->
             </Grid.RowDefinitions>
 
             <!-- Title -->
@@ -118,18 +112,8 @@
                 </chart:LineSeries>
             </chart:SfCartesianChart>
 
-            <!-- AI Assist -->
-            <syncfusion:SfAIAssistView Grid.Row="3"
-                                      CurrentUser="{x:Bind ViewModel.CurrentUser}"
-                                      Suggestions="{x:Bind ViewModel.Suggestion}"
-                                      ShowTypingIndicator="{x:Bind ViewModel.IsTrue, Mode=OneWay}"
-                                      TypingIndicator="{x:Bind ViewModel.TypingIndicator, Mode=OneWay}"
-                                      Messages="{x:Bind ViewModel.Chats}"
-                                      SuggestionSelected="SfAIAssistView_SuggestionSelected"
-                                      Margin="0,0,0,10"/>
-
             <!-- Top Products Pie Chart -->
-            <chart:SfCircularChart Grid.Row="4"
+            <chart:SfCircularChart Grid.Row="3"
                                    Header="Top 10 Sản Phẩm Phổ Biến"
                                    Height="300"
                                    Margin="0,0,0,10">
@@ -160,7 +144,7 @@
             </chart:SfCircularChart>
 
             <!-- Top Products DataGrid -->
-            <dataGrid:SfDataGrid Grid.Row="5"
+            <dataGrid:SfDataGrid Grid.Row="4"
                                  x:Name="sfDataGrid"
                                  ItemsSource="{x:Bind ViewModel.TopProducts, Mode=OneWay}"
                                  AutoGenerateColumns="False"
@@ -179,6 +163,16 @@
                                              Width="150"/>
                 </dataGrid:SfDataGrid.Columns>
             </dataGrid:SfDataGrid>
+
+            <!-- AI Assist -->
+            <syncfusion:SfAIAssistView Grid.Row="5"
+                                      CurrentUser="{x:Bind ViewModel.CurrentUser}"
+                                      Suggestions="{x:Bind ViewModel.Suggestion}"
+                                      ShowTypingIndicator="{x:Bind ViewModel.IsTrue, Mode=OneWay}"
+                                      TypingIndicator="{x:Bind ViewModel.TypingIndicator, Mode=OneWay}"
+                                      Messages="{x:Bind ViewModel.Chats}"
+                                      SuggestionSelected="SfAIAssistView_SuggestionSelected"
+                                      Margin="0,0,0,10"/>
         </Grid>
     </ScrollViewer>
 </Page>
