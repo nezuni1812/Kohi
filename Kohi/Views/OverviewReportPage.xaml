@@ -9,6 +9,8 @@
     xmlns:charts="using:Syncfusion.UI.Xaml.Charts"
     xmlns:viewModel="using:Kohi.ViewModels"
     xmlns:converter="using:Kohi.Views.Converter"
+    xmlns:editors="using:Syncfusion.UI.Xaml.Editors"
+    xmlns:syncfusion="using:Syncfusion.UI.Xaml.Chat"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -26,6 +28,7 @@
     <ScrollView>
         <Grid RowSpacing="20">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -185,6 +188,15 @@
                     </charts:PieSeries>
                 </charts:SfCircularChart>
             </Grid>
+
+            <syncfusion:SfAIAssistView Grid.Row="4"
+                                      CurrentUser="{x:Bind ViewModel.CurrentUser, Mode=OneWay}"
+                                      Suggestions="{x:Bind ViewModel.Suggestion, Mode=OneWay}"
+                                      ShowTypingIndicator="{x:Bind ViewModel.IsTrue, Mode=OneWay}"
+                                      TypingIndicator="{x:Bind ViewModel.TypingIndicator, Mode=OneWay}"
+                                      Messages="{x:Bind ViewModel.Chats, Mode=OneWay}"
+                                      SuggestionSelected="SfAIAssistView_SuggestionSelected"
+                                      Margin="0,0,0,10"/>
 
             <!--TextBlock Text="Tổng quan"></TextBlock>
 
