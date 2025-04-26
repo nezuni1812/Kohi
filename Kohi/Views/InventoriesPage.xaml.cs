@@ -534,7 +534,7 @@ namespace Kohi.Views
                 Debug.WriteLine($"Total outbound rows read from Excel: {rawDataList.Count}");
                 if (rawDataList.Count == 0)
                 {
-                    await ShowMessageDialog("Failure", "No valid outbound data found in the Excel file.");
+                    await ShowMessageDialog("Thất bại", "Không tìm thấy dữ liệu xuất kho hợp lệ trong tệp Excel.");
                     return;
                 }
 
@@ -542,7 +542,7 @@ namespace Kohi.Views
                 var allInventories = await InventoryViewModel.GetAll();
                 if (allInventories == null)
                 {
-                    await ShowMessageDialog("Failure", "Failed to load inventory data.");
+                    await ShowMessageDialog("Thất bại", "Không thể tải dữ liệu kho.");
                     return;
                 }
                 var inventoryDict = allInventories.ToDictionary(i => i.Id, i => i);
@@ -563,7 +563,7 @@ namespace Kohi.Views
                 { "Outbound Date", outboundDate.ToString("MM/dd/yyyy") }
             };
 
-                    // Check errors using _errorHandler (including DateRangeValidationErrorHandler)
+                    // Check errors using looking for errors using _errorHandler (including DateRangeValidationErrorHandler)
                     var rowErrors = _errorHandler?.HandleError(fields) ?? new List<string>();
                     if (rowErrors.Any())
                     {
@@ -622,7 +622,7 @@ namespace Kohi.Views
                 // If any errors exist, show errors and do not import any rows
                 if (errors.Any())
                 {
-                    await ShowMessageDialog("Input Error", string.Join("\n", errors));
+                    await ShowMessageDialog("Lỗi nhập liệu", string.Join("\n", errors));
                     return;
                 }
 
@@ -635,12 +635,12 @@ namespace Kohi.Views
                 }
 
                 await LoadDataWithProgress(InventoryViewModel.CurrentPage);
-                await ShowMessageDialog("Success", $"Imported {successCount} of {rawDataList.Count} outbound rows from the Excel file.");
+                await ShowMessageDialog("Thành công", $"Đã nhập {successCount} trên {rawDataList.Count} dòng xuất kho từ tệp Excel.");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to import outbound data: {ex.Message}");
-                await ShowMessageDialog("Failure", $"Failed to import outbound data: {ex.Message}");
+                await ShowMessageDialog("Thất bại", $"Không thể nhập dữ liệu xuất kho: {ex.Message}");
             }
             finally
             {
