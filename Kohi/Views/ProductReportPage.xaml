@@ -7,7 +7,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:chart="using:Syncfusion.UI.Xaml.Charts"
-    xmlns:editors="using:Syncfusion.UI.Xaml.Editors" xmlns:syncfusion="using:Syncfusion.UI.Xaml.Chat"
+    xmlns:editors="using:Syncfusion.UI.Xaml.Editors"
+    xmlns:syncfusion="using:Syncfusion.UI.Xaml.Chat"
+    xmlns:dataGrid="using:Syncfusion.UI.Xaml.DataGrid"
     mc:Ignorable="d">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -18,8 +20,13 @@
                 <RowDefinition Height="Auto"/>
                 <!-- ComboBox -->
                 <RowDefinition Height="Auto"/>
-                <!-- Chart -->
+                <!-- Chart (Inbound/Outbound) -->
                 <RowDefinition Height="Auto"/>
+                <!-- AI Assist -->
+                <RowDefinition Height="Auto"/>
+                <!-- Pie Chart (Top Products) -->
+                <RowDefinition Height="Auto"/>
+                <!-- DataGrid (Top Products) -->
             </Grid.RowDefinitions>
 
             <!-- Title -->
@@ -40,7 +47,7 @@
                                 HorizontalAlignment="Left"
                                 Margin="0,0,0,10"/>
 
-            <!-- Chart -->
+            <!-- Inbound/Outbound Chart -->
             <chart:SfCartesianChart Grid.Row="2"
                                     Height="400"
                                     Margin="0,0,0,10">
@@ -66,28 +73,84 @@
                     <chart:ChartLegend IconHeight="13" IconWidth="13"/>
                 </chart:SfCartesianChart.Legend>
 
-
                 <!-- Inbound Series -->
                 <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.Data, Mode=OneWay}"
                                         XBindingPath="XValue"
                                         YBindingPath="YValue"
-                                        Label="Inbound"
-                                        LegendIcon="Circle" EnableAnimation="True" EnableTooltip="True"
-                                        />
-                <!-- Blue -->
+                                        Label="Nhập kho"
+                                        LegendIcon="Circle" 
+                                        EnableAnimation="True" 
+                                        EnableTooltip="True"/>
 
                 <!-- Outbound Series -->
                 <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.OutboundData, Mode=OneWay}"
                                         XBindingPath="XValue"
                                         YBindingPath="YValue"
-                                        Label="Outbound"
-                                        LegendIcon="Circle" EnableAnimation="True" EnableTooltip="True"
-                                  />
-                <!-- Orange -->
+                                        Label="Xuất kho"
+                                        LegendIcon="Circle" 
+                                        EnableAnimation="True" 
+                                        EnableTooltip="True"/>
             </chart:SfCartesianChart>
 
-            <syncfusion:SfAIAssistView Grid.Row="3"  CurrentUser="{x:Bind ViewModel.CurrentUser}" Suggestions="{x:Bind ViewModel.Suggestion}" SuggestionSelected="SfAIAssistView_SuggestionSelected"
-                                   Messages="{x:Bind ViewModel.Chats}"/>
+            <!-- AI Assist -->
+            <syncfusion:SfAIAssistView Grid.Row="3" 
+                                      CurrentUser="{x:Bind ViewModel.CurrentUser}" 
+                                      Suggestions="{x:Bind ViewModel.Suggestion}" 
+                                      SuggestionSelected="SfAIAssistView_SuggestionSelected"
+                                      Messages="{x:Bind ViewModel.Chats}"
+                                      Margin="0,0,0,10"/>
+
+            <!-- Top Products Pie Chart -->
+            <chart:SfCircularChart Grid.Row="4"
+                                   Header="Top 10 Sản Phẩm Phổ Biến"
+                                   Height="300"
+                                   Margin="0,0,0,10">
+                <chart:SfCircularChart.Legend>
+                    <chart:ChartLegend IconWidth="13" IconHeight="13"/>
+                </chart:SfCircularChart.Legend>
+                <chart:PieSeries ItemsSource="{x:Bind ViewModel.TopProducts, Mode=OneWay}"
+                                 XBindingPath="Name"
+                                 YBindingPath="TotalQuantity"
+                                 Label="Sản Phẩm"
+                                 EnableAnimation="True"
+                                 EnableTooltip="True"
+                                 ShowDataLabels="True">
+                    <chart:PieSeries.TooltipTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Item.Name}" 
+                                       Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
+                        </DataTemplate>
+                    </chart:PieSeries.TooltipTemplate>
+                    <chart:PieSeries.DataLabelSettings>
+                        <chart:CircularDataLabelSettings ShowConnectorLine="True"
+                                                        Position="OutsideExtended"
+                                                        Background="Transparent"
+                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                        />
+                    </chart:PieSeries.DataLabelSettings>
+                </chart:PieSeries>
+            </chart:SfCircularChart>
+
+            <!-- Top Products DataGrid -->
+            <dataGrid:SfDataGrid Grid.Row="5"
+                                 x:Name="sfDataGrid"
+                                 ItemsSource="{x:Bind ViewModel.TopProducts, Mode=OneWay}"
+                                 AutoGenerateColumns="False"
+                                 AllowSorting="True"
+                                 Width="Auto"
+                                 Margin="0,0,0,10">
+                <dataGrid:SfDataGrid.Columns>
+                    <dataGrid:GridTextColumn HeaderText="Tên sản phẩm"
+                                             MappingName="Name"
+                                             />
+                    <dataGrid:GridTextColumn HeaderText="Số lượng"
+                                             MappingName="TotalQuantity"
+                                             TextAlignment="Right"/>
+                    <dataGrid:GridTextColumn HeaderText="Doanh thu"
+                                             MappingName="TotalRevenue"
+                                             TextAlignment="Right"/>
+                </dataGrid:SfDataGrid.Columns>
+            </dataGrid:SfDataGrid>
         </Grid>
     </ScrollViewer>
 </Page>

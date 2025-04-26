@@ -9,9 +9,7 @@ using Kohi.Services;
 using Kohi.Utils;
 using AutoGen.Core;
 using Syncfusion.UI.Xaml.Chat;
-using Google.Api;
 using Microsoft.UI.Xaml.Controls;
-using static Google.Rpc.Context.AttributeContext.Types;
 using System.Collections.Generic;
 
 namespace Kohi.ViewModels
@@ -74,9 +72,19 @@ namespace Kohi.ViewModels
             public double YValue { get; set; }
         }
 
+        public class TopProductModel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public double TotalQuantity { get; set; }
+            public double TotalRevenue { get; set; }
+            public double Percentage { get; set; }
+        }
+
         public ObservableCollection<Model> Data { get; set; } // Inbound data
         public ObservableCollection<Model> OutboundData { get; set; } // Outbound data
         public ObservableCollection<string> IngredientNames { get; set; }
+        public ObservableCollection<TopProductModel> TopProducts { get; set; } // Top products data
 
         private string _selectedIngredientName;
         public string SelectedIngredientName
@@ -103,11 +111,7 @@ namespace Kohi.ViewModels
             Data = new ObservableCollection<Model>();
             OutboundData = new ObservableCollection<Model>();
             IngredientNames = new ObservableCollection<string>();
-
-            //var expenses = _dao.Categories.GetAll(searchKeyword: "cà phê");
-            //Debug.WriteLine("Amount of expenses: " + expenses.Count);
-            //foreach (var expense in expenses)
-            //    Debug.WriteLine($"Expense: {expense.Name}");
+            TopProducts = new ObservableCollection<TopProductModel>();
 
             LoadDataAsync();
             Debug.WriteLine("Added data");
@@ -127,7 +131,6 @@ namespace Kohi.ViewModels
 
         public void HandleSuggestionClicked(string suggestionText)
         {
-            // Add the suggestion as a user message to the Chats collection
             Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage
             {
                 Author = CurrentUser,
@@ -299,6 +302,20 @@ namespace Kohi.ViewModels
                 text.AppendLine("\nNo ingredient currently selected.");
             }
 
+            // Add top products data
+            text.AppendLine("\nTop 10 Most Popular Products:");
+            if (TopProducts.Any())
+            {
+                foreach (var product in TopProducts)
+                {
+                    text.AppendLine($"  {product.Name}: {product.TotalQuantity} units, Revenue: {product.TotalRevenue:C}, Percentage: {product.Percentage:F2}%");
+                }
+            }
+            else
+            {
+                text.AppendLine("  No product data available.");
+            }
+
             return text.ToString();
         }
 
@@ -307,6 +324,7 @@ namespace Kohi.ViewModels
             await LoadIngredientNamesAsync();
             await LoadInboundDataAsync();
             await LoadOutboundDataAsync();
+            await LoadTopProductsAsync();
         }
 
         private async Task LoadInboundDataAsync(string ingredientName = null)
@@ -337,7 +355,7 @@ namespace Kohi.ViewModels
                         var ingredient = await Task.Run(() => _dao.Ingredients.GetById(inbound.IngredientId + ""));
                         if (ingredientName == null || ingredient?.Name == ingredientName)
                         {
-                            Debug.WriteLine($"{inbound.InboundDate}: {inbound.Quantity}");
+                            //Debug.WriteLine($"{inbound.InboundDate}: {inbound.Quantity}");
                             allInbounds.Add((inbound.InboundDate, inbound.Quantity));
                         }
                     }
@@ -348,7 +366,7 @@ namespace Kohi.ViewModels
                 if (allInbounds.Any())
                 {
                     var aggregatedData = allInbounds
-                        .GroupBy(i => i.InboundDate.Date) // Group by date (ignoring time)
+                        .GroupBy(i => i.InboundDate.Date)
                         .Select(g => new
                         {
                             InboundDate = g.Key,
@@ -359,7 +377,7 @@ namespace Kohi.ViewModels
 
                     foreach (var item in aggregatedData)
                     {
-                        Debug.WriteLine($"Aggregated Inbound: {item.InboundDate}: {item.TotalQuantity}");
+                        //Debug.WriteLine($"Aggregated Inbound: {item.InboundDate}: {item.TotalQuantity}");
                         Data.Add(new Model
                         {
                             XValue = item.InboundDate,
@@ -412,21 +430,21 @@ namespace Kohi.ViewModels
                         var inventory = await Task.Run(() => _dao.Inventories.GetById(outbound.InventoryId + ""));
                         if (inventory == null)
                         {
-                            Debug.WriteLine($"No inventory found for outbound ID {outbound.Id}");
+                            //Debug.WriteLine($"No inventory found for outbound ID {outbound.Id}");
                             continue;
                         }
 
                         var inbound = await Task.Run(() => _dao.Inbounds.GetById(inventory.InboundId + ""));
                         if (inbound == null)
                         {
-                            Debug.WriteLine($"No inbound found for inventory ID {inventory.Id}");
+                            //Debug.WriteLine($"No inbound found for inventory ID {inventory.Id}");
                             continue;
                         }
 
                         var ingredient = await Task.Run(() => _dao.Ingredients.GetById(inbound.IngredientId + ""));
                         if (ingredientName == null || ingredient?.Name == ingredientName)
                         {
-                            Debug.WriteLine($"{outbound.OutboundDate}: {outbound.Quantity}");
+                            //Debug.WriteLine($"{outbound.OutboundDate}: {outbound.Quantity}");
                             allOutbounds.Add((outbound.OutboundDate, (double)outbound.Quantity));
                         }
                     }
@@ -437,18 +455,18 @@ namespace Kohi.ViewModels
                 if (allOutbounds.Any())
                 {
                     var aggregatedData = allOutbounds
-                        .GroupBy(i => i.OutboundDate.Date) // Group by date (ignoring time)
+                        .GroupBy(i => i.OutboundDate.Date)
                         .Select(g => new
                         {
                             OutboundDate = g.Key,
                             TotalQuantity = g.Sum(x => x.Quantity)
                         })
-                .OrderBy(x => x.OutboundDate)
+                        .OrderBy(x => x.OutboundDate)
                         .ToList();
 
                     foreach (var item in aggregatedData)
                     {
-                        Debug.WriteLine($"Aggregated Outbound: {item.OutboundDate}: {item.TotalQuantity}");
+                        //Debug.WriteLine($"Aggregated Outbound: {item.OutboundDate}: {item.TotalQuantity}");
                         OutboundData.Add(new Model
                         {
                             XValue = item.OutboundDate,
@@ -528,6 +546,113 @@ namespace Kohi.ViewModels
             }
 
             OnPropertyChanged(nameof(IngredientNames));
+        }
+
+        private async Task LoadTopProductsAsync()
+        {
+            try
+            {
+                TopProducts.Clear();
+                const int pageSize = 100;
+                int currentPage = 1;
+                int totalItems = _dao.InvoiceDetails.GetCount();
+                var productSales = new List<(int Id, string Name, double Quantity, double Revenue)>();
+
+                while ((currentPage - 1) * pageSize < totalItems)
+                {
+                    var invoiceDetails = await Task.Run(() => _dao.InvoiceDetails.GetAll(
+                        pageNumber: currentPage,
+                        pageSize: pageSize
+                    ));
+
+                    if (invoiceDetails == null || !invoiceDetails.Any())
+                    {
+                        Debug.WriteLine($"No invoice details found for page {currentPage}.");
+                        break;
+                    }
+
+                    foreach (var detail in invoiceDetails)
+                    {
+                        var productVariant = await Task.Run(() => _dao.ProductVariants.GetById(detail.ProductId + ""));
+                        if (productVariant == null)
+                        {
+                            Debug.WriteLine($"No product variant found for ID {detail.ProductId}");
+                            continue;
+                        }
+
+                        var product = await Task.Run(() => _dao.Products.GetById(productVariant.ProductId + ""));
+                        if (product == null)
+                        {
+                            Debug.WriteLine($"No product found for ID {productVariant.ProductId}");
+                            continue;
+                        }
+
+                        var revenue = detail.Quantity * productVariant.Price;
+                        productSales.Add((product.Id, product.Name, detail.Quantity, revenue));
+                    }
+
+                    currentPage++;
+                }
+
+                if (productSales.Any())
+                {
+                    var aggregatedSales = productSales
+                        .GroupBy(p => new { p.Id, p.Name })
+                        .Select(g => new
+                        {
+                            Id = g.Key.Id,
+                            Name = g.Key.Name,
+                            TotalQuantity = g.Sum(x => x.Quantity),
+                            TotalRevenue = g.Sum(x => x.Revenue)
+                        })
+                        .OrderByDescending(x => x.TotalQuantity)
+                        .Take(10)
+                        .ToList();
+
+                    var totalQuantitySum = aggregatedSales.Sum(x => x.TotalQuantity);
+
+                    foreach (var item in aggregatedSales)
+                    {
+                        var percentage = totalQuantitySum > 0 ? (item.TotalQuantity / totalQuantitySum) * 100 : 0;
+                        TopProducts.Add(new TopProductModel
+                        {
+                            Id = item.Id,
+                            Name = item.Name,
+                            TotalQuantity = item.TotalQuantity,
+                            TotalRevenue = item.TotalRevenue,
+                            Percentage = percentage
+                        });
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("No product sales data found.");
+                    TopProducts.Add(new TopProductModel
+                    {
+                        Id = 0,
+                        Name = "No Data",
+                        TotalQuantity = 0,
+                        TotalRevenue = 0,
+                        Percentage = 0
+                    });
+                }
+
+                Debug.WriteLine($"Loaded {TopProducts.Count} top products.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading top products: {ex.Message}");
+                TopProducts.Add(new TopProductModel
+                {
+                    Id = 0,
+                    Name = "Error Loading Data",
+                    TotalQuantity = 0,
+                    TotalRevenue = 0,
+                    Percentage = 0
+                });
+            }
+
+            OnPropertyChanged(nameof(TopProducts));
         }
     }
 }
