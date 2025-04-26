@@ -150,7 +150,7 @@ namespace Kohi.Views
 
         private async void DisplayQRCode()
         {
-            if (Invoice.Id >= 0)
+            if (Invoice.Id > 0)
             {
                 return; // Không tạo mã QR nếu hóa đơn đã được lưu
             }
