@@ -13,7 +13,8 @@
     mc:Ignorable="d">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid RowSpacing="10" Margin="20">
+        <Grid RowSpacing="10"
+                Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <!-- TextBlock -->
@@ -52,7 +53,8 @@
                                     Height="400"
                                     Margin="0,0,0,10">
                 <chart:SfCartesianChart.XAxes>
-                    <chart:DateTimeAxis IntervalType="Days" Interval="1">
+                    <chart:DateTimeAxis IntervalType="Days"
+                            Interval="1">
                         <chart:DateTimeAxis.LabelStyle>
                             <chart:LabelStyle LabelFormat="dd MMM"/>
                         </chart:DateTimeAxis.LabelStyle>
@@ -60,7 +62,7 @@
                 </chart:SfCartesianChart.XAxes>
 
                 <chart:SfCartesianChart.YAxes>
-                    <chart:NumericalAxis Minimum="0" 
+                    <chart:NumericalAxis Minimum="0"
                                          Interval="25"
                                          ShowMajorGridLines="True">
                         <chart:NumericalAxis.LabelStyle>
@@ -70,7 +72,8 @@
                 </chart:SfCartesianChart.YAxes>
 
                 <chart:SfCartesianChart.Legend>
-                    <chart:ChartLegend IconHeight="13" IconWidth="13"/>
+                    <chart:ChartLegend IconHeight="13"
+                            IconWidth="13"/>
                 </chart:SfCartesianChart.Legend>
 
                 <!-- Inbound Series -->
@@ -78,8 +81,8 @@
                                         XBindingPath="XValue"
                                         YBindingPath="YValue"
                                         Label="Nhập kho"
-                                        LegendIcon="Circle" 
-                                        EnableAnimation="True" 
+                                        LegendIcon="Circle"
+                                        EnableAnimation="True"
                                         EnableTooltip="True"/>
 
                 <!-- Outbound Series -->
@@ -87,18 +90,20 @@
                                         XBindingPath="XValue"
                                         YBindingPath="YValue"
                                         Label="Xuất kho"
-                                        LegendIcon="Circle" 
-                                        EnableAnimation="True" 
+                                        LegendIcon="Circle"
+                                        EnableAnimation="True"
                                         EnableTooltip="True"/>
             </chart:SfCartesianChart>
 
             <!-- AI Assist -->
-            <syncfusion:SfAIAssistView Grid.Row="3" 
-                                      CurrentUser="{x:Bind ViewModel.CurrentUser}" 
-                                      Suggestions="{x:Bind ViewModel.Suggestion}" 
-                                      SuggestionSelected="SfAIAssistView_SuggestionSelected"
-                                      Messages="{x:Bind ViewModel.Chats}"
-                                      Margin="0,0,0,10"/>
+            <syncfusion:SfAIAssistView Grid.Row="3"
+                                       CurrentUser="{x:Bind ViewModel.CurrentUser}"
+                                       Suggestions="{x:Bind ViewModel.Suggestion}"
+                                       SuggestionSelected="SfAIAssistView_SuggestionSelected"
+                                       ShowTypingIndicator="{x:Bind ViewModel.IsTrue, Mode=OneWay}"
+                                       TypingIndicator="{x:Bind ViewModel.TypingIndicator, Mode=OneWay}"
+                                       Messages="{x:Bind ViewModel.Chats}"
+                                       Margin="0,0,0,10"/>
 
             <!-- Top Products Pie Chart -->
             <chart:SfCircularChart Grid.Row="4"
@@ -106,7 +111,8 @@
                                    Height="300"
                                    Margin="0,0,0,10">
                 <chart:SfCircularChart.Legend>
-                    <chart:ChartLegend IconWidth="13" IconHeight="13"/>
+                    <chart:ChartLegend IconWidth="13"
+                            IconHeight="13"/>
                 </chart:SfCircularChart.Legend>
                 <chart:PieSeries ItemsSource="{x:Bind ViewModel.TopProducts, Mode=OneWay}"
                                  XBindingPath="Name"
@@ -117,16 +123,15 @@
                                  ShowDataLabels="True">
                     <chart:PieSeries.TooltipTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Item.Name}" 
+                            <TextBlock Text="{Binding Item.Name}"
                                        Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"/>
                         </DataTemplate>
                     </chart:PieSeries.TooltipTemplate>
                     <chart:PieSeries.DataLabelSettings>
                         <chart:CircularDataLabelSettings ShowConnectorLine="True"
-                                                        Position="OutsideExtended"
-                                                        Background="Transparent"
-                                                        Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                                        />
+                                                         Position="OutsideExtended"
+                                                         Background="Transparent"
+                                                         Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                     </chart:PieSeries.DataLabelSettings>
                 </chart:PieSeries>
             </chart:SfCircularChart>
@@ -141,8 +146,7 @@
                                  Margin="0,0,0,10">
                 <dataGrid:SfDataGrid.Columns>
                     <dataGrid:GridTextColumn HeaderText="Tên sản phẩm"
-                                             MappingName="Name"
-                                             />
+                                             MappingName="Name"/>
                     <dataGrid:GridTextColumn HeaderText="Số lượng"
                                              MappingName="TotalQuantity"
                                              TextAlignment="Right"/>

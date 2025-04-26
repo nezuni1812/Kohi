@@ -19,6 +19,32 @@ namespace Kohi.ViewModels
         private IDao _dao;
 
         private ObservableCollection<object> chats;
+        private Boolean isTrue = false;
+        public Boolean IsTrue
+        {
+            get
+            {
+                return this.isTrue;
+            }
+            set
+            {
+                this.isTrue = value;
+                RaisePropertyChanged("IsTrue");
+            }
+        }
+        private TypingIndicator typingIndicator;
+        public TypingIndicator TypingIndicator
+        {
+            get
+            {
+                return this.typingIndicator;
+            }
+            set
+            {
+                this.typingIndicator = value;
+                RaisePropertyChanged("TypingIndicator");
+            }
+        }
         private IEnumerable<string> suggestion;
         public IEnumerable<string> Suggestion
         {
@@ -120,6 +146,7 @@ namespace Kohi.ViewModels
             Suggestion = new ObservableCollection<string> { "Identify potential issues based on inbound/outbound trends", "Other insights?", "Cho những vấn đề tôi cần quan tâm", "Lịch sử nhập kho và xuất kho có ổn không" };
 
             this.CurrentUser = new Author { Name = "User" };
+            TypingIndicator = new TypingIndicator { Author = new Author { Name = "Bot" } };
             this.Chats.CollectionChanged += Chats_CollectionChanged;
 
             if (apiKey is null)
@@ -146,6 +173,7 @@ namespace Kohi.ViewModels
             {
                 if (item.Author.Name == CurrentUser.Name)
                 {
+                    IsTrue = true;
                     Debug.WriteLine("user text: " + item.Text);
                     string Response = string.Empty;
                     Debug.WriteLine("Generating...");
@@ -162,8 +190,10 @@ namespace Kohi.ViewModels
                         DateTime = DateTime.Now,
                         Text = Response
                     });
+                    IsTrue = false;
                 }
             }
+            //IsTrue = true;
         }
 
         private async Task<string> GetChartDataAsText()
