@@ -12,8 +12,8 @@ namespace Kohi.ViewModels
     public class InvoiceReportViewModel : INotifyPropertyChanged
     {
         private InvoiceViewModel _invoiceViewModel;
-        private DateTimeOffset _startDate;
-        private DateTimeOffset _endDate;
+        private DateTimeOffset? _startDate;
+        private DateTimeOffset? _endDate;
         private string _selectedTimeRange = "Hôm nay";
         private List<InvoiceModel>? _invoices;
 
@@ -30,7 +30,7 @@ namespace Kohi.ViewModels
                 OnPropertyChanged(nameof(SelectedTimeRange));
             }
         }
-        public DateTimeOffset StartDate
+        public DateTimeOffset? StartDate
         {
             get => _startDate;
             set
@@ -39,7 +39,7 @@ namespace Kohi.ViewModels
                 OnPropertyChanged(nameof(StartDate));
             }
         }
-        public DateTimeOffset EndDate
+        public DateTimeOffset? EndDate
         {
             get => _endDate;
             set
@@ -85,6 +85,13 @@ namespace Kohi.ViewModels
             {
                 Debug.WriteLine("No invoices available to process.");
                 _invoices = new List<InvoiceModel>();
+                FilteredInvoices.Clear();
+                PaymentMethodData.Clear();
+                OrderTypeData.Clear();
+                OnPropertyChanged(nameof(FilteredInvoices));
+                OnPropertyChanged(nameof(PaymentMethodData));
+                OnPropertyChanged(nameof(OrderTypeData));
+                return;
             }
             Debug.WriteLine($"Processing {(_invoices?.Count ?? 0)} invoices for time range: {timeRange}");
 
@@ -111,17 +118,35 @@ namespace Kohi.ViewModels
                     groupByMonth = true;
                     break;
                 case "Tùy chỉnh":
-                    startDate = StartDate.Date;
-                    endDate = EndDate.Date.Add(new TimeSpan(23, 59, 59));
-                    groupByMonth = (endDate - startDate).TotalDays > 30;
-                    //System.Diagnostics.Debug.WriteLine($"startDate: {startDate}, endDate: {endDate}, groupByMonth: {groupByMonth}");
+                    if (!StartDate.HasValue || !EndDate.HasValue)
+                    {
+                        Debug.WriteLine("StartDate or EndDate is null for custom range.");
+                        startDate = DateTimeOffset.Now.Date;
+                        endDate = startDate.AddDays(1);
+                        StartDate = startDate;
+                        EndDate = endDate;
+                    }
+                    else
+                    {
+                        startDate = StartDate.Value.Date;
+                        endDate = EndDate.Value.Date.Add(new TimeSpan(23, 59, 59));
+                        groupByMonth = (endDate - startDate).TotalDays > 30;
+                    }
+                    Debug.WriteLine($"Custom range - startDate: {startDate}, endDate: {endDate}, groupByMonth: {groupByMonth}");
                     break;
                 default:
                     return;
             }
 
+            // Kiểm tra CreatedAt trong InvoiceModel
+            var invalidInvoices = _invoices.Where(i => i.CreatedAt == default(DateTimeOffset)).ToList();
+            if (invalidInvoices.Any())
+            {
+                Debug.WriteLine($"Found {invalidInvoices.Count} invoices with invalid CreatedAt.");
+            }
+
             var filteredInvoices = _invoices
-                .Where(i => i.CreatedAt.HasValue && i.CreatedAt >= startDate && i.CreatedAt <= endDate)
+                .Where(i => i.CreatedAt >= startDate && i.CreatedAt <= endDate) // Bỏ HasValue nếu CreatedAt không nullable
                 .ToList();
             Debug.WriteLine($"Filtered {filteredInvoices.Count} invoices between {startDate} and {endDate}");
 

@@ -20,8 +20,8 @@ namespace Kohi.ViewModels
         private InvoiceViewModel _invoiceViewModel;
         private ExpenseViewModel _expenseViewModel;
         private ExpenseCategoryViewModel _expenseCategoryViewModel;
-        private DateTimeOffset _startDate;
-        private DateTimeOffset _endDate;
+        private DateTimeOffset? _startDate;
+        private DateTimeOffset? _endDate;
         private string _selectedTimeRange = "Hôm nay";
         private float _totalRevenue;
         private float _maxProfit;
@@ -102,7 +102,7 @@ namespace Kohi.ViewModels
                 OnPropertyChanged(nameof(SelectedTimeRange));
             }
         }
-        public DateTimeOffset StartDate
+        public DateTimeOffset? StartDate
         {
             get => _startDate;
             set
@@ -111,7 +111,7 @@ namespace Kohi.ViewModels
                 OnPropertyChanged(nameof(StartDate));
             }
         }
-        public DateTimeOffset EndDate
+        public DateTimeOffset? EndDate
         {
             get => _endDate;
             set
@@ -342,9 +342,20 @@ namespace Kohi.ViewModels
                     groupByMonth = true;
                     break;
                 case "Tùy chỉnh":
-                    startDate = StartDate;
-                    endDate = EndDate.Date.Add(new TimeSpan(23, 59, 59));
-                    groupByMonth = (endDate - startDate).TotalDays > 30;
+                    if (!StartDate.HasValue || !EndDate.HasValue)
+                    {
+                        Debug.WriteLine("StartDate or EndDate is null for custom range.");
+                        startDate = DateTimeOffset.Now.Date;
+                        endDate = startDate.AddDays(1);
+                        StartDate = startDate;
+                        EndDate = endDate;
+                    }
+                    else
+                    {
+                        startDate = StartDate.Value;
+                        endDate = EndDate.Value.Date.Add(new TimeSpan(23, 59, 59));
+                        groupByMonth = (endDate - startDate).TotalDays > 30;
+                    }
                     break;
                 default:
                     return;

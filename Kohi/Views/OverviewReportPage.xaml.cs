@@ -56,20 +56,32 @@ namespace Kohi.Views
         {
             if (!StartDatePicker.Date.HasValue || !EndDatePicker.Date.HasValue)
             {
+                Debug.WriteLine("StartDatePicker.Date or EndDatePicker.Date is null.");
                 await ShowErrorContentDialog(this.XamlRoot, "Vui lòng chọn cả ngày bắt đầu và ngày kết thúc.");
                 return;
             }
 
-            DateTime startDate = StartDatePicker.Date.Value.Date;
-            DateTime endDate = EndDatePicker.Date.Value.Date;
-
-            if (endDate < startDate)
+            try
             {
-                await ShowErrorContentDialog(this.XamlRoot, "Ngày kết thúc không thể trước ngày bắt đầu.");
-                return;
-            }
+                DateTimeOffset startDate = StartDatePicker.Date.Value;
+                DateTimeOffset endDate = EndDatePicker.Date.Value;
 
-            ViewModel.UpdateChartData("Tùy chỉnh");
+                if (endDate.Date < startDate.Date)
+                {
+                    Debug.WriteLine("EndDate is before StartDate.");
+                    await ShowErrorContentDialog(this.XamlRoot, "Ngày kết thúc không thể trước ngày bắt đầu.");
+                    return;
+                }
+
+                ViewModel.StartDate = startDate;
+                ViewModel.EndDate = endDate;
+                ViewModel.UpdateChartData("Tùy chỉnh");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in ApplyCustomDateRange_Click: {ex.Message}");
+                await ShowErrorContentDialog(this.XamlRoot, "Lỗi khi chọn ngày. Vui lòng thử lại.");
+            }
         }
 
         private async Task ShowErrorContentDialog(XamlRoot xamlRoot, string errorMessage)
