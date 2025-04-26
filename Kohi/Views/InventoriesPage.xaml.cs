@@ -40,6 +40,7 @@ namespace Kohi.Views
             Loaded += InventoriesPage_Loaded;
             this.DataContext = this;
             var emptyInputHandler = new EmptyInputErrorHandler();
+            var dateRangeHandler = new DateRangeValidationErrorHandler("Ngày nhập kho", "Ngày hết hạn");
             var positiveNumberHandler = new PositiveNumberValidationErrorHandler(new List<string>
             {
                 "Số lượng thực tế",
@@ -49,7 +50,8 @@ namespace Kohi.Views
                 "Số lượng",
                 "Tổng giá trị"
             });
-            emptyInputHandler.SetNext(positiveNumberHandler);
+            emptyInputHandler.SetNext(dateRangeHandler);
+            dateRangeHandler.SetNext(positiveNumberHandler);
             _errorHandler = emptyInputHandler;
         }
 
@@ -293,7 +295,7 @@ namespace Kohi.Views
                 {
                     IsLoading = true;
                     ProgressRing.IsActive = true;
-
+                    var inboundDate = InboundDateCalendarDatePicker.Date?.DateTime ?? DateTime.Now;
                     var selectedIngredient = IngredientComboBox.SelectedItem as IngredientModel;
                     var selectedSupplier = InboudSupplierComboBox.SelectedItem as SupplierModel;
                     var fields = new Dictionary<string, string>
@@ -302,6 +304,8 @@ namespace Kohi.Views
                         { "Nhà cung cấp", selectedSupplier != null ? selectedSupplier.Name : "" },
                         { "Số lượng nhập", InboundQuantityNumberBox.Value.ToString() },
                         { "Tổng giá trị", InboundTotalValueNumberBox.Value.ToString() },
+                        { "Ngày nhập kho", inboundDate.ToString() },
+                        { "Ngày hết hạn", InboundExpiryDateCalendarDatePicker.Date?.DateTime.ToString() ?? "" },
                     };
 
                     List<string> errors = _errorHandler?.HandleError(fields) ?? new List<string>();
@@ -324,7 +328,7 @@ namespace Kohi.Views
                         SupplierId = selectedSupplier.Id,
                         Quantity = Convert.ToInt32(InboundQuantityNumberBox.Value),
                         TotalCost = Convert.ToInt32(InboundTotalValueNumberBox.Value),
-                        InboundDate = InboundDateCalendarDatePicker.Date?.DateTime ?? DateTime.Now,
+                        InboundDate = inboundDate,
                         ExpiryDate = InboundExpiryDateCalendarDatePicker.Date?.DateTime ?? DateTime.Now
                     };
 
@@ -383,45 +387,103 @@ namespace Kohi.Views
                 }
 
                 List<RawInboundData> rawDataList = ExcelDataReaderUtil.ReadInboundDataFromExcel(file.Path);
+                List<string> errors = new List<string>();
+                List<InboundModel> validInbounds = new List<InboundModel>();
+
                 foreach (var rawData in rawDataList)
                 {
-                    if (rawData.ParsedQuantity.HasValue && rawData.ParsedTotalCost.HasValue && rawData.ParsedInboundDate.HasValue &&
+                    // Xác định ngày nhập kho, mặc định là hôm nay nếu để trống
+                    var inboundDate = rawData.ParsedInboundDate ?? DateTime.Now;
+                    // Xác định ngày hết hạn, mặc định là hôm nay + 1 năm nếu để trống
+                    var expiryDate = rawData.ParsedExpiryDate ?? DateTime.Now.AddYears(1);
+
+                    // Tạo fields để kiểm tra lỗi, bao gồm ngày nhập kho và ngày hết hạn
+                    var fields = new Dictionary<string, string>
+                    {
+                        { "Nguyên vật liệu", rawData.IngredientName ?? "" },
+                        { "Nhà cung cấp", rawData.SupplierName ?? "" },
+                        { "Số lượng nhập", rawData.QuantityString ?? "" },
+                        { "Tổng giá trị", rawData.TotalCostString ?? "" },
+                        { "Ngày nhập kho", inboundDate.ToString("MM/dd/yyyy") }, // MODIFIED: Use MM/dd/yyyy
+                        { "Ngày hết hạn", expiryDate.ToString("MM/dd/yyyy") } // MODIFIED: Use MM/dd/yyyy
+                    };
+
+                    // Kiểm tra lỗi bằng _errorHandler (bao gồm DateRangeValidationErrorHandler)
+                    var rowErrors = _errorHandler.HandleError(fields);
+                    if (rowErrors.Any())
+                    {
+                        errors.AddRange(rowErrors.Select(error =>
+                            $"Dòng {rawData.RowNumber}: {error} (Giá trị: {GetFieldValue(fields, error)})"));
+                        continue; // Bỏ qua dòng này, nhưng tiếp tục kiểm tra các dòng khác
+                    }
+
+                    // Kiểm tra dữ liệu hợp lệ trước khi tạo InboundModel
+                    if (rawData.ParsedQuantity.HasValue &&
+                        rawData.ParsedTotalCost.HasValue &&
                         _ingredientsDict.TryGetValue(rawData.IngredientName, out int ingredientId) &&
                         _suppliersDict.TryGetValue(rawData.SupplierName, out int supplierId))
                     {
+                        // Tạo InboundModel nhưng chưa thêm vào DB, lưu vào danh sách tạm
                         InboundModel inbound = new InboundModel
                         {
                             IngredientId = ingredientId,
                             SupplierId = supplierId,
                             Quantity = rawData.ParsedQuantity.Value,
                             TotalCost = rawData.ParsedTotalCost.Value,
-                            InboundDate = rawData.ParsedInboundDate.Value,
-                            ExpiryDate = rawData.ParsedExpiryDate ?? DateTime.Now,
+                            InboundDate = inboundDate,
+                            ExpiryDate = expiryDate,
                             Notes = rawData.Notes,
                         };
+                        validInbounds.Add(inbound);
+                    }
+                    else
+                    {
+                        // Thêm thông báo lỗi chi tiết cho dòng nếu dữ liệu không hợp lệ
+                        var errorDetails = new List<string>();
+                        if (!rawData.ParsedQuantity.HasValue)
+                            errorDetails.Add($"Số lượng nhập không hợp lệ ({rawData.QuantityString})");
+                        if (!rawData.ParsedTotalCost.HasValue)
+                            errorDetails.Add($"Tổng giá trị không hợp lệ ({rawData.TotalCostString})");
+                        if (!_ingredientsDict.ContainsKey(rawData.IngredientName))
+                            errorDetails.Add($"Không tìm thấy nguyên vật liệu ({rawData.IngredientName})");
+                        if (!_suppliersDict.ContainsKey(rawData.SupplierName))
+                            errorDetails.Add($"Không tìm thấy nhà cung cấp ({rawData.SupplierName})");
+                        if (errorDetails.Any())
+                            errors.Add($"Dòng {rawData.RowNumber}: {string.Join("; ", errorDetails)}.");
+                    }
+                }
 
-                        await InboundViewModel.Add(inbound);
-                        if (inbound.Id > 0)
+                // Nếu có bất kỳ lỗi nào, hiển thị thông báo và không thêm dòng nào
+                if (errors.Any())
+                {
+                    await ShowMessageDialog("Lỗi nhập liệu", string.Join("\n", errors));
+                    return;
+                }
+
+                // Chỉ thêm các InboundModel và InventoryModel nếu không có lỗi
+                foreach (var inbound in validInbounds)
+                {
+                    await InboundViewModel.Add(inbound);
+                    if (inbound.Id > 0)
+                    {
+                        InventoryModel inventory = new InventoryModel
                         {
-                            InventoryModel inventory = new InventoryModel
-                            {
-                                InboundId = inbound.Id,
-                                Quantity = inbound.Quantity,
-                                InboundDate = inbound.InboundDate,
-                                ExpiryDate = inbound.ExpiryDate
-                            };
-                            await InventoryViewModel.Add(inventory);
-                        }
+                            InboundId = inbound.Id,
+                            Quantity = inbound.Quantity,
+                            InboundDate = inbound.InboundDate,
+                            ExpiryDate = inbound.ExpiryDate
+                        };
+                        await InventoryViewModel.Add(inventory);
                     }
                 }
 
                 await LoadDataWithProgress(InventoryViewModel.CurrentPage);
-                await ShowMessageDialog("Success", "Imported data from selected file.");
+                await ShowMessageDialog("Thành công", "Đã nhập dữ liệu từ tệp đã chọn.");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to import: {ex.Message}");
-                await ShowMessageDialog("Error", $"Failed to import: {ex.Message}");
+                await ShowMessageDialog("Thất bại", $"Không nhập dữ liệu được vì: {ex.Message}");
             }
             finally
             {
@@ -429,6 +491,19 @@ namespace Kohi.Views
                 ProgressRing.IsActive = false;
                 importButton.IsEnabled = true;
             }
+        }
+
+        // Helper method to extract field value for error message
+        private string GetFieldValue(Dictionary<string, string> fields, string errorMessage)
+        {
+            foreach (var field in fields)
+            {
+                if (errorMessage.Contains(field.Key))
+                {
+                    return $"{field.Key}: {field.Value}";
+                }
+            }
+            return string.Join(", ", fields.Select(f => $"{f.Key}: {f.Value}"));
         }
 
         private async void ImportOutboundButton_Click(object sender, RoutedEventArgs e)
@@ -459,75 +534,104 @@ namespace Kohi.Views
                 Debug.WriteLine($"Total outbound rows read from Excel: {rawDataList.Count}");
                 if (rawDataList.Count == 0)
                 {
-                    await ShowMessageDialog("Warning", "No valid outbound data found in the Excel file.");
+                    await ShowMessageDialog("Failure", "No valid outbound data found in the Excel file.");
                     return;
                 }
 
+                // NEW: Fetch all inventories using InventoryViewModel.GetAll()
+                var allInventories = await InventoryViewModel.GetAll();
+                if (allInventories == null)
+                {
+                    await ShowMessageDialog("Failure", "Failed to load inventory data.");
+                    return;
+                }
+                var inventoryDict = allInventories.ToDictionary(i => i.Id, i => i);
+
                 List<string> errors = new List<string>();
+                List<OutboundModel> validOutbounds = new List<OutboundModel>();
+
                 foreach (var rawData in rawDataList)
                 {
+                    // Determine outbound date, default to today if empty
+                    var outboundDate = rawData.ParsedOutboundDate ?? DateTime.Now;
+
+                    // Create fields for error checking, including outbound date
                     var fields = new Dictionary<string, string>
+            {
+                { "Inventory ID", rawData.InventoryIdString ?? "" },
+                { "Outbound Quantity", rawData.QuantityString ?? "" },
+                { "Outbound Date", outboundDate.ToString("MM/dd/yyyy") }
+            };
+
+                    // Check errors using _errorHandler (including DateRangeValidationErrorHandler)
+                    var rowErrors = _errorHandler?.HandleError(fields) ?? new List<string>();
+                    if (rowErrors.Any())
                     {
-                        { "Mã lô hàng", rawData.InventoryIdString },
-                        { "Số lượng xuất", rawData.QuantityString },
-                    };
+                        errors.AddRange(rowErrors.Select(error =>
+                            $"Row {rawData.RowNumber}: {error} (Value: {GetFieldValue(fields, error)})"));
+                        continue;
+                    }
 
-                    errors.AddRange(_errorHandler?.HandleError(fields) ?? new List<string>());
-
+                    // Validate specific fields
                     if (!rawData.ParsedInventoryId.HasValue)
                     {
-                        errors.Add($"Dòng {rawData.RowNumber}: Mã lô hàng không hợp lệ ({rawData.InventoryIdString}).");
+                        errors.Add($"Row {rawData.RowNumber}: Invalid inventory ID ({rawData.InventoryIdString}).");
+                        continue;
                     }
                     if (!rawData.ParsedQuantity.HasValue)
                     {
-                        errors.Add($"Dòng {rawData.RowNumber}: Số lượng xuất không hợp lệ ({rawData.QuantityString}).");
+                        errors.Add($"Row {rawData.RowNumber}: Invalid outbound quantity ({rawData.QuantityString}).");
+                        continue;
                     }
-                    if (!rawData.ParsedOutboundDate.HasValue)
+                    if (!_inventoryDict.ContainsKey(rawData.ParsedInventoryId.Value))
                     {
-                        errors.Add($"Dòng {rawData.RowNumber}: Ngày xuất kho không hợp lệ ({rawData.OutboundDateString}).");
-                    }
-                    if (rawData.ParsedInventoryId.HasValue && !_inventoryDict.ContainsKey(rawData.ParsedInventoryId.Value))
-                    {
-                        errors.Add($"Dòng {rawData.RowNumber}: Không tìm thấy lô hàng với mã {rawData.ParsedInventoryId}.");
+                        errors.Add($"Row {rawData.RowNumber}: Inventory ID not found ({rawData.ParsedInventoryId}).");
+                        continue;
                     }
 
-                    if (rawData.ParsedInventoryId.HasValue && rawData.ParsedQuantity.HasValue)
+                    // NEW: Use inventoryDict for validation instead of DAO or Inventories
+                    if (!inventoryDict.TryGetValue(rawData.ParsedInventoryId.Value, out var inventory))
                     {
-                        var inventory = InventoryViewModel.Inventories.FirstOrDefault(i => i.Id == rawData.ParsedInventoryId.Value);
-                        if (inventory == null)
-                        {
-                            errors.Add($"Dòng {rawData.RowNumber}: Không tìm thấy lô hàng với mã {rawData.ParsedInventoryId}.");
-                        }
-                        else if (rawData.ParsedQuantity.Value > inventory.Quantity)
-                        {
-                            errors.Add($"Dòng {rawData.RowNumber}: Số lượng xuất ({rawData.ParsedQuantity.Value}) vượt quá số lượng hiện tại ({inventory.Quantity}).");
-                        }
+                        errors.Add($"Row {rawData.RowNumber}: Inventory ID not found ({rawData.ParsedInventoryId}).");
+                        continue;
                     }
+
+                    if (rawData.ParsedQuantity.Value > inventory.Quantity)
+                    {
+                        errors.Add($"Row {rawData.RowNumber}: Outbound quantity ({rawData.ParsedQuantity.Value}) exceeds available quantity ({inventory.Quantity}).");
+                        continue;
+                    }
+                    if (outboundDate.Date < inventory.InboundDate.Date)
+                    {
+                        errors.Add($"Row {rawData.RowNumber}: Outbound date ({outboundDate:MM/dd/yyyy}) is earlier than inbound date ({inventory.InboundDate:MM/dd/yyyy}).");
+                        continue;
+                    }
+
+                    // Create OutboundModel and store in temporary list
+                    OutboundModel outbound = new OutboundModel
+                    {
+                        InventoryId = rawData.ParsedInventoryId.Value,
+                        Quantity = rawData.ParsedQuantity.Value,
+                        OutboundDate = outboundDate,
+                        Purpose = rawData.Purpose,
+                        Notes = rawData.Notes
+                    };
+                    validOutbounds.Add(outbound);
                 }
 
+                // If any errors exist, show errors and do not import any rows
                 if (errors.Any())
                 {
-                    await ShowMessageDialog("Lỗi nhập liệu", string.Join("\n", errors));
+                    await ShowMessageDialog("Input Error", string.Join("\n", errors));
                     return;
                 }
 
+                // Import all valid rows
                 int successCount = 0;
-                foreach (var rawData in rawDataList)
+                foreach (var outbound in validOutbounds)
                 {
-                    if (rawData.ParsedInventoryId.HasValue && rawData.ParsedQuantity.HasValue && rawData.ParsedOutboundDate.HasValue &&
-                        _inventoryDict.ContainsKey(rawData.ParsedInventoryId.Value))
-                    {
-                        OutboundModel outbound = new OutboundModel
-                        {
-                            InventoryId = rawData.ParsedInventoryId.Value,
-                            Quantity = rawData.ParsedQuantity.Value,
-                            OutboundDate = rawData.ParsedOutboundDate.Value,
-                            Purpose = rawData.Purpose,
-                            Notes = rawData.Notes
-                        };
-                        await OutboundViewModel.Add(outbound);
-                        successCount++;
-                    }
+                    await OutboundViewModel.Add(outbound);
+                    successCount++;
                 }
 
                 await LoadDataWithProgress(InventoryViewModel.CurrentPage);
@@ -536,7 +640,7 @@ namespace Kohi.Views
             catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to import outbound data: {ex.Message}");
-                await ShowMessageDialog("Error", $"Failed to import outbound data: {ex.Message}");
+                await ShowMessageDialog("Failure", $"Failed to import outbound data: {ex.Message}");
             }
             finally
             {
@@ -545,6 +649,7 @@ namespace Kohi.Views
                 importOutboundButton.IsEnabled = true;
             }
         }
+
 
         private async Task ShowMessageDialog(string title, string content, string closeButtonText = "OK")
         {
