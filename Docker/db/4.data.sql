@@ -54,7 +54,8 @@ INSERT INTO productvariants (ProductId, Size, Price, Cost) VALUES (20, 'Size S',
 INSERT INTO productvariants (ProductId, Size, Price, Cost) VALUES (21, 'Size S', 45000, 27000);
 INSERT INTO productvariants (ProductId, Size, Price, Cost) VALUES (22, 'Size M', 40000, 24000);
 INSERT INTO productvariants (ProductId, Size, Price, Cost) VALUES (23, 'Size S', 45000, 27000);
-INSERT INTO productvariants (ProductId, Size, Price, Cost) VALUES (24, 'Không', 5000, 2000);
+INSERT INTO productvariants (ProductId, Size, Price, Cost) VALUES (24, 'Size S', 15000, 12000);
+INSERT INTO productvariants (ProductId, Size, Price, Cost) VALUES (25, 'Không', 5000, 2000);
 INSERT INTO ingredients (Name, Unit, Description) VALUES ('Sữa', 'lít', 'Sữa tươi');
 INSERT INTO ingredients (Name, Unit, Description) VALUES ('Đường', 'kg', 'Đường trắng');
 INSERT INTO ingredients (Name, Unit, Description) VALUES ('Lá trà', 'kg', 'Lá trà xanh');
@@ -227,11 +228,11 @@ INSERT INTO payments (InvoiceId, Amount, PaymentMethod, paymentdate) VALUES (2, 
 INSERT INTO payments (InvoiceId, Amount, PaymentMethod, paymentdate) VALUES (3, 300000, 'Mobile', current_timestamp);
 INSERT INTO payments (InvoiceId, Amount, PaymentMethod, paymentdate) VALUES (4, 250000, 'Cash', current_timestamp);
 INSERT INTO payments (InvoiceId, Amount, PaymentMethod, paymentdate) VALUES (5, 180000, 'Bank Transfer', current_timestamp);
-INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (1, 2, 1);
-INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (2, 2, 2);
-INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (3, 2, 3);
-INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (4, 2, 2);
-INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (5, 2, 1);
+INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (1, 8, 1);
+INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (2, 8, 2);
+INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (3, 8, 3);
+INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (4, 25, 2);
+INSERT INTO ordertoppings (InvoiceDetailId, ProductId, Quantity) VALUES (5, 25, 1);
 INSERT INTO outbounds (InventoryId, Quantity, Purpose, Notes, outbounddate) VALUES (19, 4, 'Sản xuất', 'Dành cho trà sữa', '2025-01-12 16:00:00');
 INSERT INTO outbounds (InventoryId, Quantity, Purpose, Notes, outbounddate) VALUES (5, 2, 'Sản xuất', 'Dành cho nước ép', '2025-02-08 17:00:00');
 INSERT INTO outbounds (InventoryId, Quantity, Purpose, Notes, outbounddate) VALUES (12, 3, 'Sản xuất', 'Dành cho trà đào', '2024-11-18 14:00:00');
