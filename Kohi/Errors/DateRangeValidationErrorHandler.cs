@@ -42,7 +42,7 @@ namespace Kohi.Errors
                     errors.Add($"⚠ Trường '{_endDateFieldName}' phải là ngày giờ hợp lệ.");
                 }
 
-                if (isStartValid && isEndValid && endDate <= startDate)
+                if (isStartValid && isEndValid && endDate < startDate)
                 {
                     errors.Add($"⚠ Thời gian kết thúc '{_endDateFieldName}' phải lớn hơn thời gian bắt đầu '{_startDateFieldName}'.");
                 }
