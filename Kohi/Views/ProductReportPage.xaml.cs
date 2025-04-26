@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -54,6 +54,63 @@ namespace Kohi.Views
         {
             ViewModel.HandleSuggestionClicked(e.Item.ToString());
             //Debug.WriteLine(e.Item.ToString());
+        }
+
+        private void TimeRangeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (TimeRangeComboBox.SelectedItem as string == "Tùy chỉnh")
+            {
+                StartDatePicker.Visibility = Visibility.Visible;
+                EndDatePicker.Visibility = Visibility.Visible;
+                ApplyButton.Visibility = Visibility.Visible;
+
+                // Set default custom range to current month if not set
+                if (ViewModel.StartDate == null)
+                {
+                    ViewModel.StartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                }
+                if (ViewModel.EndDate == null)
+                {
+                    ViewModel.EndDate = DateTime.Today;
+                }
+            }
+            else
+            {
+                StartDatePicker.Visibility = Visibility.Collapsed;
+                EndDatePicker.Visibility = Visibility.Collapsed;
+                ApplyButton.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private async void ApplyCustomDateRange_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.StartDate.HasValue && ViewModel.EndDate.HasValue)
+            {
+                if (ViewModel.StartDate.Value > ViewModel.EndDate.Value)
+                {
+                    await new ContentDialog
+                    {
+                        Title = "Lỗi",
+                        Content = "Ngày bắt đầu không thể sau ngày kết thúc.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    }.ShowAsync();
+                    return;
+                }
+
+                // Trigger data reload with custom range
+                await ViewModel.LoadDataAsync();
+            }
+            else
+            {
+                await new ContentDialog
+                {
+                    Title = "Lỗi",
+                    Content = "Vui lòng chọn cả ngày bắt đầu và ngày kết thúc.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                }.ShowAsync();
+            }
         }
     }
 }

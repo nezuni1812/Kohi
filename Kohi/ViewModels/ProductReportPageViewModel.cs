@@ -11,51 +11,17 @@ using AutoGen.Core;
 using Syncfusion.UI.Xaml.Chat;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Kohi.ViewModels
 {
     internal class ProductReportPageViewModel : INotifyPropertyChanged
     {
         private IDao _dao;
-
         private ObservableCollection<object> chats;
-        private Boolean isTrue = false;
-        public Boolean IsTrue
-        {
-            get
-            {
-                return this.isTrue;
-            }
-            set
-            {
-                this.isTrue = value;
-                RaisePropertyChanged("IsTrue");
-            }
-        }
+        private bool isTrue = false;
         private TypingIndicator typingIndicator;
-        public TypingIndicator TypingIndicator
-        {
-            get
-            {
-                return this.typingIndicator;
-            }
-            set
-            {
-                this.typingIndicator = value;
-                RaisePropertyChanged("TypingIndicator");
-            }
-        }
         private IEnumerable<string> suggestion;
-        public IEnumerable<string> Suggestion
-        {
-            get => this.suggestion;
-            set
-            {
-                this.suggestion = value;
-                RaisePropertyChanged("Suggestion");
-            }
-        }
-
         private Author currentUser;
         static string apiKey = AppConfig.Configuration["GeminiAPIKey"];
 
@@ -77,6 +43,36 @@ namespace Kohi.ViewModels
             }
         }
 
+        public bool IsTrue
+        {
+            get => this.isTrue;
+            set
+            {
+                this.isTrue = value;
+                RaisePropertyChanged("IsTrue");
+            }
+        }
+
+        public TypingIndicator TypingIndicator
+        {
+            get => this.typingIndicator;
+            set
+            {
+                this.typingIndicator = value;
+                RaisePropertyChanged("TypingIndicator");
+            }
+        }
+
+        public IEnumerable<string> Suggestion
+        {
+            get => this.suggestion;
+            set
+            {
+                this.suggestion = value;
+                RaisePropertyChanged("Suggestion");
+            }
+        }
+
         public Author CurrentUser
         {
             get => this.currentUser;
@@ -85,11 +81,6 @@ namespace Kohi.ViewModels
                 this.currentUser = value;
                 RaisePropertyChanged("CurrentUser");
             }
-        }
-
-        public void RaisePropertyChanged(string propName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
         public class Model
@@ -107,10 +98,10 @@ namespace Kohi.ViewModels
             public double Percentage { get; set; }
         }
 
-        public ObservableCollection<Model> Data { get; set; } // Inbound data
-        public ObservableCollection<Model> OutboundData { get; set; } // Outbound data
+        public ObservableCollection<Model> Data { get; set; }
+        public ObservableCollection<Model> OutboundData { get; set; }
         public ObservableCollection<string> IngredientNames { get; set; }
-        public ObservableCollection<TopProductModel> TopProducts { get; set; } // Top products data
+        public ObservableCollection<TopProductModel> TopProducts { get; set; }
 
         private string _selectedIngredientName;
         public string SelectedIngredientName
@@ -125,10 +116,50 @@ namespace Kohi.ViewModels
             }
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        private string _selectedTimeRange;
+        public string SelectedTimeRange
+        {
+            get => _selectedTimeRange;
+            set
+            {
+                _selectedTimeRange = value;
+                OnPropertyChanged(nameof(SelectedTimeRange));
+                UpdateDateRange();
+                LoadDataAsync();
+            }
+        }
+
+        private DateTimeOffset? _startDate;
+        public DateTimeOffset? StartDate
+        {
+            get => _startDate;
+            set
+            {
+                _startDate = value;
+                OnPropertyChanged(nameof(StartDate));
+            }
+        }
+
+        private DateTimeOffset? _endDate;
+        public DateTimeOffset? EndDate
+        {
+            get => _endDate;
+            set
+            {
+                _endDate = value;
+                OnPropertyChanged(nameof(EndDate));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void RaisePropertyChanged(string propName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
         public ProductReportPageViewModel()
@@ -139,14 +170,17 @@ namespace Kohi.ViewModels
             IngredientNames = new ObservableCollection<string>();
             TopProducts = new ObservableCollection<TopProductModel>();
 
-            LoadDataAsync();
-            Debug.WriteLine("Added data");
-
             this.Chats = new ObservableCollection<object>();
-            Suggestion = new ObservableCollection<string> { "Identify potential issues based on inbound/outbound trends", "Other insights?", "Cho những vấn đề tôi cần quan tâm", "Lịch sử nhập kho và xuất kho có ổn không" };
+            Suggestion = new ObservableCollection<string>
+            {
+                "Xác định các vấn đề tiềm ẩn dựa trên xu hướng nhập/xuất kho",
+                "Sản phẩm bán chạy nhất là gì?",
+                "Cho những vấn đề tôi cần quan tâm",
+                "Lịch sử nhập kho và xuất kho có ổn không"
+            };
 
             this.CurrentUser = new Author { Name = "User" };
-            TypingIndicator = new TypingIndicator { Author = new Author { Name = "Bot" } };
+            this.TypingIndicator = new TypingIndicator { Author = new Author { Name = "Bot" } };
             this.Chats.CollectionChanged += Chats_CollectionChanged;
 
             if (apiKey is null)
@@ -154,6 +188,11 @@ namespace Kohi.ViewModels
                 Console.WriteLine("Please set GOOGLE_GEMINI_API_KEY environment variable.");
                 return;
             }
+
+            // Set default time range to "Today"
+            SelectedTimeRange = "Hôm nay";
+            LoadDataAsync();
+            Debug.WriteLine("Added data");
         }
 
         public void HandleSuggestionClicked(string suggestionText)
@@ -169,39 +208,84 @@ namespace Kohi.ViewModels
         private async void Chats_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             var item = e.NewItems?[0] as ITextMessage;
-            if (item != null)
+            if (item != null && item.Author.Name == CurrentUser.Name)
             {
-                if (item.Author.Name == CurrentUser.Name)
-                {
-                    IsTrue = true;
-                    Debug.WriteLine("user text: " + item.Text);
-                    string Response = string.Empty;
-                    Debug.WriteLine("Generating...");
+                Debug.WriteLine("user text: " + item.Text);
+                IsTrue = true;
 
+                try
+                {
                     string chartDataText = await GetChartDataAsText();
                     string messageWithData = $"{item.Text}\n\nHere is the chart data the user is seeing, please answer according to the data in it:\n{chartDataText}";
                     var reply = await geminiAgent.SendAsync(messageWithData);
                     Debug.WriteLine("Response: " + reply.GetContent());
-                    Response = reply.GetContent();
 
                     Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage
                     {
                         Author = new Author { Name = "Bot" },
                         DateTime = DateTime.Now,
-                        Text = Response
+                        Text = reply.GetContent()
                     });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error processing AI response: {ex.Message}");
+                    Chats.Add(new Syncfusion.UI.Xaml.Chat.TextMessage
+                    {
+                        Author = new Author { Name = "Bot" },
+                        DateTime = DateTime.Now,
+                        Text = "Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn."
+                    });
+                }
+                finally
+                {
                     IsTrue = false;
                 }
             }
-            //IsTrue = true;
+        }
+
+        private void UpdateDateRange()
+        {
+            var today = DateTimeOffset.Now.Date;
+            switch (SelectedTimeRange)
+            {
+                case "Hôm nay":
+                    StartDate = today;
+                    EndDate = today.AddDays(1);
+                    break;
+                case "Tuần này":
+                    StartDate = today.AddDays(-(int)today.DayOfWeek);
+                    EndDate = StartDate.Value.AddDays(7);
+                    break;
+                case "Tháng này":
+                    StartDate = new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, 1, 0, 0, 0, TimeSpan.Zero);
+                    EndDate = StartDate.Value.AddMonths(1);
+                    break;
+                case "Năm này":
+                    StartDate = new DateTimeOffset(DateTimeOffset.Now.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    EndDate = StartDate.Value.AddYears(1);
+                    break;
+                case "Tùy chỉnh":
+                    // Keep StartDate and EndDate as set by CalendarDatePicker
+                    break;
+            }
         }
 
         private async Task<string> GetChartDataAsText()
         {
-            var text = new System.Text.StringBuilder();
+            var text = new StringBuilder();
 
-            // Fetch all inbound data grouped by ingredient
-            var allInboundsByIngredient = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<(DateTime Date, double Quantity)>>();
+            if (StartDate.HasValue && EndDate.HasValue)
+            {
+                text.AppendLine($"Data Range: {StartDate.Value:yyyy-MM-dd} to {EndDate.Value:yyyy-MM-dd}");
+            }
+            else
+            {
+                text.AppendLine("Data Range: All time");
+            }
+
+            // inbound byingredient
+            var allInboundsByIngredient = new Dictionary<string, List<(DateTime Date, double Quantity)>>();
             const int pageSize = 100;
             int currentPage = 1;
             int totalItems = _dao.Inbounds.GetCount();
@@ -220,12 +304,18 @@ namespace Kohi.ViewModels
 
                 foreach (var inbound in inbounds)
                 {
+                    if (StartDate.HasValue && EndDate.HasValue &&
+                        (inbound.InboundDate.Date < StartDate.Value.Date || inbound.InboundDate.Date > EndDate.Value.Date))
+                    {
+                        continue;
+                    }
+
                     var ingredient = await Task.Run(() => _dao.Ingredients.GetById(inbound.IngredientId + ""));
                     if (ingredient != null && !string.IsNullOrEmpty(ingredient.Name))
                     {
                         if (!allInboundsByIngredient.ContainsKey(ingredient.Name))
                         {
-                            allInboundsByIngredient[ingredient.Name] = new System.Collections.Generic.List<(DateTime, double)>();
+                            allInboundsByIngredient[ingredient.Name] = new List<(DateTime, double)>();
                         }
                         allInboundsByIngredient[ingredient.Name].Add((inbound.InboundDate, inbound.Quantity));
                     }
@@ -234,8 +324,8 @@ namespace Kohi.ViewModels
                 currentPage++;
             }
 
-            // Fetch all outbound data grouped by ingredient
-            var allOutboundsByIngredient = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<(DateTime Date, double Quantity)>>();
+            // outbound ingredient
+            var allOutboundsByIngredient = new Dictionary<string, List<(DateTime Date, double Quantity)>>();
             currentPage = 1;
             totalItems = _dao.Outbounds.GetCount();
 
@@ -253,6 +343,12 @@ namespace Kohi.ViewModels
 
                 foreach (var outbound in outbounds)
                 {
+                    if (StartDate.HasValue && EndDate.HasValue &&
+                        (outbound.OutboundDate.Date < StartDate.Value.Date || outbound.OutboundDate.Date > EndDate.Value.Date))
+                    {
+                        continue;
+                    }
+
                     var inventory = await Task.Run(() => _dao.Inventories.GetById(outbound.InventoryId + ""));
                     if (inventory == null) continue;
 
@@ -264,7 +360,7 @@ namespace Kohi.ViewModels
                     {
                         if (!allOutboundsByIngredient.ContainsKey(ingredient.Name))
                         {
-                            allOutboundsByIngredient[ingredient.Name] = new System.Collections.Generic.List<(DateTime, double)>();
+                            allOutboundsByIngredient[ingredient.Name] = new List<(DateTime, double)>();
                         }
                         allOutboundsByIngredient[ingredient.Name].Add((outbound.OutboundDate, (double)outbound.Quantity));
                     }
@@ -273,15 +369,12 @@ namespace Kohi.ViewModels
                 currentPage++;
             }
 
-            // Combine all ingredients
             var allIngredients = allInboundsByIngredient.Keys.Union(allOutboundsByIngredient.Keys).OrderBy(k => k).ToList();
 
-            // Format the data for each ingredient
             foreach (var ingredient in allIngredients)
             {
                 text.AppendLine($"\nIngredient: {ingredient}");
 
-                // Inbound data for this ingredient
                 text.AppendLine("  Inbound Data:");
                 if (allInboundsByIngredient.ContainsKey(ingredient) && allInboundsByIngredient[ingredient].Any())
                 {
@@ -301,7 +394,6 @@ namespace Kohi.ViewModels
                     text.AppendLine("    No inbound data available.");
                 }
 
-                // Outbound data for this ingredient
                 text.AppendLine("  Outbound Data:");
                 if (allOutboundsByIngredient.ContainsKey(ingredient) && allOutboundsByIngredient[ingredient].Any())
                 {
@@ -322,7 +414,6 @@ namespace Kohi.ViewModels
                 }
             }
 
-            // Add selected ingredient if applicable
             if (!string.IsNullOrEmpty(SelectedIngredientName))
             {
                 text.AppendLine($"\nCurrently Selected Ingredient: {SelectedIngredientName}");
@@ -332,7 +423,6 @@ namespace Kohi.ViewModels
                 text.AppendLine("\nNo ingredient currently selected.");
             }
 
-            // Add top products data
             text.AppendLine("\nTop 10 Most Popular Products:");
             if (TopProducts.Any())
             {
@@ -349,7 +439,7 @@ namespace Kohi.ViewModels
             return text.ToString();
         }
 
-        private async Task LoadDataAsync()
+        public async Task LoadDataAsync()
         {
             await LoadIngredientNamesAsync();
             await LoadInboundDataAsync();
@@ -365,7 +455,7 @@ namespace Kohi.ViewModels
                 const int pageSize = 100;
                 int currentPage = 1;
                 int totalItems = _dao.Inbounds.GetCount();
-                var allInbounds = new System.Collections.Generic.List<(DateTime InboundDate, double Quantity)>();
+                var allInbounds = new List<(DateTime InboundDate, double Quantity)>();
 
                 while ((currentPage - 1) * pageSize < totalItems)
                 {
@@ -382,10 +472,15 @@ namespace Kohi.ViewModels
 
                     foreach (var inbound in inbounds)
                     {
+                        if (StartDate.HasValue && EndDate.HasValue &&
+                            (inbound.InboundDate.Date < StartDate.Value.Date || inbound.InboundDate.Date > EndDate.Value.Date))
+                        {
+                            continue;
+                        }
+
                         var ingredient = await Task.Run(() => _dao.Ingredients.GetById(inbound.IngredientId + ""));
                         if (ingredientName == null || ingredient?.Name == ingredientName)
                         {
-                            //Debug.WriteLine($"{inbound.InboundDate}: {inbound.Quantity}");
                             allInbounds.Add((inbound.InboundDate, inbound.Quantity));
                         }
                     }
@@ -407,7 +502,6 @@ namespace Kohi.ViewModels
 
                     foreach (var item in aggregatedData)
                     {
-                        //Debug.WriteLine($"Aggregated Inbound: {item.InboundDate}: {item.TotalQuantity}");
                         Data.Add(new Model
                         {
                             XValue = item.InboundDate,
@@ -440,7 +534,7 @@ namespace Kohi.ViewModels
                 const int pageSize = 100;
                 int currentPage = 1;
                 int totalItems = _dao.Outbounds.GetCount();
-                var allOutbounds = new System.Collections.Generic.List<(DateTime OutboundDate, double Quantity)>();
+                var allOutbounds = new List<(DateTime OutboundDate, double Quantity)>();
 
                 while ((currentPage - 1) * pageSize < totalItems)
                 {
@@ -457,24 +551,27 @@ namespace Kohi.ViewModels
 
                     foreach (var outbound in outbounds)
                     {
+                        if (StartDate.HasValue && EndDate.HasValue &&
+                            (outbound.OutboundDate.Date < StartDate.Value.Date || outbound.OutboundDate.Date > EndDate.Value.Date))
+                        {
+                            continue;
+                        }
+
                         var inventory = await Task.Run(() => _dao.Inventories.GetById(outbound.InventoryId + ""));
                         if (inventory == null)
                         {
-                            //Debug.WriteLine($"No inventory found for outbound ID {outbound.Id}");
                             continue;
                         }
 
                         var inbound = await Task.Run(() => _dao.Inbounds.GetById(inventory.InboundId + ""));
                         if (inbound == null)
                         {
-                            //Debug.WriteLine($"No inbound found for inventory ID {inventory.Id}");
                             continue;
                         }
 
                         var ingredient = await Task.Run(() => _dao.Ingredients.GetById(inbound.IngredientId + ""));
                         if (ingredientName == null || ingredient?.Name == ingredientName)
                         {
-                            //Debug.WriteLine($"{outbound.OutboundDate}: {outbound.Quantity}");
                             allOutbounds.Add((outbound.OutboundDate, (double)outbound.Quantity));
                         }
                     }
@@ -496,7 +593,6 @@ namespace Kohi.ViewModels
 
                     foreach (var item in aggregatedData)
                     {
-                        //Debug.WriteLine($"Aggregated Outbound: {item.OutboundDate}: {item.TotalQuantity}");
                         OutboundData.Add(new Model
                         {
                             XValue = item.OutboundDate,
@@ -528,7 +624,7 @@ namespace Kohi.ViewModels
                 const int pageSize = 100;
                 int currentPage = 1;
                 int totalItems = _dao.Ingredients.GetCount();
-                var allNames = new System.Collections.Generic.List<string>();
+                var allNames = new List<string>();
 
                 while ((currentPage - 1) * pageSize < totalItems)
                 {
@@ -603,6 +699,18 @@ namespace Kohi.ViewModels
 
                     foreach (var detail in invoiceDetails)
                     {
+                        var invoice = await Task.Run(() => _dao.Invoices.GetById(detail.InvoiceId + ""));
+                        if (invoice == null)
+                        {
+                            continue;
+                        }
+
+                        if (StartDate.HasValue && EndDate.HasValue &&
+                            (invoice.InvoiceDate.Date < StartDate.Value.Date || invoice.InvoiceDate.Date > EndDate.Value.Date))
+                        {
+                            continue;
+                        }
+
                         var productVariant = await Task.Run(() => _dao.ProductVariants.GetById(detail.ProductId + ""));
                         if (productVariant == null)
                         {
