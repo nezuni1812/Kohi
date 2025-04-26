@@ -169,13 +169,13 @@
             </Border>
 
             <StackPanel Grid.Row="4" Orientation="Horizontal">
-                <Button x:Name="editButton" Click="showEditIngredientDialog_Click" Style="{ThemeResource AccentButtonStyle}">
+                <Button x:Name="editButton" Click="showEditIngredientDialog_Click" Style="{ThemeResource AccentButtonStyle}" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
                         <FontIcon Glyph="&#xE70F;" FontSize="14"/>
                         <TextBlock x:Name="editButtonTextBlock" Text="Chỉnh sửa nguyên vật liệu" Margin="5,0,0,0"/>
                     </StackPanel>
                 </Button>
-                <Button x:Name="deleteButton" Click="showDeleteIngredientDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0">
+                <Button x:Name="deleteButton" Click="showDeleteIngredientDialog_Click" Style="{ThemeResource AccentButtonStyle}" Margin="10,0,0,0" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
                         <FontIcon Glyph="&#xE74D;" FontSize="14"/>
                         <TextBlock x:Name="deleteButtonTextBlock" Text="Xóa nguyên vật liệu" Margin="5,0,0,0"/>

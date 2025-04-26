@@ -80,12 +80,16 @@ namespace Kohi.Views
                 selectedIngredient = ingredientModel;
                 selectedIngredientId = ingredientModel.Id;
                 Debug.WriteLine($"Selected Ingredient ID: {selectedIngredientId}");
+                editButton.IsEnabled = true;
+                deleteButton.IsEnabled = true;
             }
             else
             {
                 selectedIngredient = null;
                 selectedIngredientId = -1;
                 Debug.WriteLine("Không có nguyên vật liệu nào được chọn!");
+                editButton.IsEnabled = false;
+                deleteButton.IsEnabled = false;
             }
         }
 

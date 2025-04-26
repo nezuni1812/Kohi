@@ -601,5 +601,10 @@ namespace Kohi.Views
         private void saveButton_click(object sender, RoutedEventArgs e)
         {
         }
+
+        private void ShowExcelSampleInfoBar_Click(object sender, RoutedEventArgs e)
+        {
+            SampleExcelFileInfoBar.IsOpen = !SampleExcelFileInfoBar.IsOpen;
+        }
     }
 }

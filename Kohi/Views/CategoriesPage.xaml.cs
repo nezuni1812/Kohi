@@ -65,6 +65,14 @@ namespace Kohi.Views
             {
                 selectedCategoryId = selectedId.Id;
                 Debug.WriteLine($"Selected Category ID: {selectedCategoryId}");
+                editButton.IsEnabled = true;
+                deleteButton.IsEnabled = true;
+            }
+            else
+            {
+                selectedCategoryId = -1;
+                editButton.IsEnabled = false;
+                deleteButton.IsEnabled = false;
             }
         }
 

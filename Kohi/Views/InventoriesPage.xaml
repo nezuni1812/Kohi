@@ -26,12 +26,13 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <ScrollViewer Grid.Row="0">
+        <ScrollViewer Grid.Row="0" Padding="0,0,10,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -268,17 +269,17 @@
                     </ListBox>
                 </Border>
 
-                <StackPanel Grid.Row="4" Orientation="Horizontal" Width="Auto">
-                    <Button x:Name="editButton" Click="showOutboundInventoryDialog_Click" Style="{StaticResource AccentButtonStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="" FontSize="14"/>
-                            <TextBlock Text="Xuất lô hàng" Margin="5,0,0,0"/>
-                        </StackPanel>
-                    </Button>
-                    <Button x:Name="checkButton" Click="showCheckInventoryDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
+                <StackPanel Grid.Row="4" Margin="0,10,0,0" Orientation="Horizontal" Width="Auto">
+                    <Button x:Name="checkButton" Click="showCheckInventoryDialog_Click" Style="{StaticResource AccentButtonStyle}" IsEnabled="False">
                         <StackPanel Orientation="Horizontal">
                             <FontIcon Glyph="" FontSize="14"/>
                             <TextBlock Text="Kiểm kê lô hàng" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="editButton" Click="showOutboundInventoryDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0" IsEnabled="False">
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon Glyph="&#xEA52;" FontSize="14"/>
+                            <TextBlock Text="Xuất lô hàng" Margin="5,0,0,0"/>
                         </StackPanel>
                     </Button>
                     <Button x:Name="addButton" Click="showAddInventoryDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
@@ -287,19 +288,31 @@
                             <TextBlock Text="Nhập lô hàng mới" Margin="5,0,0,0"/>
                         </StackPanel>
                     </Button>
-                    <Button x:Name="importButton" Click="ImportButton_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon Glyph="&#xE8B6;" FontSize="14"/>
-                            <TextBlock Text="Nhập lô hàng từ Excel" Margin="5,0,0,0"/>
-                        </StackPanel>
-                    </Button>
                     <Button x:Name="importOutboundButton" Click="ImportOutboundButton_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
                         <StackPanel Orientation="Horizontal">
                             <FontIcon Glyph="&#xEA53;" FontSize="14"/>
                             <TextBlock Text="Xuất lô hàng từ Excel" Margin="5,0,0,0"/>
                         </StackPanel>
                     </Button>
+                    <Button x:Name="importButton" Click="ImportButton_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon Glyph="&#xE8B6;" FontSize="14"/>
+                            <TextBlock Text="Nhập lô hàng từ Excel" Margin="5,0,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <ToggleButton Content="Xem tệp tin Nhập/Xuất Mẫu" Margin="10,0,0,0" Click="ShowExcelSampleInfoBar_Click"/>
                 </StackPanel>
+
+                <InfoBar x:Name="SampleExcelFileInfoBar"
+                    Grid.Row="5"
+                    Margin="0,10,0,0"
+                    IsOpen="False"
+                    Title="Lưu ý"
+                    Message="Các tệp tin Excel mẫu cho chức năng nhập/xuất lô hàng đã được đính kèm trong thư mục cài đặt của ứng dụng. Nếu không tìm thấy hãy tải về ở link Google Drive sau:" >
+                    <InfoBar.ActionButton>
+                        <HyperlinkButton Content="Tệp tin Mẫu" NavigateUri="https://drive.google.com/drive/folders/1S-4bTdhY7emc9R4iYqH-XEcfxVSxQfkO?usp=drive_link" />
+                    </InfoBar.ActionButton>
+                </InfoBar>
             </Grid>
         </ScrollViewer>
 

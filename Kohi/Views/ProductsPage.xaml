@@ -94,13 +94,13 @@
                 Grid.Row="3"/>
 
             <StackPanel Grid.Row="4" Orientation="Horizontal">
-                <Button x:Name="editButton" Click="showEditProduct_Click" Style="{StaticResource AccentButtonStyle}">
+                <Button x:Name="editButton" Click="showEditProduct_Click" Style="{StaticResource AccentButtonStyle}" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
                         <FontIcon Glyph="&#xE70F;" FontSize="14"/>
                         <TextBlock x:Name="editButtonTextBlock" Text="Chỉnh sửa sản phẩm" Margin="5,0,0,0"/>
                     </StackPanel>
                 </Button>
-                <Button x:Name="deleteButton" Click="showDeleteProductDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0">
+                <Button x:Name="deleteButton" Click="showDeleteProductDialog_Click" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0" IsEnabled="False">
                     <StackPanel Orientation="Horizontal">
                         <FontIcon Glyph="&#xE74D;" FontSize="14"/>
                         <TextBlock x:Name="deleteButtonTextBlock" Text="Xóa sản phẩm" Margin="5,0,0,0"/>
