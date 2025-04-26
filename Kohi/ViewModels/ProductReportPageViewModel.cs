@@ -104,10 +104,10 @@ namespace Kohi.ViewModels
             OutboundData = new ObservableCollection<Model>();
             IngredientNames = new ObservableCollection<string>();
 
-            var expenses = _dao.Expenses.GetAll(filterField: "amount", filterValue: "2000000");
-            Debug.WriteLine("Amount of expenses: " + expenses.Count);
-            foreach (var expense in expenses)
-                Debug.WriteLine($"Expense: {expense.Amount}");
+            //var expenses = _dao.Categories.GetAll(searchKeyword: "cà phê");
+            //Debug.WriteLine("Amount of expenses: " + expenses.Count);
+            //foreach (var expense in expenses)
+            //    Debug.WriteLine($"Expense: {expense.Name}");
 
             LoadDataAsync();
             Debug.WriteLine("Added data");

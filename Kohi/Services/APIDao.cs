@@ -80,6 +80,11 @@ namespace Kohi.Services
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
 
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+
                 string url = $"{baseURL}/categories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -265,6 +270,11 @@ namespace Kohi.Services
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
 
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+
                 string url = $"{baseURL}/products?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -447,6 +457,11 @@ namespace Kohi.Services
                 if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
                 }
 
                 string url = $"{baseURL}/inventories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
@@ -644,6 +659,11 @@ namespace Kohi.Services
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
 
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+
                 string url = $"{baseURL}/ingredients?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -823,6 +843,11 @@ namespace Kohi.Services
                 if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
                 }
 
                 string url = $"{baseURL}/suppliers?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
@@ -1008,6 +1033,11 @@ namespace Kohi.Services
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
 
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+                
                 string url = $"{baseURL}/inbounds?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -1194,6 +1224,11 @@ namespace Kohi.Services
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
 
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+
                 string url = $"{baseURL}/outbounds?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -1377,6 +1412,11 @@ namespace Kohi.Services
                 if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
                 }
 
                 string url = $"{baseURL}/customers?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
@@ -1567,6 +1607,11 @@ namespace Kohi.Services
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
 
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+
                 string url = $"{baseURL}/expensecategories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -1749,6 +1794,11 @@ namespace Kohi.Services
                 if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
                 }
 
                 string url = $"{baseURL}/checkinventories?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
@@ -1941,6 +1991,11 @@ namespace Kohi.Services
                 if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
                 }
 
                 string url = $"{baseURL}/productvariants?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
@@ -2141,7 +2196,6 @@ namespace Kohi.Services
                 string orderClause = "";
                 if (!string.IsNullOrEmpty(sortBy))
                 {
-                    Debug.WriteLine("We order");
                     orderClause = $"&order={sortBy}.{(sortDescending ? "desc" : "asc")}";
                 }
 
@@ -2150,9 +2204,13 @@ namespace Kohi.Services
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
+                
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
 
                 string url = $"{baseURL}/expenses?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
-                Debug.WriteLine("URL: " + url);
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
                 if (response.IsSuccessStatusCode)
                 {
@@ -2334,6 +2392,11 @@ namespace Kohi.Services
                 if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+                
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
                 }
                 
                 string url = $"{baseURL}/invoices?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
@@ -2523,7 +2586,12 @@ namespace Kohi.Services
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
-
+                
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+        
                 string url = $"{baseURL}/invoicedetails?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -2718,6 +2786,12 @@ namespace Kohi.Services
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
 
+
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+
                 string url = $"{baseURL}/recipedetails?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -2908,6 +2982,11 @@ namespace Kohi.Services
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
 
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+                
                 string url = $"{baseURL}/payments?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -3092,6 +3171,11 @@ namespace Kohi.Services
                 if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
                 }
 
                 string url = $"{baseURL}/ordertoppings?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
@@ -3280,6 +3364,11 @@ namespace Kohi.Services
                     filterClause = $"&{filterField}=eq.{filterValue}";
                 }
 
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
+                }
+
                 string url = $"{baseURL}/taxes?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";
                 
                 HttpResponseMessage response = client.GetAsync($"{url}").Result;
@@ -3462,6 +3551,11 @@ namespace Kohi.Services
                 if (!string.IsNullOrEmpty(filterField) && !string.IsNullOrEmpty(filterValue))
                 {
                     filterClause = $"&{filterField}=eq.{filterValue}";
+                }
+                
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    filterClause += $"&search_vector=plfts.{searchKeyword}";
                 }
 
                 string url = $"{baseURL}/invoicetaxes?limit={pageSize}&offset={(pageNumber - 1) * pageSize}{orderClause}{filterClause}";

@@ -62,19 +62,26 @@
                     </chart:NumericalAxis>
                 </chart:SfCartesianChart.YAxes>
 
+                <chart:SfCartesianChart.Legend>
+                    <chart:ChartLegend IconHeight="13" IconWidth="13"/>
+                </chart:SfCartesianChart.Legend>
+
+
                 <!-- Inbound Series -->
-                <chart:AreaSeries ItemsSource="{x:Bind ViewModel.Data, Mode=OneWay}"
+                <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.Data, Mode=OneWay}"
                                         XBindingPath="XValue"
                                         YBindingPath="YValue"
                                         Label="Inbound"
+                                        LegendIcon="Circle" EnableAnimation="True" EnableTooltip="True"
                                         />
                 <!-- Blue -->
 
                 <!-- Outbound Series -->
-                <chart:AreaSeries ItemsSource="{x:Bind ViewModel.OutboundData, Mode=OneWay}"
+                <chart:SplineAreaSeries ItemsSource="{x:Bind ViewModel.OutboundData, Mode=OneWay}"
                                         XBindingPath="XValue"
                                         YBindingPath="YValue"
                                         Label="Outbound"
+                                        LegendIcon="Circle" EnableAnimation="True" EnableTooltip="True"
                                   />
                 <!-- Orange -->
             </chart:SfCartesianChart>
