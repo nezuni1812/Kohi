@@ -92,7 +92,7 @@ namespace Kohi.ViewModels
         public class TopProductModel
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
             public double TotalQuantity { get; set; }
             public double TotalRevenue { get; set; }
             public double Percentage { get; set; }
@@ -189,9 +189,8 @@ namespace Kohi.ViewModels
                 return;
             }
 
-            // Set default time range to "Today"
             SelectedTimeRange = "Hôm nay";
-            LoadDataAsync();
+            //LoadDataAsync();
             Debug.WriteLine("Added data");
         }
 
@@ -679,23 +678,23 @@ namespace Kohi.ViewModels
             try
             {
                 TopProducts.Clear();
-                const int pageSize = 100;
+                const int pageSize = 1000;
                 int currentPage = 1;
-                int totalItems = _dao.InvoiceDetails.GetCount();
+                //int totalItems = _dao.InvoiceDetails.GetCount();
                 var productSales = new List<(int Id, string Name, double Quantity, double Revenue)>();
 
-                while ((currentPage - 1) * pageSize < totalItems)
-                {
+                //while ((currentPage - 1) * pageSize < totalItems)
+                //{
                     var invoiceDetails = await Task.Run(() => _dao.InvoiceDetails.GetAll(
                         pageNumber: currentPage,
                         pageSize: pageSize
                     ));
 
-                    if (invoiceDetails == null || !invoiceDetails.Any())
-                    {
-                        Debug.WriteLine($"No invoice details found for page {currentPage}.");
-                        break;
-                    }
+                    //if (invoiceDetails == null || !invoiceDetails.Any())
+                    //{
+                    //    Debug.WriteLine($"No invoice details found for page {currentPage}.");
+                    //    break;
+                    //}
 
                     foreach (var detail in invoiceDetails)
                     {
@@ -726,11 +725,12 @@ namespace Kohi.ViewModels
                         }
 
                         var revenue = detail.Quantity * productVariant.Price;
+                        Debug.WriteLine("Add: " + product.Id + " " + product.Name);
                         productSales.Add((product.Id, product.Name, detail.Quantity, revenue));
                     }
 
                     currentPage++;
-                }
+                //}
 
                 if (productSales.Any())
                 {
@@ -751,6 +751,7 @@ namespace Kohi.ViewModels
 
                     foreach (var item in aggregatedSales)
                     {
+                        Debug.WriteLine("Aggregated product: " + item.Id);
                         var percentage = totalQuantitySum > 0 ? (item.TotalQuantity / totalQuantitySum) * 100 : 0;
                         TopProducts.Add(new TopProductModel
                         {
@@ -790,6 +791,7 @@ namespace Kohi.ViewModels
                 });
             }
 
+            Debug.WriteLine("End of load");
             OnPropertyChanged(nameof(TopProducts));
         }
     }
