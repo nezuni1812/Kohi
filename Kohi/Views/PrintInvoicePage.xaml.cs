@@ -173,7 +173,8 @@ namespace Kohi.Views
                 var userPaymentSettings = RestoreUserPaymentSettings();
                 if (userPaymentSettings == null)
                 {
-                    throw new Exception("Không tìm thấy thông tin tài khoản trong LocalSettings.");
+                    await ShowErrorContentDialog(this.XamlRoot, "Chưa có thông tin thanh toán.");
+                    return null;
                 }
 
                 // Tạo request cho API VietQR
